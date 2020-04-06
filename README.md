@@ -1,5 +1,3 @@
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/requests) ![GitHub repo size](https://img.shields.io/github/repo-size/docdyhr/httpcheck) ![GitHub](https://img.shields.io/github/license/docdyhr/httpcheck)
-
 # Check Websites HTTP Status Codes with httpcheck
 * Name: pigame
 * Version: 1.1
