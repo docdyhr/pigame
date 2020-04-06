@@ -26,7 +26,7 @@ install in your $PATH
 ```shell
 ./pigame 3.14158
 ```
-# Result:
+**Result:**
 π with 5 decimals:  3.14159
 Your version of π:  3.14158
 False
