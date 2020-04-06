@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+
+# This scripts calculates pi with bc and compaires it with your verion.
+
+# Name: pigame
+# Author: thomas@dyhr.com 
+# Date: 6. April 2020
+# Version: 1.1
+
+
+## TODO:
+# implement method where it's possible to see differences when False match
+# can you use diff program?
+
+# pi has 2 required positional parameters
+if [[ "${#}" -eq 1 ]]  
+then
+    # input validation only float numbers
+    if [[ "${1}" == *[^[:digit:].]* ]]
+    then
+        echo -e "Usage:\t$(basename ${0}) YOUR_PI" >&2
+        echo -e "\tEvaluate your version of π getting as many decimals as possible right." >&2
+        exit 1
+    fi
+
+    # User version of π 
+    YOUR_PI="${1}"
+
+    # number of decimals
+    LENGTH=$(echo ${1} | awk '{print length}')
+
+    # π with $DEC number of decimals
+    if [[ "${LENGTH}" -lt 4 ]]
+    then
+        DEC=$(expr ${LENGTH})
+    else
+        DEC=$(expr ${LENGTH} - 2)
+    fi
+    
+    # Avoid rounding and keep precision of π's last decimal by
+    # adding 2 decimals and truncate with substring parameter expansion
+
+    # Calculate π with ${SCALE} number of decimals using bc
+    if [[ "${LENGTH}" -lt 4 ]]
+    then
+        PI=$(echo "scale=$(expr ${LENGTH} + 2); 4*a(1)" | bc -l)
+    else
+        PI=$(echo "scale=${LENGTH}; 4*a(1)" | bc -l)
+    fi
+
+    # Truncate with substring parameter expansion 3. equals 2 ie. reuse $LENGTH
+    PI="${PI:0:LENGTH}"
+
+    # Print results to STOUT
+    echo -e "π with ${DEC} decimals:\t${PI}"
+    echo -e "Your version of π:\t${YOUR_PI}"
+    if [[ "${PI}" = ${YOUR_PI} ]]
+    then
+        echo 'True: Exact match!'
+    else
+        echo 'False'
+    fi
+    exit 0
+else 
+    echo -e "Usage:\t$(basename ${0}) YOUR_PI" >&2
+    echo -e "\tEvaluate version of π with as many decimals as possible." >&2
+    exit 1
+fi
