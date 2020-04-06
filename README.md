@@ -3,7 +3,7 @@
 * Version: 1.1
 * Programming language: Bash Shell Script
 * Author: Thomas J. Dyhr
-* Purpose: CLI tool to Check Website HTTP Status
+* Purpose: Learn π
 * Release date: 6. April 2020
 ### Usage:  pigame YOUR_PI
     ### Evaluate your version of π getting as many decimals as possible right.
