@@ -5,8 +5,8 @@
 * Author: Thomas J. Dyhr
 * Purpose: Learn π
 * Release date: 6. April 2020
-### Usage:  pigame YOUR_PI
-    ### Evaluate your version of π getting as many decimals as possible right.
+### usage:  pigame YOUR_PI
+    Evaluate your version of π getting as many decimals as possible right.
 
 ### installation
 clone repo and install requirements.
@@ -21,17 +21,14 @@ chmod 755 pigame
 install in your $PATH
 ```
 
-
 ### usage examples
 ```shell
 ./pigame 3.14158
 ```
-**Result:**
+**result:**
 π with 5 decimals:  3.14159
 Your version of π:  3.14158
 False
-
-
 
 ### history
 I am facinated by the beauty of π and it's number sequence.
