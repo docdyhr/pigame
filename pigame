@@ -12,7 +12,7 @@
 # implement method where it's possible to see differences when False match
 # can you use diff program?
 
-# pi has 2 required positional parameters
+# pi has 1 required positional parameter
 if [[ "${#}" -eq 1 ]]  
 then
     # input validation only float numbers
