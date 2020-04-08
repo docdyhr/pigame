@@ -5,7 +5,7 @@
 * Author: Thomas J. Dyhr
 * Purpose: Learn π
 * Release date: 8. April 2020
-### Usage:  pigame [-v] [-p][-l LENGTH] YOUR_PI
+### Usage:  pigame [-v] [-p][-l LENGTH] [-h] YOUR_PI
     Evaluate your version of π (3.141.. )
     -v          Increase verbosity.
     -l LENGTH   Calculate π with LENGTH number of decimals.
