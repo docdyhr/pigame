@@ -5,22 +5,95 @@
 # Name: pigame
 # Author: thomas@dyhr.com 
 # Date: 6. April 2020
-# Version: 1.1
+# Version: 1.2
 
 
 ## TODO:
 # implement method where it's possible to see differences when False match
 # can you use diff program?
+#Default LENGTH of π: '3.141592653589793'
+LENGTH=15
 
-# pi has 1 required positional parameter
+
+# Print Usage 
+usage() {
+    echo -e "Usage:\t$(basename ${0}) [-v] [-p][-l LENGTH] YOUR_PI" >&2
+    echo -e "\tEvaluate your version of π 3.141.." >&2
+    echo '  -v          Increase verbosity.' >&2
+    echo '  -p          Show π.' >&2
+    echo '  -l LENGTH   Calculate π with LENGTH number of decimals.' >&2
+    exit 1
+}
+
+
+# Print messages
+log() {
+    local MESSAGE="${@}"
+    if [[ "${VERBOSE}" = 'true' ]]
+    then
+        echo -e "${MESSAGE}"
+    fi
+}
+
+
+# Calculate π
+calc_pi() {
+     # Avoid rounding and keep precision of π's last decimal by
+    # adding 2 decimals and truncate with substring parameter expansion
+
+    # Calculate π with ${SCALE} number of decimals using bc
+    if [[ "${LENGTH}" -lt 4 ]]
+    then
+        PI=$(echo "scale=$(( LENGTH + 2 )); 4*a(1)" | bc -l)    # Bash arithmetic expansion, only integers!
+    else
+        PI=$(echo "scale=${LENGTH}; 4*a(1)" | bc -l)
+    fi
+
+    # Truncate with substring parameter expansion 3. equals 2 ie. reuse $LENGTH
+    PI="${PI:0:LENGTH}"
+}
+
+
+# MENU: get command line options with getopts
+while getopts vl:p OPTION
+do
+    case ${OPTION} in
+        v)
+            VERBOSE='true'
+            ;;
+        l)
+            LENGTH="${OPTARG}"                          # LENGTH of decimals for calc π
+            ;;
+        p)
+            calc_pi                                     # Calculate and show π
+            log "π with ${LENGTH} decimals:\t${PI}"
+            ;;
+        ?)
+            usage
+            ;;
+    esac
+done
+
+
+# Remove the options while leaving the remaining arguments.
+shift "$(( OPTIND - 1 ))"
+
+# Allow 1 positional parameter: YOUR_PI
+if [[ "${#}" -gt 1 ]]
+then
+    usage
+fi
+
+# YOUR_PI is the only positional parameter
 if [[ "${#}" -eq 1 ]]  
 then
-    # input validation only float numbers
+    # Input Validation: only float numbers
+    # TODO:
+    # Check if Inut Validation is precise, if not the refactor
     if [[ "${1}" == *[^[:digit:].]* ]]
     then
-        echo -e "Usage:\t$(basename ${0}) YOUR_PI" >&2
-        echo -e "\tEvaluate your version of π getting as many decimals as possible right." >&2
-        exit 1
+        echo 'Error: Invalid Input.'
+        usage
     fi
 
     # User version of π 
@@ -32,37 +105,34 @@ then
     # π with $DEC number of decimals
     if [[ "${LENGTH}" -lt 4 ]]
     then
-        DEC=$(expr ${LENGTH})
+        DEC=${LENGTH}
     else
-        DEC=$(expr ${LENGTH} - 2)
+        DEC=$(( LENGTH - 2 ))   # Bash arithmetic expansion, only integers!
     fi
     
-    # Avoid rounding and keep precision of π's last decimal by
-    # adding 2 decimals and truncate with substring parameter expansion
-
-    # Calculate π with ${SCALE} number of decimals using bc
-    if [[ "${LENGTH}" -lt 4 ]]
-    then
-        PI=$(echo "scale=$(expr ${LENGTH} + 2); 4*a(1)" | bc -l)
-    else
-        PI=$(echo "scale=${LENGTH}; 4*a(1)" | bc -l)
-    fi
-
-    # Truncate with substring parameter expansion 3. equals 2 ie. reuse $LENGTH
-    PI="${PI:0:LENGTH}"
+    # Calculate π
+    calc_pi
 
     # Print results to STOUT
-    echo -e "π with ${DEC} decimals:\t${PI}"
-    echo -e "Your version of π:\t${YOUR_PI}"
-    if [[ "${PI}" = ${YOUR_PI} ]]
+    if [[ "${VERBOSE}" = 'true' ]]
     then
-        echo 'True: Exact match!'
+        echo -e "π with ${DEC} decimals:\t${PI}"
+        echo -e "Your version of π:\t${YOUR_PI}"
+        if [[ "${PI}" = ${YOUR_PI} ]]
+        then
+            echo -e '\t\tPerfect match!'
+        else
+            echo -e '\t\tYou can do better!'
+        fi
     else
-        echo 'False'
+        echo "${PI}"
+        echo "${YOUR_PI}"
+        if [[ "${PI}" = ${YOUR_PI} ]]
+        then
+            echo 'True'
+        else
+            echo 'False'
+        fi
     fi
     exit 0
-else 
-    echo -e "Usage:\t$(basename ${0}) YOUR_PI" >&2
-    echo -e "\tEvaluate version of π with as many decimals as possible." >&2
-    exit 1
 fi
