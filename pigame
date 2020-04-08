@@ -17,7 +17,7 @@ LENGTH=15
 
 # Print Usage 
 usage() {
-    echo -e "Usage:\t$(basename ${0}) [-v] [-p][-l LENGTH] YOUR_PI" >&2
+    echo -e "Usage:\t$(basename ${0}) [-v] [-l LENGTH][-p] [-h] YOUR_PI" >&2
     echo -e "\tEvaluate your version of π (3.141.. )" >&2
     echo -e '\t-v          Increase verbosity.' >&2
     echo -e '\t-l LENGTH   Calculate π with LENGTH number of decimals.' >&2
@@ -127,13 +127,17 @@ done
 # Remove the options while leaving the remaining arguments.
 shift "$(( OPTIND - 1 ))"
 
+# echo "DEBUG:"
+# echo "OPTIND: ${OPTIND}"
+# echo "\$#: ${#}"
+# echo "\$@: ${@}"
+
+# Don't allow more than 1 parameter
 if [[ "${#}" -gt 1 ]]
 then
     usage
-fi
-
 # Allow 1 positional parameter: YOUR_PI
-if [[ "${#}" -eq 1 ]]  
+elif [[ "${#}" -eq 1 ]]  
 then
     # Input Validation: only float numbers
     # TODO:
@@ -165,4 +169,9 @@ then
     print_results
 
     exit 0
+else
+    if [[ "${OPTIND}" -eq 1 ]]  # OPTIND is 1 only when pigame has NO parameters
+    then
+        usage
+    fi
 fi
