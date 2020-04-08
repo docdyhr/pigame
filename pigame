@@ -22,7 +22,7 @@ usage() {
     echo -e '\t-v          Increase verbosity.' >&2
     echo -e '\t-l LENGTH   Calculate π with LENGTH number of decimals.' >&2
     echo -e '\t-p          Show π.' >&2
-    
+    echo -e '\t-h          Print Usage' >&2
     exit 1
 }
 
@@ -42,7 +42,7 @@ print_results() {
     then
         echo -e "π with ${DEC} decimals:\t${PI}"
         echo -e "Your version of π:\t${YOUR_PI}"
-        if [[ "${PI}" = ${YOUR_PI} ]]
+        if [[ "${PI}" == ${YOUR_PI} ]]  # NB! In BASH you can use = or == for comparison
         then
             if [[ "${LENGTH}" -lt 15 ]]
             then
@@ -84,6 +84,9 @@ calc_pi() {
 
 
 # MENU: get command line options with getopts
+# NB! BASH getopts does not support long name options like --help
+# GNU getopt on linux support long name options (Mac OS X !?)
+# Ref.: https://stackoverflow.com/questions/402377/using-getopts-to-process-long-and-short-command-line-options
 
 # TODO:
 # PROBLEM: The order of options matters.
@@ -110,6 +113,9 @@ do
             else
                 echo -e "${PI}"
             fi
+            ;;
+        h)
+            usage
             ;;
         ?)
             usage
