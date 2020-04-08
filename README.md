@@ -47,8 +47,6 @@ Well done.
 ### history
 I am facinated by the beauty of π and it's number sequence.
 
-Comments and suggestions are welcome!
-
 ### todo
 [TODO.md](https://github.com/docdyhr/pigame/blob/master/TODO.md)
 ### license
