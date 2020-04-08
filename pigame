@@ -22,7 +22,7 @@ usage() {
     echo -e '\t-v          Increase verbosity.' >&2
     echo -e '\t-l LENGTH   Calculate π with LENGTH number of decimals.' >&2
     echo -e '\t-p          Show π.' >&2
-    echo -e '\t-h          Print Usage' >&2
+    echo -e '\t-h          Print usage.' >&2
     exit 1
 }
 

@@ -5,8 +5,12 @@
 * Author: Thomas J. Dyhr
 * Purpose: Learn π
 * Release date: 8. April 2020
-### usage:  pigame YOUR_PI
-    Evaluate your version of π getting as many decimals as possible right.
+### Usage:  pigame [-v] [-p][-l LENGTH] YOUR_PI
+    Evaluate your version of π (3.141.. )
+    -v          Increase verbosity.
+    -l LENGTH   Calculate π with LENGTH number of decimals.
+    -p          Show π.
+    -h          Print usage.
 
 ### installation
 clone repo and install requirements.
@@ -24,6 +28,9 @@ install in your $PATH
 ### usage examples
 ```shell
 ./pigame 3.14158
+```
+```shell
+pigame -p -l 35
 ```
 **result:**
 π with 5 decimals:  3.14159
