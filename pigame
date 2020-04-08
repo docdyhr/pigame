@@ -38,7 +38,7 @@ log() {
 
 # Calculate π
 calc_pi() {
-     # Avoid rounding and keep precision of π's last decimal by
+    # Avoid rounding and keep precision of π's last decimal by
     # adding 2 decimals and truncate with substring parameter expansion
 
     # Calculate π with ${SCALE} number of decimals using bc
