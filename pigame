@@ -18,23 +18,52 @@ LENGTH=15
 # Print Usage 
 usage() {
     echo -e "Usage:\t$(basename ${0}) [-v] [-p][-l LENGTH] YOUR_PI" >&2
-    echo -e "\tEvaluate your version of π 3.141.." >&2
-    echo '  -v          Increase verbosity.' >&2
-    echo '  -p          Show π.' >&2
-    echo '  -l LENGTH   Calculate π with LENGTH number of decimals.' >&2
+    echo -e "\tEvaluate your version of π (3.141.. )" >&2
+    echo -e '\t-v          Increase verbosity.' >&2
+    echo -e '\t-l LENGTH   Calculate π with LENGTH number of decimals.' >&2
+    echo -e '\t-p          Show π.' >&2
+    
     exit 1
 }
 
 
 # Print messages
-log() {
-    local MESSAGE="${@}"
+# log() {
+#     local MESSAGE="${@}"
+#     if [[ "${VERBOSE}" = 'true' ]]
+#     then
+#         echo -e "${MESSAGE}"
+#     fi
+# }
+
+print_results() {
+    # Print results to STOUT
     if [[ "${VERBOSE}" = 'true' ]]
     then
-        echo -e "${MESSAGE}"
+        echo -e "π with ${DEC} decimals:\t${PI}"
+        echo -e "Your version of π:\t${YOUR_PI}"
+        if [[ "${PI}" = ${YOUR_PI} ]]
+        then
+            if [[ "${LENGTH}" -lt 15 ]]
+            then
+                echo 'Well done.'
+            else
+                echo 'Perfect!'
+            fi
+        else
+            echo -e 'You can do better!'
+        fi
+    else
+        echo "${PI}"
+        echo "${YOUR_PI}"
+        if [[ "${PI}" = ${YOUR_PI} ]]
+        then
+            echo 'True'
+        else
+            echo 'False'
+        fi
     fi
 }
-
 
 # Calculate π
 calc_pi() {
@@ -44,7 +73,7 @@ calc_pi() {
     # Calculate π with ${SCALE} number of decimals using bc
     if [[ "${LENGTH}" -lt 4 ]]
     then
-        PI=$(echo "scale=$(( LENGTH + 2 )); 4*a(1)" | bc -l)    # Bash arithmetic expansion, only integers!
+        PI=$(echo "scale=$(( LENGTH + 2 )); 4*a(1)" | bc -l)    # Bash arithmetic expansion.
     else
         PI=$(echo "scale=${LENGTH}; 4*a(1)" | bc -l)
     fi
@@ -55,6 +84,13 @@ calc_pi() {
 
 
 # MENU: get command line options with getopts
+
+# TODO:
+# PROBLEM: The order of options matters.
+# parameters are valuated top to down!!
+# This affects the value of LENGTH and VERBOSE
+# because they are inter dependant.
+
 while getopts vl:p OPTION
 do
     case ${OPTION} in
@@ -62,11 +98,18 @@ do
             VERBOSE='true'
             ;;
         l)
-            LENGTH="${OPTARG}"                          # LENGTH of decimals for calc π
+            LENGTH="${OPTARG}"
+            # echo '# DEBUG:'
+            # echo "LENGTH: ${LENGTH}"
             ;;
         p)
-            calc_pi                                     # Calculate and show π
-            log "π with ${LENGTH} decimals:\t${PI}"
+            calc_pi
+            if [[ "${VERBOSE}" = 'true' ]]
+            then
+                echo -e "π with ${LENGTH} decimals:\t${PI}"
+            else
+                echo -e "${PI}"
+            fi
             ;;
         ?)
             usage
@@ -78,13 +121,12 @@ done
 # Remove the options while leaving the remaining arguments.
 shift "$(( OPTIND - 1 ))"
 
-# Allow 1 positional parameter: YOUR_PI
 if [[ "${#}" -gt 1 ]]
 then
     usage
 fi
 
-# YOUR_PI is the only positional parameter
+# Allow 1 positional parameter: YOUR_PI
 if [[ "${#}" -eq 1 ]]  
 then
     # Input Validation: only float numbers
@@ -113,26 +155,8 @@ then
     # Calculate π
     calc_pi
 
-    # Print results to STOUT
-    if [[ "${VERBOSE}" = 'true' ]]
-    then
-        echo -e "π with ${DEC} decimals:\t${PI}"
-        echo -e "Your version of π:\t${YOUR_PI}"
-        if [[ "${PI}" = ${YOUR_PI} ]]
-        then
-            echo -e '\t\tPerfect match!'
-        else
-            echo -e '\t\tYou can do better!'
-        fi
-    else
-        echo "${PI}"
-        echo "${YOUR_PI}"
-        if [[ "${PI}" = ${YOUR_PI} ]]
-        then
-            echo 'True'
-        else
-            echo 'False'
-        fi
-    fi
+    # Print results to STDOUT
+    print_results
+
     exit 0
 fi
