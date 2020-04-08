@@ -5,7 +5,7 @@
 * Author: Thomas J. Dyhr
 * Purpose: Learn π
 * Release date: 8. April 2020
-### Usage:  pigame [-v] [-p][-l LENGTH] [-h] YOUR_PI
+### usage:  pigame [-v] [-p][-l LENGTH] [-h] YOUR_PI
     Evaluate your version of π (3.141.. )
     -v          Increase verbosity.
     -l LENGTH   Calculate π with LENGTH number of decimals.
@@ -13,29 +13,36 @@
     -h          Print usage.
 
 ### installation
-clone repo and install requirements.
+clone repo and install in your $PATH
 ### clone the repository
 ```shell
 git clone https://github.com/docdyhr/pigame
+```
+### install in $PATH
+install pigame somewhere in your $PATH
+```Bash Shell
 cd pigame/
 chmod 755 pigame
-```
-### install requirements
-```Bash Shell
-install in your $PATH
+mv pigame ~/bin
 ```
 
 ### usage examples
 ```shell
-./pigame 3.14158
-```
-```shell
-pigame -p -l 35
+pigame 3.14158
 ```
 **result:**
-π with 5 decimals:  3.14159
-Your version of π:  3.14158
+3.14159
+3.14158
 False
+
+```shell
+pigame -v -l 25 -p 3.1415926
+```
+**result:**
+π with 25 decimals: 3.14159265358979323846264
+π with 7 decimals:  3.1415926
+Your version of π:  3.1415926
+Well done.
 
 ### history
 I am facinated by the beauty of π and it's number sequence.
