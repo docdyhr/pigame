@@ -7,6 +7,7 @@
 # Date: 6. April 2020
 # Version: 1.2
 
+VERSION='1.2'
 
 ## TODO:
 # implement method where it's possible to see differences when False match
@@ -17,12 +18,13 @@ LENGTH=15
 
 # Print Usage 
 usage() {
-    echo -e "Usage:\t$(basename ${0}) [-v] [-l LENGTH][-p] [-h] YOUR_PI" >&2
+    echo -e "Usage:\t$(basename ${0}) [-v] [-l LENGTH][-p] [-h] [-V] YOUR_PI" >&2
     echo -e "\tEvaluate your version of π (3.141.. )" >&2
     echo -e '\t-v          Increase verbosity.' >&2
     echo -e '\t-l LENGTH   Calculate π with LENGTH number of decimals.' >&2
     echo -e '\t-p          Show π.' >&2
-    echo -e '\t-h          Print usage.' >&2
+    echo -e '\t-h          Usage.' >&2
+    echo -e '\t-V          Version.' >&2
     exit 1
 }
 
@@ -94,7 +96,7 @@ calc_pi() {
 # This affects the value of LENGTH and VERBOSE
 # because they are inter dependant.
 
-while getopts vl:p OPTION
+while getopts vl:phV OPTION
 do
     case ${OPTION} in
         v)
@@ -116,6 +118,9 @@ do
             ;;
         h)
             usage
+            ;;
+        V)
+            echo "$(basename ${0}) version: ${VERSION}"
             ;;
         ?)
             usage
