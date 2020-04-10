@@ -121,7 +121,7 @@ do
             calc_pi
             if [[ "${VERBOSE}" = 'true' ]]
             then
-                echo -e "π with ${LENGTH} decimals:\t${PI}"
+                echo -e "π with $(( LENGTH - 2 )) decimals:\t${PI}" # remove 2 decimals (calc_pi)
             else
                 echo -e "${PI}"
             fi
