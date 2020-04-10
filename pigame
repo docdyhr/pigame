@@ -27,24 +27,19 @@ usage() {
 
 
 # Input Validation: only float numbers are accepted
-input_validation() {
-    
-    # echo "DEBUG: (input_validation): ${1}"
-    
+input_validation() {    
     re='^[0-9]+([.][0-9]+)?$'   # regex for an unsigned float number
-    if ! [[ "${1}" =~ $re ]] ; then
+    if ! [[ "${1}" =~ $re ]]
+    then
         echo "pigame error: Invalid input (not a float number)" >&2
         usage
     fi
-    
-    # if [[ "${1}" == *[^[:digit:].[:digit:]]* ]]
-    # then
-    #     echo 'Error: Invalid Input.' >&2
-    #     usage
-    # fi
 }
 
 
+# Print to STOUT
+# TODO:
+# Refactor print results if possible to handle all prints to STOUT
 print_results() {
     # Print results to STOUT
     if [[ "${VERBOSE}" = 'true' ]]
@@ -130,8 +125,6 @@ do
             ;;
         l)
             LENGTH=$((${OPTARG} + 2)) # calc_pi chops two decimals
-            # echo '# DEBUG:'
-            # echo "LENGTH: ${LENGTH}"
             ;;
         p)
             calc_pi
@@ -158,10 +151,6 @@ done
 # Remove the options while leaving the remaining arguments.
 shift "$(( OPTIND - 1 ))"
 
-# echo "DEBUG:"
-# echo "OPTIND: ${OPTIND}"
-# echo "\$#: ${#}"
-# echo "\$@: ${@}"
 
 # Don't allow more than 1 parameter
 if [[ "${#}" -gt 1 ]]
