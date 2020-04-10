@@ -113,7 +113,7 @@ do
             VERBOSE='true'
             ;;
         l)
-            LENGTH="${OPTARG}"
+            LENGTH=$((${OPTARG} + 2)) # calc_pi chops two decimals
             # echo '# DEBUG:'
             # echo "LENGTH: ${LENGTH}"
             ;;
