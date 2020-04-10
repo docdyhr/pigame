@@ -26,6 +26,25 @@ usage() {
 }
 
 
+# Input Validation: only float numbers are accepted
+input_validation() {
+    
+    # echo "DEBUG: (input_validation): ${1}"
+    
+    re='^[0-9]+([.][0-9]+)?$'   # regex for an unsigned float number
+    if ! [[ "${1}" =~ $re ]] ; then
+        echo "pigame error: Invalid input (not a float number)" >&2
+        usage
+    fi
+    
+    # if [[ "${1}" == *[^[:digit:].[:digit:]]* ]]
+    # then
+    #     echo 'Error: Invalid Input.' >&2
+    #     usage
+    # fi
+}
+
+
 print_results() {
     # Print results to STOUT
     if [[ "${VERBOSE}" = 'true' ]]
@@ -94,17 +113,14 @@ calc_pi() {
 }
 
 
-# MENU: get command line options with getopts
+# MENU: get command line options with Bash getopts
 # NB! BASH getopts does not support long name options like --help
 # GNU getopt on linux support long name options (Mac OS X !?)
 # Ref.: https://stackoverflow.com/questions/402377/using-getopts-to-process-long-and-short-command-line-options
 
-# TODO:
-# PROBLEM: The order of options matters.
-# parameters are valuated top to down!!
-# This affects the value of LENGTH and VERBOSE
-# because they are inter dependant.
-# How does this work with GNU getopt instead of bash getopts!?
+# NB!The order of options matters. Parameters are valuated top to down!!
+# This affects the value of LENGTH and VERBOSE because they are inter dependant.
+# Question: How does this work with GNU getopt instead of bash getopts!?
 
 while getopts vl:phV OPTION
 do
@@ -154,27 +170,21 @@ then
 # Allow 1 positional parameter: YOUR_PI
 elif [[ "${#}" -eq 1 ]]  
 then
-    # Input Validation: only float numbers
-    # TODO:
-    # Check if Inut Validation is precise, if not the refactor
-    if [[ "${1}" == *[^[:digit:].]* ]]
-    then
-        echo 'Error: Invalid Input.'
-        usage
-    fi
+    # Input Validation: only float numbers are accepted
+    input_validation "${1}"
 
     # User version of π 
     YOUR_PI="${1}"
 
-    # number of decimals
+    # Number of decimals
     LENGTH=$(echo ${1} | awk '{print length}')
 
     # π with $DEC number of decimals
-    if [[ "${LENGTH}" -lt 4 ]]
+    if [[ "${LENGTH}" -lt 4 ]]  # account for 3.1
     then
         DEC=${LENGTH}
     else
-        DEC=$(( LENGTH - 2 ))   # Bash arithmetic expansion, only integers!
+        DEC=$(( LENGTH - 2 ))   # arithmetic expansion & chop 2 dec
     fi
     
     # Calculate π
@@ -185,7 +195,7 @@ then
 
     exit 0
 else
-    if [[ "${OPTIND}" -eq 1 ]]  # OPTIND is 1 only when pigame has NO parameters
+    if [[ "${OPTIND}" -eq 1 ]]  # OPTIND is 1 only when pigame has NO positional parameters
     then
         usage
     fi
