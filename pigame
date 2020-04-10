@@ -130,7 +130,7 @@ do
             usage
             ;;
         V)
-            echo "$(basename ${0}) version: ${VERSION}"
+            echo "$(basename ${0}) version: ${VERSION} (https://github.com/docdyhr/pigame)"
             ;;
         ?)
             usage
