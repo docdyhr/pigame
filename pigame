@@ -22,7 +22,7 @@ usage() {
     echo -e '\t-p          Show π.' >&2
     echo -e '\t-h          Usage.' >&2
     echo -e '\t-V          Version.' >&2
-    exit 1
+    # exit 1 is under every usage statement while not 'DRY' it's flexible 
 }
 
 
@@ -33,6 +33,7 @@ input_validation() {
     then
         echo "pigame error: Invalid input (not a float number)" >&2
         usage
+        exit 1
     fi
 }
 
@@ -40,6 +41,10 @@ input_validation() {
 # Print to STOUT
 # TODO:
 # Refactor print results if possible to handle all prints to STOUT
+# 
+# CHECK OUT: seq -- print sequences of numbers
+#
+
 print_results() {
     # Print results to STOUT
     if [[ "${VERBOSE}" = 'true' ]]
@@ -137,12 +142,16 @@ do
             ;;
         h)
             usage
+            echo
+            echo -e "NB! pigame options (flags) [-v] [-l LENGTH][-p] [-h] [-V] are evaluated left to wright and the order matters." >&2
+            exit 1
             ;;
         V)
             echo "$(basename ${0}) version: ${VERSION} (https://github.com/docdyhr/pigame)"
             ;;
         ?)
             usage
+            exit 1
             ;;
     esac
 done
@@ -155,10 +164,21 @@ shift "$(( OPTIND - 1 ))"
 # Don't allow more than 1 parameter
 if [[ "${#}" -gt 1 ]]
 then
+    echo 'pigame error: Invalid input (to many arguments)'
     usage
+    exit 1
 # Allow 1 positional parameter: YOUR_PI
 elif [[ "${#}" -eq 1 ]]  
 then
+    # Easter egg
+    if [[ "${1}" == "pi" ]]
+    then
+        echo 'π is also called Archimedes constant and is commonly defined as'
+        echo 'the ratio of a circles circumference C to its diameter d:'
+        echo 'π = C / d'
+        # usage
+        exit 1
+    fi
     # Input Validation: only float numbers are accepted
     input_validation "${1}"
 
@@ -187,5 +207,6 @@ else
     if [[ "${OPTIND}" -eq 1 ]]  # OPTIND is 1 only when pigame has NO positional parameters
     then
         usage
+        exit 1
     fi
 fi
