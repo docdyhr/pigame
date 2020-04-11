@@ -4,7 +4,7 @@
 * Programming language: Bash Shell Script
 * Author: Thomas J. Dyhr
 * Purpose: Learn π
-* Release date: 8. April 2020
+* Release date: 11. April 2020
 ### Usage:  pigame [-v] [-l LENGTH][-p] [-h] [-V] YOUR_PI
     Evaluate your version of π (3.141.. )
     -v          Increase verbosity.
