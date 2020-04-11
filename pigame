@@ -171,7 +171,7 @@ then
 elif [[ "${#}" -eq 1 ]]  
 then
     # Easter egg
-    if [[ "${1}" == "pi" ]]
+    if [[ "${1}" == "Archimedes" ]] || [[ "${1}" == "pi" ]] || [[ "${1}" == "PI" ]]
     then
         echo 'π is also called Archimedes constant and is commonly defined as'
         echo 'the ratio of a circles circumference C to its diameter d:'
