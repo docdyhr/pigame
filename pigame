@@ -7,34 +7,52 @@
 # Date: 11. April 2020
 # Version: 1.4
 
-VERSION='1.4'
+VERSION='1.5'
 
-#Default LENGTH of π: '3.141592653589793'
-LENGTH=15
+# Default LENGTH of π: '3.141592653589793'
+DEFAULT_LENGTH=15
 
+# Max length of decimals for π for calc with bc 
+MAX_LENGTH=100000
 
 # Print Usage 
 usage() {
-    echo -e "Usage:\t$(basename ${0}) [-v] [-l LENGTH][-p] [-h] [-V] YOUR_PI" >&2
+    echo -e "Usage:\t$(basename ${0}) [-v] [-p LENGTH] [-V] YOUR_PI" >&2
     echo -e "\tEvaluate your version of π (3.141.. )" >&2
     echo -e '\t-v          Increase verbosity.' >&2
-    echo -e '\t-l LENGTH   Calculate π with LENGTH number of decimals.' >&2
-    echo -e '\t-p          Show π.' >&2
-    echo -e '\t-h          Usage.' >&2
+    echo -e '\t-p LENGTH   Calculate and show π with LENGTH number of decimals.' >&2
     echo -e '\t-V          Version.' >&2
-    # exit 1 is under every usage statement while not 'DRY' it's flexible 
+    exit 1
 }
 
 
-# Input Validation: only float numbers are accepted
+# YOUR_PI input validation: only float numbers are accepted
 input_validation() {    
     re='^[0-9]+([.][0-9]+)?$'   # regex for an unsigned float number
     if ! [[ "${1}" =~ $re ]]
     then
-        echo "pigame error: Invalid input (not a float number)" >&2
+        echo "pigame error: Invalid input - NOT a float" >&2
         usage
-        exit 1
+        
     fi
+    return 0
+}
+
+# Validation of LENGTH in -p option
+length_validation() {
+    
+    echo "DEBUG: VALIDATION LENGTH=${LENGTH}"
+
+    # local NUMBER_LENGTH="${@}"  
+    
+    re='^-?[0-9]+$'   # regex for an integer
+    # if ! [[ "${NUMBER_LENGTH}" =~ $re ]]
+    if ! [[ "${LENGTH}" =~ $re ]]
+    then
+        echo "pigame error: Invalid input - NOT an integer" >&2
+        usage
+    fi
+    return 0
 }
 
 
@@ -122,17 +140,30 @@ calc_pi() {
 # This affects the value of LENGTH and VERBOSE because they are inter dependant.
 # Question: How does this work with GNU getopt instead of bash getopts!?
 
-while getopts vl:phV OPTION
+# TODO:
+# Refactor getopts option use outside of getops to avoid the above mentioned problems
+
+# first : indicates we handle errors ourselves 
+while getopts :vp:V OPTION
 do
     case ${OPTION} in
+        
         v)
             VERBOSE='true'
             ;;
-        l)
-            LENGTH=$((${OPTARG} + 2)) # calc_pi chops two decimals
-            ;;
         p)
+            # Validate -P ${OPTARG} is a nubmer
+            re='^-?[0-9]+$'   # regex for an integer
+            if ! [[ "${OPTARG}" =~ $re ]]
+            then
+                echo "pigame error: Invalid input - NOT an integer" >&2
+                usage
+            fi
+
+            LENGTH=$((${OPTARG} + 2)) # validate & calc_pi chops two decimals
+
             calc_pi
+
             if [[ "${VERBOSE}" = 'true' ]]
             then
                 echo -e "π with $(( LENGTH - 2 )) decimals:\t${PI}" # remove 2 decimals (calc_pi)
@@ -140,18 +171,11 @@ do
                 echo -e "${PI}"
             fi
             ;;
-        h)
-            usage
-            echo
-            echo -e "NB! pigame options (flags) [-v] [-l LENGTH][-p] [-h] [-V] are evaluated left to wright and the order matters." >&2
-            exit 1
-            ;;
         V)
             echo "$(basename ${0}) version: ${VERSION} (https://github.com/docdyhr/pigame)"
             ;;
         ?)
-            usage
-            exit 1
+            usage     
             ;;
     esac
 done
@@ -166,7 +190,6 @@ if [[ "${#}" -gt 1 ]]
 then
     echo 'pigame error: Invalid input (to many arguments)'
     usage
-    exit 1
 # Allow 1 positional parameter: YOUR_PI
 elif [[ "${#}" -eq 1 ]]  
 then
@@ -176,8 +199,7 @@ then
         echo 'π is also called Archimedes constant and is commonly defined as'
         echo 'the ratio of a circles circumference C to its diameter d:'
         echo 'π = C / d'
-        # usage
-        exit 1
+        exit 0
     fi
     # Input Validation: only float numbers are accepted
     input_validation "${1}"
@@ -206,7 +228,6 @@ then
 else
     if [[ "${OPTIND}" -eq 1 ]]  # OPTIND is 1 only when pigame has NO positional parameters
     then
-        usage
-        exit 1
+        usage   
     fi
 fi

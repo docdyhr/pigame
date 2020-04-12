@@ -1,16 +1,14 @@
 # PIGAME - How many decimals of π can you remember?
 * Name: pigame
-* Version: 1.4
+* Version: 1.5
 * Programming language: Bash Shell Script
 * Author: Thomas J. Dyhr
 * Purpose: Learn π
 * Release date: 11. April 2020
-### Usage:  pigame [-v] [-l LENGTH][-p] [-h] [-V] YOUR_PI
+### Usage:  pigame [-v] [-p LENGTH] [-V] YOUR_PI
     Evaluate your version of π (3.141.. )
     -v          Increase verbosity.
-    -l LENGTH   Calculate π with LENGTH number of decimals.
-    -p          Show π.
-    -h          Usage.
+    -p LENGTH   Calculate and show π with LENGTH number of decimals.
     -V          Version.
 
 ### installation
