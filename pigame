@@ -13,7 +13,7 @@ VERSION='1.5'
 DEFAULT_LENGTH=15
 
 # Max length of decimals for π for calc with bc 
-MAX_LENGTH=100000
+MAX_LENGTH=5001
 
 # Print Usage 
 usage() {
@@ -41,17 +41,33 @@ input_validation() {
 # Validation of LENGTH in -p option
 length_validation() {
     
-    echo "DEBUG: VALIDATION LENGTH=${LENGTH}"
-
-    # local NUMBER_LENGTH="${@}"  
+    # echo "DEBUG: Parameters = ${@}"
+    # echo "DEBUG: Number of parameters = ${#}" 
+    # echo "DEBUG: OPTARG = ${OPTARG}"
+    # echo "DEBUG: LENGTH = ${LENGTH}"
     
+    # re='^-?[0-9]+$'   # regex for an integer
+    # # if ! [[ "${NUMBER_LENGTH}" =~ $re ]]
+    # if ! [[ "${LENGTH}" =~ $re ]]
+    # then
+    #     echo "pigame error: Invalid input - NOT an integer" >&2
+    #     usage
+    # fi
+
+    # Validate -P ${OPTARG} is a nubmer
     re='^-?[0-9]+$'   # regex for an integer
-    # if ! [[ "${NUMBER_LENGTH}" =~ $re ]]
-    if ! [[ "${LENGTH}" =~ $re ]]
+    if ! [[ "${OPTARG}" =~ $re ]]
     then
         echo "pigame error: Invalid input - NOT an integer" >&2
         usage
     fi
+
+    if [[ "${OPTARG}" -gt ${MAX_LENGTH} ]]
+    then
+        echo "pigame error: Invalid input - too big a number for display" >&2
+        usage
+    fi
+
     return 0
 }
 
@@ -85,9 +101,9 @@ print_results() {
         echo "$(color_your_pi)"
         if [[ "${PI}" = ${YOUR_PI} ]]
         then
-            echo 'True'
+            echo 'Match'
         else
-            echo 'False'
+            echo 'No match'
         fi
     fi
 }
@@ -141,7 +157,10 @@ calc_pi() {
 # Question: How does this work with GNU getopt instead of bash getopts!?
 
 # TODO:
-# Refactor getopts option use outside of getops to avoid the above mentioned problems
+# Refactor getopts to handle options use outside of getops
+# to avoid the above mentioned problems.
+# let flags / options set a varible like VERBOSE='true'
+# -v without any other options or arguments does not show usage!
 
 # first : indicates we handle errors ourselves 
 while getopts :vp:V OPTION
@@ -153,12 +172,21 @@ do
             ;;
         p)
             # Validate -P ${OPTARG} is a nubmer
-            re='^-?[0-9]+$'   # regex for an integer
-            if ! [[ "${OPTARG}" =~ $re ]]
+            # re='^-?[0-9]+$'   # regex for an integer
+            # if ! [[ "${OPTARG}" =~ $re ]]
+            # then
+            #     echo "pigame error: Invalid input - NOT an integer" >&2
+            #     usage
+            # fi
+
+            length_validation
+
+            # Default value for -p = 15 decimals
+            if [[ "${OPTARG}" -eq 0 ]]
             then
-                echo "pigame error: Invalid input - NOT an integer" >&2
-                usage
+                "${OPTARG}"=15
             fi
+
 
             LENGTH=$((${OPTARG} + 2)) # validate & calc_pi chops two decimals
 
@@ -179,6 +207,7 @@ do
             ;;
     esac
 done
+
 
 
 # Remove the options while leaving the remaining arguments.
