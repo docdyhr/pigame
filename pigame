@@ -41,19 +41,6 @@ input_validation() {
 # Validation of LENGTH in -p option
 length_validation() {
     
-    # echo "DEBUG: Parameters = ${@}"
-    # echo "DEBUG: Number of parameters = ${#}" 
-    # echo "DEBUG: OPTARG = ${OPTARG}"
-    # echo "DEBUG: LENGTH = ${LENGTH}"
-    
-    # re='^-?[0-9]+$'   # regex for an integer
-    # # if ! [[ "${NUMBER_LENGTH}" =~ $re ]]
-    # if ! [[ "${LENGTH}" =~ $re ]]
-    # then
-    #     echo "pigame error: Invalid input - NOT an integer" >&2
-    #     usage
-    # fi
-
     # Validate -P ${OPTARG} is a nubmer
     re='^-?[0-9]+$'   # regex for an integer
     if ! [[ "${OPTARG}" =~ $re ]]
@@ -61,7 +48,7 @@ length_validation() {
         echo "pigame error: Invalid input - NOT an integer" >&2
         usage
     fi
-
+    # Set a max length for calc of π
     if [[ "${OPTARG}" -gt ${MAX_LENGTH} ]]
     then
         echo "pigame error: Invalid input - too big a number for display" >&2
@@ -115,6 +102,9 @@ color_your_pi() {
     local RED='\033[0;31m'
     local NC='\033[0m' # No Color
     
+    # Reset Count number of errors
+    ERROR_COUNT=0
+
     # Loop over each character in $YOUR_PI and compare it to $PI 
     for (( i=0; i<${#YOUR_PI}; i++ ))
     do
@@ -122,10 +112,15 @@ color_your_pi() {
         then
             printf "${YOUR_PI:$i:1}"
         else
+            ((ERROR_COUNT++))
             printf "${RED}${YOUR_PI:$i:1}${NC}"
         fi
-done
-echo # terminate printf
+    done
+    echo # terminate printf
+    if [[ "${VERBOSE}" = 'true' ]]
+    then
+        echo "Number of errors: ${ERROR_COUNT}"
+    fi
 }
 
 
