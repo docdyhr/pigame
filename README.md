@@ -12,7 +12,7 @@
     -V          Version.
 
 ### installation
-clone repo and install in your $PATH
+clone repo and install pigame in your $PATH
 ### clone the repository
 ```shell
 git clone https://github.com/docdyhr/pigame
