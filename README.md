@@ -63,7 +63,7 @@ pigame -v 3.1415926
 π with 7 decimals: 3.1415926  
 Your version of π: 3.1415926  
 Number of errors: 0  
-Well done.  
+Perfect!  
 ```
 
 ### history
