@@ -8,7 +8,7 @@
 * Purpose: Memorisation of π
 * Release date: 11. April 2020
   
-### Usage:  pigame [-v] [-p LENGTH] [-V] YOUR_PI
+## Usage:  pigame [-v] [-p LENGTH] [-V] YOUR_PI
 
     Evaluate your version of π (3.141.. )
     -v          Increase verbosity.
@@ -19,13 +19,13 @@
 
 clone repo and install pigame in your $PATH
 
-### clone the repository
+#### clone the repository
 
 ```shell
 git clone https://github.com/docdyhr/pigame
 ```
 
-### install in $PATH
+#### install in path
 
 install pigame somewhere in your $PATH
 
@@ -35,9 +35,8 @@ chmod 755 pigame
 mv pigame ~/bin
 ```
 
-### NB
+#### installattion requirements
 
-Installattion requirements:
     bc - An arbitrary precision calculator language  
     bc be installed with your standard package manager on most linux systems and a windows  version is also available.  
     <https://www.gnu.org/software/bc/bc.html>  
