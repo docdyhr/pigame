@@ -44,14 +44,21 @@ pigame 3.14158
 **result:**
 3.14159
 3.14158
-False
+No match
 
 ```shell
-pigame -v -l 25 -p 3.1415926
+pigame -p 25 
 ```
 
 **result:**
 π with 25 decimals: 3.14159265358979323846264
+
+```shell
+pigame 3.1415926
+```
+
+**result:**
+
 π with 7 decimals:  3.1415926
 Your version of π:  3.1415926
 Well done.
