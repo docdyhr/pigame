@@ -41,27 +41,30 @@ mv pigame ~/bin
 pigame 3.14158
 ```
 
-**result:**
+```shell
 3.14159  
 3.14158  
 No match  
-
-```shell
-pigame -p 25 
 ```
 
-**result:**
+```shell
+pigame -v -p 25 
+```
+
+```shell
 π with 25 decimals: 3.14159265358979323846264
-
-```shell
-pigame 3.1415926
 ```
 
-**result:**
+```shell
+pigame -v 3.1415926
+```
 
-π with 7 decimals:  3.1415926  
-Your version of π:  3.1415926  
+```shell
+π with 7 decimals: 3.1415926  
+Your version of π: 3.1415926  
+Number of errors: 0  
 Well done.  
+```
 
 ### history
 
