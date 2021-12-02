@@ -42,9 +42,9 @@ pigame 3.14158
 ```
 
 **result:**
-3.14159
-3.14158
-No match
+3.14159  
+3.14158  
+No match  
 
 ```shell
 pigame -p 25 
@@ -59,9 +59,9 @@ pigame 3.1415926
 
 **result:**
 
-π with 7 decimals:  3.1415926
-Your version of π:  3.1415926
-Well done.
+π with 7 decimals:  3.1415926  
+Your version of π:  3.1415926  
+Well done.  
 
 ### history
 
