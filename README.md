@@ -37,9 +37,8 @@ mv pigame ~/bin
 
 #### installattion requirements
 
-    bc - An arbitrary precision calculator language  
-    bc be installed with your standard package manager on most linux systems and a windows  version is also available.  
-    <https://www.gnu.org/software/bc/bc.html>  
+    bc - An arbitrary precision calculator language, which can be installed with your standard package manager on most linux systems - a windows version is also available.  
+    Ref.: https://www.gnu.org/software/bc/bc.html  
 
 ### usage examples
 
