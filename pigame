@@ -206,8 +206,10 @@ elif [[ "${#}" -eq 1 ]]; then
     YOUR_PI="${1}"
 
     # Number of decimals
+    # TODO Refactor https://github.com/koalaman/shellcheck/wiki/SC2178
     LENGTH=$(echo "${1}" | awk '{print length}')
 
+    # TODO Refactor https://github.com/koalaman/shellcheck/wiki/SC2128
     # π with $DEC number of decimals
     if [[ "${LENGTH}" -lt 4 ]]; then # account for 3.1
         DEC=${LENGTH}
