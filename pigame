@@ -183,6 +183,12 @@ while getopts :vp:V OPTION; do
     esac
 done
 
+# Check if BC is available on the system
+if ! command -v bc &>/dev/null; then
+    echo "bc could not be found, see https://www.gnu.org/software/bc/bc.html"
+    exit
+fi
+
 # Remove the options while leaving the remaining arguments.
 shift "$((OPTIND - 1))"
 
