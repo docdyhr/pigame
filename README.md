@@ -2,11 +2,11 @@
 
 ## Name: pigame
 
-* Version: 1.5
+* Version: 1.5.1
 * Programming language: Bash Shell Script
 * Author: Thomas J. Dyhr
 * Purpose: Memorisation of π
-* Release date: 11. April 2020
+* Release date: 14. Jan 2022
   
 ## Usage:  pigame [-v] [-p LENGTH] [-V] YOUR_PI
 
