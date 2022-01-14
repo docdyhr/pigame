@@ -98,10 +98,10 @@ color_your_pi() {
     # Loop over each character in $YOUR_PI and compare it to $PI
     for ((i = 0; i < ${#YOUR_PI}; i++)); do
         if [[ "${YOUR_PI:$i:1}" = "${PI:$i:1}" ]]; then
-            printf "%s" "${YOUR_PI:$i:1}"
+            printf "${YOUR_PI:$i:1}"
         else
             ((ERROR_COUNT++))
-            printf "%s%s%s" "${RED}" "${YOUR_PI:$i:1}" "${NC}"
+            printf "${RED}${YOUR_PI:$i:1}${NC}"
         fi
     done
     echo # terminate printf
