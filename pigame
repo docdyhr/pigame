@@ -90,7 +90,7 @@ print_results() {
 color_your_pi() {
     # RED colour table
     local RED='\033[0;31m'
-    local NC='\033[0m' # No Color
+    local NO_COLOR='\033[0m' # No Color
 
     # Reset Count number of errors
     ERROR_COUNT=0
@@ -98,10 +98,10 @@ color_your_pi() {
     # Loop over each character in $YOUR_PI and compare it to $PI
     for ((i = 0; i < ${#YOUR_PI}; i++)); do
         if [[ "${YOUR_PI:$i:1}" = "${PI:$i:1}" ]]; then
-            printf "${YOUR_PI:$i:1}"
+            printf "%s" "${YOUR_PI:$i:1}"
         else
             ((ERROR_COUNT++))
-            printf "${RED}${YOUR_PI:$i:1}${NC}"
+            printf "${RED}%s${NO_COLOR}" "${YOUR_PI:$i:1}"
         fi
     done
     echo # terminate printf
@@ -212,10 +212,13 @@ elif [[ "${#}" -eq 1 ]]; then
     YOUR_PI="${1}"
 
     # Number of decimals
-    # TODO Refactor https://github.com/koalaman/shellcheck/wiki/SC2178
+    # Reference: https://github.com/koalaman/shellcheck/wiki/SC2178
     LENGTH=$(echo "${1}" | awk '{print length}')
 
-    # TODO Refactor https://github.com/koalaman/shellcheck/wiki/SC2128
+    # Reference https://github.com/koalaman/shellcheck/wiki/SC2128
+    # shellcheck bug: There is a known issue with this check's handling of local
+    # variables, causing ShellCheck to flag variables that were previously declared
+    # as arrays, even if they are in different scopes.
     # π with $DEC number of decimals
     if [[ "${LENGTH}" -lt 4 ]]; then # account for 3.1
         DEC=${LENGTH}
