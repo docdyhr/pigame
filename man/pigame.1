@@ -1,0 +1,81 @@
+.TH PIGAME 1 "March 2025" "pigame 1.6.0" "User Commands"
+.SH NAME
+pigame \- How many decimals of π can you remember?
+.SH SYNOPSIS
+.B pigame
+[\fB\-v\fR]
+[\fB\-p\fR \fILENGTH\fR]
+[\fB\-V\fR]
+[\fIYOUR_PI\fR]
+.SH DESCRIPTION
+.B pigame
+is a tool to help you memorize the digits of π (pi). It calculates π to a specified number of decimal places and compares it with your input.
+.SH OPTIONS
+.TP
+.BR \-v
+Increase verbosity, showing more detailed output.
+.TP
+.BR \-p " " \fILENGTH\fR
+Calculate and show π with LENGTH number of decimals.
+.TP
+.BR \-V
+Display version information.
+.TP
+.BR \-\-list
+Show available implementations.
+.SH EXAMPLES
+.TP
+.BR "pigame 3.14159"
+Compare your input "3.14159" with the calculated value of π.
+.TP
+.BR "pigame \-v 3.14159"
+Compare your input with verbose output.
+.TP
+.BR "pigame \-p 25"
+Display π with 25 decimal places.
+.TP
+.BR "pigame \-v \-p 25"
+Display π with 25 decimal places with verbose output.
+.SH IMPLEMENTATIONS
+PIGAME comes in three implementations:
+.TP
+.B bash
+Original implementation, requires bc for calculation.
+.TP
+.B c
+Fast C implementation.
+.TP
+.B python
+Python implementation with enhanced features.
+.PP
+To select an implementation, set the PIGAME_IMPLEMENTATION environment variable:
+.PP
+.nf
+.RS
+export PIGAME_IMPLEMENTATION=c
+pigame 3.14159
+.RE
+.fi
+.SH FILES
+.TP
+.I /usr/local/bin/pigame
+The main executable script.
+.TP
+.I /usr/local/share/pigame/
+Directory containing the implementation files.
+.SH EXIT STATUS
+.TP
+.BR 0
+Success.
+.TP
+.BR 1
+General errors.
+.SH AUTHOR
+Thomas J. Dyhr
+.SH SEE ALSO
+bc(1)
+.SH BUGS
+Report bugs to https://github.com/docdyhr/pigame/issues
+.SH COPYRIGHT
+Copyright \(co 2022-2025 Thomas J. Dyhr.
+License MIT: https://github.com/docdyhr/pigame/blob/master/LICENSE

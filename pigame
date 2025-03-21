@@ -1,240 +1,63 @@
 #!/usr/bin/env bash
 
-# This scripts calculates pi with bc and compaires it with your verion.
+# PIGAME - How many decimals of π can you remember?
+# Main wrapper script that selects the right implementation
 
-# Name: pigame
-# Author: thomas@dyhr.com
-# Date: 14. Jan 2022
-# Version: 1.5.1
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+VERSION=$(cat "${SCRIPT_DIR}/src/VERSION" 2>/dev/null || echo "1.6.0")
 
-VERSION='1.5.1'
-
-# Default LENGTH of π: '3.141592653589793'
-DEFAULT_LENGTH=15
-
-# Max length of decimals for π for calc with bc
-MAX_LENGTH=5001
-
-# Print Usage
-usage() {
-    echo -e "Usage:\t$(basename "${0}") [-v] [-p LENGTH] [-V] YOUR_PI" >&2
-    echo -e "\tEvaluate your version of π (3.141.. )" >&2
-    echo -e '\t-v          Increase verbosity.' >&2
-    echo -e '\t-p LENGTH   Calculate and show π with LENGTH number of decimals.' >&2
-    echo -e '\t-V          Version.' >&2
-    exit 1
+# Detect the preferred implementation
+detect_preference() {
+    # Check for environment variable to override
+    if [[ -n "${PIGAME_IMPLEMENTATION}" ]]; then
+        echo "${PIGAME_IMPLEMENTATION}"
+        return
+    fi
+    
+    # Default to bash implementation
+    echo "bash"
 }
 
-# YOUR_PI input validation: only float numbers are accepted
-input_validation() {
-    re='^[0-9]+([.][0-9]+)?$' # regex for an unsigned float number
-    if ! [[ "${1}" =~ $re ]]; then
-        echo "pigame error: Invalid input - NOT a float" >&2
-        usage
-
-    fi
-    return 0
+show_implementations() {
+    echo "PIGAME - Multiple implementations available:"
+    echo "  bash   - Original Bash implementation (default)"
+    echo "  c      - C implementation"
+    echo "  python - Python implementation" 
+    echo
+    echo "To select an implementation: export PIGAME_IMPLEMENTATION=<implementation>"
+    echo "Or run directly: ${SCRIPT_DIR}/src/<implementation>/pigame[.ext]"
 }
 
-# Validation of LENGTH in -p option
-length_validation() {
-
-    # Validate -P ${OPTARG} is a nubmer
-    re='^-?[0-9]+$' # regex for an integer
-    if ! [[ "${OPTARG}" =~ $re ]]; then
-        echo "pigame error: Invalid input - NOT an integer" >&2
-        usage
-    fi
-    # Set a max length for calc of π
-    if [[ "${OPTARG}" -gt ${MAX_LENGTH} ]]; then
-        echo "pigame error: Invalid input - too big a number for display" >&2
-        usage
-    fi
-
-    return 0
-}
-
-# Print to STOUT
-# TODO:
-# Refactor print results if possible to handle all prints to STOUT
-#
-# CHECK OUT: seq -- print sequences of numbers
-#
-
-print_results() {
-    # Print results to STOUT
-    if [[ "${VERBOSE}" = 'true' ]]; then
-        echo -e "π with ${DEC} decimals:\t${PI}"
-        echo -e "Your version of π:\t$(color_your_pi)"
-        if [[ "${PI}" == "${YOUR_PI}" ]]; then # NB! In BASH you can use = or == for comparison
-            if [[ "${LENGTH}" -lt 15 ]]; then
-                echo 'Well done.'
-            else
-                echo 'Perfect!'
-            fi
-        else
-            echo -e 'You can do better!'
-        fi
-    else
-        echo "${PI}"
-        color_your_pi
-        if [[ "${PI}" = "${YOUR_PI}" ]]; then
-            echo 'Match'
-        else
-            echo 'No match'
-        fi
-    fi
-}
-
-# colorize mistakes in YOUR_PI if any
-color_your_pi() {
-    # RED colour table
-    local RED='\033[0;31m'
-    local NO_COLOR='\033[0m' # No Color
-
-    # Reset Count number of errors
-    ERROR_COUNT=0
-
-    # Loop over each character in $YOUR_PI and compare it to $PI
-    for ((i = 0; i < ${#YOUR_PI}; i++)); do
-        if [[ "${YOUR_PI:$i:1}" = "${PI:$i:1}" ]]; then
-            printf "%s" "${YOUR_PI:$i:1}"
-        else
-            ((ERROR_COUNT++))
-            printf "${RED}%s${NO_COLOR}" "${YOUR_PI:$i:1}"
-        fi
-    done
-    echo # terminate printf
-    if [[ "${VERBOSE}" = 'true' ]]; then
-        echo "Number of errors: ${ERROR_COUNT}"
-    fi
-}
-
-# Calculate π
-calc_pi() {
-    # Avoid rounding and keep precision of π's last decimal by
-    # adding 2 decimals and truncate with substring parameter expansion
-
-    # Calculate π with ${SCALE} number of decimals using bc
-    if [[ "${LENGTH}" -lt 4 ]]; then
-        PI=$(echo "scale=$((LENGTH + 2)); 4*a(1)" | bc -l) # Bash arithmetic expansion.
-    else
-        PI=$(echo "scale=${LENGTH}; 4*a(1)" | bc -l)
-    fi
-
-    # Truncate with substring parameter expansion 3. equals 2 ie. reuse $LENGTH
-    PI="${PI:0:LENGTH}"
-}
-
-# MENU: get command line options with Bash getopts
-# NB! BASH getopts does not support long name options like --help
-# GNU getopt on linux support long name options (Mac OS X !?)
-# Ref.: https://stackoverflow.com/questions/402377/using-getopts-to-process-long-and-short-command-line-options
-
-# NB!The order of options matters. Parameters are valuated top to down!!
-# This affects the value of LENGTH and VERBOSE because they are inter dependant.
-# Question: How does this work with GNU getopt instead of bash getopts!?
-
-# TODO:
-# Refactor getopts to handle options use outside of getops
-# to avoid the above mentioned problems.
-# let flags / options set a varible like VERBOSE='true'
-# -v without any other options or arguments does not show usage!
-
-# first : indicates we handle errors ourselves
-while getopts :vp:V OPTION; do
-    case ${OPTION} in
-
-    v)
-        VERBOSE='true'
-        ;;
-    p)
-        # Validate -P ${OPTARG} is a nubmer
-        # re='^-?[0-9]+$'   # regex for an integer
-        # if ! [[ "${OPTARG}" =~ $re ]]
-        # then
-        #     echo "pigame error: Invalid input - NOT an integer" >&2
-        #     usage
-        # fi
-
-        length_validation
-
-        # Default value for -p = 15 decimals
-        if [[ "${OPTARG}" -eq 0 ]]; then
-            "${OPTARG}=${DEFAULT_LENGTH}"
-        fi
-
-        LENGTH=("${OPTARG}" + 2) # validate & calc_pi chops two decimals
-
-        calc_pi
-
-        if [[ "${VERBOSE}" = 'true' ]]; then
-            echo -e "π with $((LENGTH - 2)) decimals:\t${PI}" # remove 2 decimals (calc_pi)
-        else
-            echo -e "${PI}"
-        fi
-        ;;
-    V)
-        echo "$(basename "${0}") version: ${VERSION} (https://github.com/docdyhr/pigame)"
-        ;;
-    ?)
-        usage
-        ;;
-    esac
-done
-
-# Check if BC is available on the system
-if ! command -v bc &>/dev/null; then
-    echo "bc could not be found, see https://www.gnu.org/software/bc/bc.html"
-    exit
-fi
-
-# Remove the options while leaving the remaining arguments.
-shift "$((OPTIND - 1))"
-
-# Don't allow more than 1 parameter
-if [[ "${#}" -gt 1 ]]; then
-    echo 'pigame error: Invalid input (to many arguments)'
-    usage
-# Allow 1 positional parameter: YOUR_PI
-elif [[ "${#}" -eq 1 ]]; then
-    # Easter egg
-    if [[ "${1}" == "Archimedes" ]] || [[ "${1}" == "pi" ]] || [[ "${1}" == "PI" ]]; then
-        echo 'π is also called Archimedes constant and is commonly defined as'
-        echo 'the ratio of a circles circumference C to its diameter d:'
-        echo 'π = C / d'
-        exit 0
-    fi
-    # Input Validation: only float numbers are accepted
-    input_validation "${1}"
-
-    # User version of π
-    YOUR_PI="${1}"
-
-    # Number of decimals
-    # Reference: https://github.com/koalaman/shellcheck/wiki/SC2178
-    LENGTH=$(echo "${1}" | awk '{print length}')
-
-    # Reference https://github.com/koalaman/shellcheck/wiki/SC2128
-    # shellcheck bug: There is a known issue with this check's handling of local
-    # variables, causing ShellCheck to flag variables that were previously declared
-    # as arrays, even if they are in different scopes.
-    # π with $DEC number of decimals
-    if [[ "${LENGTH}" -lt 4 ]]; then # account for 3.1
-        DEC=${LENGTH}
-    else
-        DEC=$((LENGTH - 2)) # arithmetic expansion & chop 2 dec
-    fi
-
-    # Calculate π
-    calc_pi
-
-    # Print results to STDOUT
-    print_results
-
+# Check for --list option
+if [[ "$1" == "--list" ]]; then
+    show_implementations
     exit 0
-else
-    if [[ "${OPTIND}" -eq 1 ]]; then # OPTIND is 1 only when pigame has NO positional parameters
-        usage
-    fi
 fi
+
+IMPL=$(detect_preference)
+
+case "${IMPL}" in
+    bash)
+        "${SCRIPT_DIR}/src/bash/pigame.sh" "$@"
+        ;;
+    c)
+        # Check if the C implementation is compiled
+        if [[ ! -x "${SCRIPT_DIR}/src/c/pigame" ]]; then
+            echo "Compiling C implementation..."
+            (cd "${SCRIPT_DIR}/src/c" && gcc -o pigame pigame.c -lm)
+        fi
+        "${SCRIPT_DIR}/src/c/pigame" "$@"
+        ;;
+    python)
+        "${SCRIPT_DIR}/src/python/pigame.py" "$@"
+        ;;
+    --list)
+        show_implementations
+        ;;
+    *)
+        echo "Unknown implementation: ${IMPL}"
+        echo "Available implementations: bash, c, python"
+        echo "To select an implementation: export PIGAME_IMPLEMENTATION=<implementation>"
+        exit 1
+        ;;
+esac
