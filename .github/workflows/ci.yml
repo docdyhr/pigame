@@ -45,10 +45,19 @@ jobs:
     - uses: actions/checkout@v3
     
     - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -y build-essential bc
+      run: sudo apt-get update && sudo apt-get install -y build-essential bc python3 python3-pip
     
     - name: Build project
       run: make build
     
-    - name: Run tests
-      run: make test
+    - name: Test Bash implementation
+      run: make test-bash
+      
+    - name: Test C implementation
+      run: make test-c
+      
+    - name: Test Python implementation
+      run: make test-python
+      
+    - name: Test Python unit tests
+      run: make test-python-unit

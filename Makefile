@@ -12,27 +12,33 @@ build: build-c
 build-c:
 	$(CC) $(CFLAGS) -o src/c/pigame src/c/pigame.c $(LDFLAGS)
 
-test: test-bash test-c test-python
+test: test-bash test-c test-python test-all
 
 test-bash:
 	@echo "Testing Bash implementation..."
 	@chmod +x src/bash/pigame.sh
-	@./src/bash/pigame.sh -V
-	@./src/bash/pigame.sh -v 3.14
-	@echo "Bash tests passed"
+	@chmod +x tests/test_bash.sh
+	@tests/test_bash.sh
 
 test-c: build-c
 	@echo "Testing C implementation..."
-	@./src/c/pigame -V
-	@./src/c/pigame -v 3.14
-	@echo "C tests passed"
+	@chmod +x tests/test_c.sh
+	@tests/test_c.sh
 
 test-python:
 	@echo "Testing Python implementation..."
 	@chmod +x src/python/pigame.py
-	@./src/python/pigame.py -V
-	@./src/python/pigame.py -v 3.14
-	@echo "Python tests passed"
+	@chmod +x tests/test_python.sh
+	@tests/test_python.sh
+
+test-python-unit:
+	@echo "Running Python unit tests..."
+	@python3 tests/test_python_unit.py -v
+
+test-all:
+	@echo "Running all tests..."
+	@chmod +x tests/run_tests.sh
+	@tests/run_tests.sh
 
 lint-bash:
 	@echo "Linting Bash implementation..."

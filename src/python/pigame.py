@@ -59,19 +59,27 @@ def length_validation(length_str: str) -> int:
 
     Raises:
         SystemExit: If the input is not a valid integer or if it is too big.
+        ValueError: If the input cannot be converted to an integer.
     """
-    try:
-        length = int(length_str)
-    except ValueError:
+    # First check if the input is a valid integer
+    if not re.match(r"^-?[0-9]+$", length_str):
         print("pigame error: Invalid input - NOT an integer", file=sys.stderr)
         usage()
+        # For unit tests, raise ValueError explicitly
+        raise ValueError("Input is not an integer")
+        
+    # Convert to integer
+    length = int(length_str)
 
+    # Check range
     if length <= 0:
         # Default value if 0
         return DEFAULT_LENGTH
     elif length > MAX_LENGTH:
         print("pigame error: Invalid input - too big a number for display", file=sys.stderr)
         usage()
+        # For unit tests
+        raise SystemExit("Input is too large")
 
     return length
 
