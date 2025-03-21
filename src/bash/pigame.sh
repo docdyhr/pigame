@@ -54,11 +54,35 @@ length_validation() {
     return 0
 }
 
+# Format PI with spaces for better readability
+format_pi_with_spaces() {
+    local pi_str="$1"
+    local result=""
+    
+    # Add "3." to result
+    result="${pi_str:0:2}"
+    
+    # Process the rest of the digits with spaces every 5 digits
+    for ((i = 2; i < ${#pi_str}; i++)); do
+        # Add space after every 5 digits for better readability
+        if ((i > 2)) && (((i - 2) % 5 == 0)); then
+            result="${result} "
+        fi
+        result="${result}${pi_str:$i:1}"
+    done
+    
+    echo "$result"
+}
+
 # Print to STDOUT
 print_results() {
+    # Format PI with spaces
+    local formatted_pi
+    formatted_pi=$(format_pi_with_spaces "${PI}")
+    
     # Print results to STDOUT
     if [[ "${VERBOSE}" = 'true' ]]; then
-        echo -e "π with ${DEC} decimals:\t${PI}"
+        echo -e "π with ${DEC} decimals:\t${formatted_pi}"
         echo -e "Your version of π:\t$(color_your_pi)"
         if [[ "${PI}" == "${YOUR_PI}" ]]; then # NB! In BASH you can use = or == for comparison
             if [[ "${LENGTH}" -lt 15 ]]; then
@@ -70,7 +94,7 @@ print_results() {
             echo -e 'You can do better!'
         fi
     else
-        echo "${PI}"
+        echo "${formatted_pi}"
         color_your_pi
         if [[ "${PI}" = "${YOUR_PI}" ]]; then
             echo 'Match'
@@ -92,6 +116,11 @@ color_your_pi() {
 
     # Loop over each character in $YOUR_PI and compare it to $PI
     for ((i = 0; i < ${#YOUR_PI}; i++)); do
+        # Add space after every 5 digits for better readability
+        if ((i > 1)) && (((i - 2) % 5 == 0)); then
+            printf " "
+        fi
+        
         if [[ "${YOUR_PI:$i:1}" = "${PI:$i:1}" ]]; then
             printf "%s" "${YOUR_PI:$i:1}"
         else
@@ -150,10 +179,13 @@ while getopts :vp:Vc OPTION; do
 
         calc_pi
 
+        # Format PI with spaces
+        formatted_pi=$(format_pi_with_spaces "${PI}")
+        
         if [[ "${VERBOSE}" = 'true' ]]; then
-            echo -e "π with $((LENGTH - 2)) decimals:\t${PI}" # remove 2 decimals (calc_pi)
+            echo -e "π with $((LENGTH - 2)) decimals:\t${formatted_pi}" # remove 2 decimals (calc_pi)
         else
-            echo -e "${PI}"
+            echo -e "${formatted_pi}"
         fi
         ;;
     V)
