@@ -24,11 +24,12 @@ def usage():
     """
     Print the usage information for the pigame script.
     """
-    print(f"Usage: {sys.argv[0]} [-v] [-p LENGTH] [-V] YOUR_PI", file=sys.stderr)
+    print(f"Usage: {sys.argv[0]} [-v] [-p LENGTH] [-V] [-c] YOUR_PI", file=sys.stderr)
     print("\tEvaluate your version of π (3.141.. )", file=sys.stderr)
     print("\t-v          Increase verbosity.", file=sys.stderr)
     print("\t-p LENGTH   Calculate and show π with LENGTH number of decimals.", file=sys.stderr)
     print("\t-V          Version.", file=sys.stderr)
+    print("\t-c          Color-blind mode (use underscores instead of color).", file=sys.stderr)
     sys.exit(1)
 
 
@@ -108,19 +109,22 @@ def calculate_pi(length: int) -> str:
     return f"3.{digits[:length]}"
 
 
-def color_your_pi(user_pi: str, calculated_pi: str, verbose: bool) -> int:
+def color_your_pi(user_pi: str, calculated_pi: str, verbose: bool, colorblind_mode: bool = False) -> int:
     """
     Colors the digits of user_pi that do not match the corresponding digits of calculated_pi in red.
+    Or uses underlines in colorblind mode.
 
     Args:
         user_pi (str): The user's input of pi digits.
         calculated_pi (str): The calculated pi digits.
         verbose (bool): If True, prints the number of errors.
+        colorblind_mode (bool): If True, uses underlines instead of color.
 
     Returns:
         int: The number of errors found.
     """
     RED = "\033[0;31m"
+    UNDERLINE = "\033[4m"
     NO_COLOR = "\033[0m"
     error_count = 0
     result = []
@@ -130,7 +134,10 @@ def color_your_pi(user_pi: str, calculated_pi: str, verbose: bool) -> int:
             result.append(digit)
         else:
             error_count += 1
-            result.append(f"{RED}{digit}{NO_COLOR}")
+            if colorblind_mode:
+                result.append(f"{UNDERLINE}{digit}{NO_COLOR}")
+            else:
+                result.append(f"{RED}{digit}{NO_COLOR}")
 
     print("".join(result))
     if verbose:
@@ -139,7 +146,7 @@ def color_your_pi(user_pi: str, calculated_pi: str, verbose: bool) -> int:
     return error_count
 
 
-def print_results(user_pi: str, calculated_pi: str, decimals: int, verbose: bool) -> None:
+def print_results(user_pi: str, calculated_pi: str, decimals: int, verbose: bool, colorblind_mode: bool = False) -> None:
     """
     Print the results of the pi calculation.
 
@@ -148,12 +155,13 @@ def print_results(user_pi: str, calculated_pi: str, decimals: int, verbose: bool
     - calculated_pi (str): The calculated value of pi.
     - decimals (int): The number of decimals to display.
     - verbose (bool): If True, display additional information.
+    - colorblind_mode (bool): If True, uses underlines instead of color.
     """
     if verbose:
         print(f"π with {decimals} decimals:\t{calculated_pi}")
         print("Your version of π:\t", end="")
         
-    error_count = color_your_pi(user_pi, calculated_pi, verbose)
+    error_count = color_your_pi(user_pi, calculated_pi, verbose, colorblind_mode)
     
     if calculated_pi == user_pi:
         if verbose:
@@ -202,6 +210,7 @@ def main():
         help="Calculate and show π with LENGTH number of decimals.",
     )
     parser.add_argument("-V", action="store_true", help="Version.")
+    parser.add_argument("-c", action="store_true", help="Color-blind mode (use underscores instead of color).")
     parser.add_argument(
         "YOUR_PI", nargs="?", type=str, help="Your version of π"
     )
@@ -215,7 +224,7 @@ def main():
         print(f"{os.path.basename(sys.argv[0])} version: {VERSION} (https://github.com/docdyhr/pigame)")
         sys.exit(0)
 
-    if not args.YOUR_PI and not args.p and not args.v:
+    if not args.YOUR_PI and not args.p and not args.v and not args.c:
         usage()
 
     # Handle the -p option
@@ -253,7 +262,7 @@ def main():
             decimals = length
             calculated_pi = calculate_pi(decimals)
         
-        print_results(user_pi, calculated_pi, decimals, args.v)
+        print_results(user_pi, calculated_pi, decimals, args.v, args.c)
 
 
 if __name__ == "__main__":
