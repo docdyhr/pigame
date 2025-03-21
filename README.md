@@ -1,5 +1,9 @@
 # PIGAME - How many decimals of π can you remember?
 
+[![CI/CD Pipeline](https://github.com/docdyhr/pigame/actions/workflows/ci.yml/badge.svg)](https://github.com/docdyhr/pigame/actions/workflows/ci.yml)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/docdyhr/pigame)](https://github.com/docdyhr/pigame/releases/latest)
+[![License](https://img.shields.io/github/license/docdyhr/pigame)](https://github.com/docdyhr/pigame/blob/master/LICENSE)
+
 ## Overview
 
 * Version: 1.6.0

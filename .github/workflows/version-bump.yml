@@ -1,0 +1,48 @@
+name: Version Bump
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - 'src/VERSION'
+      - 'CHANGELOG.md'
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'Release version')"
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        
+    - name: Set up Git
+      run: |
+        git config --global user.name "GitHub Action"
+        git config --global user.email "action@github.com"
+    
+    - name: Check for breaking changes
+      id: check_breaks
+      run: |
+        BREAKING_CHANGE=$(git log -1 --pretty=%B | grep -i "BREAKING CHANGE" || echo "")
+        if [ -n "$BREAKING_CHANGE" ]; then
+          echo "bump=major" >> $GITHUB_OUTPUT
+        elif [[ "$(git log -1 --pretty=%B)" == feat:* ]] || [[ "$(git log -1 --pretty=%B)" == feature:* ]]; then
+          echo "bump=minor" >> $GITHUB_OUTPUT
+        else
+          echo "bump=patch" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Bump version
+      run: |
+        chmod +x ./version.sh
+        ./version.sh ${{ steps.check_breaks.outputs.bump || 'patch' }}
+    
+    - name: Commit and push version bump
+      run: |
+        VERSION=$(cat src/VERSION)
+        git add src/VERSION CHANGELOG.md
+        git commit -m "Bump version to $VERSION [skip ci]"
+        git push

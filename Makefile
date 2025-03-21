@@ -83,4 +83,21 @@ clean:
 	@rm -f src/c/pigame
 	@echo "Cleaned build files."
 
+# Version management targets
+version-major:
+	@./version.sh major
+
+version-minor:
+	@./version.sh minor
+
+version-patch:
+	@./version.sh patch
+
+release: version-patch
+	@VERSION=$$(cat src/VERSION); \
+	git add src/VERSION CHANGELOG.md; \
+	git commit -m "Release version $$VERSION"; \
+	git tag -a v$$VERSION -m "Version $$VERSION"; \
+	echo "Version $$VERSION prepared for release. Push with: git push && git push --tags"
+
 .PHONY: all build build-c test test-bash test-c test-python lint lint-bash lint-python install uninstall clean
