@@ -95,6 +95,7 @@ version-patch:
 
 release: version-patch
 	@VERSION=$$(cat src/VERSION); \
+	echo "Preparing release for version $$VERSION"; \
 	git add src/VERSION CHANGELOG.md; \
 	git commit -m "Release version $$VERSION"; \
 	git tag -a v$$VERSION -m "Version $$VERSION"; \
