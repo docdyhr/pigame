@@ -1,0 +1,73 @@
+name: Release Workflow
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.6.3)'
+        required: true
+
+permissions:
+  contents: write  # Needed for creating releases
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set version from tag or input
+        id: get_version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+            echo "Using manually provided version: $VERSION"
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+            echo "Using version from tag: $VERSION"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y build-essential bc
+
+      - name: Build project
+        run: make build
+
+      - name: Create release artifacts
+        run: |
+          mkdir -p dist
+          tar -czf dist/pigame-v${{ steps.get_version.outputs.version }}.tar.gz --exclude='.git' --exclude='dist' .
+          zip -r dist/pigame-v${{ steps.get_version.outputs.version }}.zip . -x "*.git*" "dist/*"
+
+      - name: Generate release notes
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          if grep -q "## \[$VERSION\]" CHANGELOG.md; then
+            echo "Found version $VERSION in CHANGELOG.md"
+            awk "/## \\[$VERSION\\]/,/## \\[/" CHANGELOG.md | sed '1!{/^## \[/d;}' > RELEASE_NOTES.md
+          else
+            echo "No specific entry found for version $VERSION in CHANGELOG.md"
+            echo "Release v$VERSION" > RELEASE_NOTES.md
+            echo "\nSee CHANGELOG.md for details." >> RELEASE_NOTES.md
+          fi
+          cat RELEASE_NOTES.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.get_version.outputs.version }}
+          name: Release v${{ steps.get_version.outputs.version }}
+          files: |
+            dist/pigame-v${{ steps.get_version.outputs.version }}.tar.gz
+            dist/pigame-v${{ steps.get_version.outputs.version }}.zip
+          body_path: RELEASE_NOTES.md
+          generate_release_notes: true
+          draft: false
+          prerelease: false
