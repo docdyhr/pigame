@@ -59,3 +59,6 @@ echo "Don't forget to commit these changes with:"
 echo "git add $VERSION_FILE CHANGELOG.md"
 echo "git commit -m \"Release version $NEW_VERSION\""
 echo "git tag -a v$NEW_VERSION -m \"Version $NEW_VERSION\""
+
+# Return success
+exit 0
