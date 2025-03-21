@@ -31,11 +31,12 @@ const char* get_version() {
 }
 
 void usage(char* program_name) {
-    fprintf(stderr, "Usage:\t%s [-v] [-p LENGTH] [-V] YOUR_PI\n", program_name);
+    fprintf(stderr, "Usage:\t%s [-v] [-p LENGTH] [-V] [-c] YOUR_PI\n", program_name);
     fprintf(stderr, "\tEvaluate your version of π (3.141.. )\n");
     fprintf(stderr, "\t-v          Increase verbosity.\n");
     fprintf(stderr, "\t-p LENGTH   Calculate and show π with LENGTH number of decimals.\n");
     fprintf(stderr, "\t-V          Version.\n");
+    fprintf(stderr, "\t-c          Color-blind mode (use underscores instead of color).\n");
     exit(1);
 }
 
@@ -117,7 +118,7 @@ char* calc_pi(int length) {
 }
 
 // Color the differences between strings
-void color_your_pi(const char* your_pi, const char* pi, bool verbose) {
+void color_your_pi(const char* your_pi, const char* pi, bool verbose, bool colorblind_mode) {
     int error_count = 0;
     
     size_t pi_len = strlen(pi);
@@ -126,7 +127,11 @@ void color_your_pi(const char* your_pi, const char* pi, bool verbose) {
             printf("%c", your_pi[i]);
         } else {
             error_count++;
-            printf("\033[0;31m%c\033[0m", your_pi[i]); // Red color
+            if (colorblind_mode) {
+                printf("\033[4m%c\033[0m", your_pi[i]); // Underline
+            } else {
+                printf("\033[0;31m%c\033[0m", your_pi[i]); // Red color
+            }
         }
     }
     printf("\n");
@@ -138,11 +143,12 @@ void color_your_pi(const char* your_pi, const char* pi, bool verbose) {
 
 int main(int argc, char* argv[]) {
     bool verbose = false;
+    bool colorblind_mode = false;
     int length = DEFAULT_LENGTH;
     char* your_pi = NULL;
 
     int opt;
-    while ((opt = getopt(argc, argv, "vp:V")) != -1) {
+    while ((opt = getopt(argc, argv, "vp:Vc")) != -1) {
         switch (opt) {
             case 'v':
                 verbose = true;
@@ -167,6 +173,9 @@ int main(int argc, char* argv[]) {
             case 'V':
                 printf("%s version: %s\n", argv[0], get_version());
                 return 0;
+            case 'c':
+                colorblind_mode = true;
+                break;
             default:
                 usage(argv[0]);
         }
@@ -199,7 +208,7 @@ int main(int argc, char* argv[]) {
         if (verbose) {
             printf("π with %d decimals:\t%s\n", length, pi);
             printf("Your version of π:\t");
-            color_your_pi(your_pi, pi, verbose);
+            color_your_pi(your_pi, pi, verbose, colorblind_mode);
             
             if (strcmp(pi, your_pi) == 0) {
                 if (length < 15) {
@@ -212,7 +221,7 @@ int main(int argc, char* argv[]) {
             }
         } else {
             printf("%s\n", pi);
-            color_your_pi(your_pi, pi, verbose);
+            color_your_pi(your_pi, pi, verbose, colorblind_mode);
             
             if (strcmp(pi, your_pi) == 0) {
                 printf("Match\n");
