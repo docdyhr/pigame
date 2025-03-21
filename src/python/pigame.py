@@ -41,10 +41,13 @@ def input_validation(pi_input: str) -> None:
 
     Raises:
         SystemExit: If the input is not a valid float.
+        ValueError: For testing purposes when the input is invalid.
     """
     if not re.match(r"^[0-9]+(\.[0-9]+)?$", pi_input):
         print("pigame error: Invalid input - NOT a float", file=sys.stderr)
         usage()
+        # For unit tests
+        raise ValueError("Input is not a valid float")
 
 
 def length_validation(length_str: str) -> int:

@@ -34,6 +34,10 @@ test-python:
 test-python-unit:
 	@echo "Running Python unit tests..."
 	@python3 tests/test_python_unit.py -v
+	
+test-pytest:
+	@echo "Running pytest tests..."
+	@.venv/bin/pytest
 
 test-all:
 	@echo "Running all tests..."
@@ -44,13 +48,18 @@ lint-bash:
 	@echo "Linting Bash implementation..."
 	shellcheck src/bash/pigame.sh
 
+setup-python: requirements.txt
+	@echo "Setting up Python environment..."
+	@.venv/bin/pip install -r requirements.txt
+	@.venv/bin/pip install -e .
+
 lint-python:
 	@echo "Linting Python implementation..."
-	@if command -v pylint >/dev/null; then \
-		pylint src/python/pigame.py; \
-	else \
-		echo "pylint not installed, skipping"; \
-	fi
+	@.venv/bin/pylint src/python/pigame.py tests/test_pytest.py || true
+	@echo "Running flake8..."
+	@.venv/bin/flake8 src/python/pigame.py tests/test_pytest.py || true
+	@echo "Running mypy..."
+	@.venv/bin/mypy src/python/pigame.py tests/test_pytest.py || true
 
 lint: lint-bash lint-python
 

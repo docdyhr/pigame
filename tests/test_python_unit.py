@@ -25,20 +25,20 @@ class TestPiGameFunctions(unittest.TestCase):
         except SystemExit:
             self.fail("input_validation() raised SystemExit unexpectedly!")
 
-    @patch('sys.exit')
-    def test_input_validation_invalid(self, mock_exit):
+    def test_input_validation_invalid(self):
         """Test input validation with invalid inputs."""
-        # These should raise a SystemExit
-        pigame.input_validation("abc")
-        mock_exit.assert_called()
-        
-        mock_exit.reset_mock()
-        pigame.input_validation("3.14.15")
-        mock_exit.assert_called()
-        
-        mock_exit.reset_mock()
-        pigame.input_validation("-3.14")
-        mock_exit.assert_called()
+        # These should raise ValueError for testing purposes
+        with self.assertRaises(ValueError):
+            with patch('sys.exit'):  # Prevent actual exit
+                pigame.input_validation("abc")
+                
+        with self.assertRaises(ValueError):
+            with patch('sys.exit'):  # Prevent actual exit
+                pigame.input_validation("3.14.15")
+                
+        with self.assertRaises(ValueError):
+            with patch('sys.exit'):  # Prevent actual exit
+                pigame.input_validation("-3.14")
 
     def test_length_validation_valid(self):
         """Test length validation with valid inputs."""

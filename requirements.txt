@@ -1,0 +1,14 @@
+# Python dependencies for pigame
+
+# For testing
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# For linting and formatting
+pylint>=2.15.0
+flake8>=6.0.0
+black>=23.0.0
+
+# For type checking
+mypy>=1.0.0
+types-setuptools>=65.0.0
