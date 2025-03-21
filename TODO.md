@@ -1,7 +1,7 @@
 ## Todo list for pigame:
 
 ### User Interface Improvements
-* Add proper spacing between numbers to increase readability
+* ✅ Add proper spacing between numbers to increase readability
 * ✅ Support for color-blind mode (different highlighting method)
 * Interactive mode for practicing pi memorization
 * Support for dark/light terminal themes

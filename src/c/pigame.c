@@ -117,12 +117,47 @@ char* calc_pi(int length) {
     return result;
 }
 
+// Format PI with spaces for better readability
+char* format_pi_with_spaces(const char* pi_str) {
+    int len = strlen(pi_str);
+    // Allocate memory for the formatted string (original length + spaces)
+    // We add about 20% more space for the spaces
+    char* result = (char*)malloc(len * 1.2 + 1);
+    if (!result) {
+        fprintf(stderr, "Memory allocation error\n");
+        exit(1);
+    }
+    
+    // Copy the "3." part
+    result[0] = pi_str[0];
+    result[1] = pi_str[1];
+    
+    int j = 2; // index for the result string
+    
+    // Add the rest with spaces every 5 digits
+    for (int i = 2; i < len; i++) {
+        // Add space after every 5 digits (after 3.)
+        if (i > 2 && (i - 2) % 5 == 0) {
+            result[j++] = ' ';
+        }
+        result[j++] = pi_str[i];
+    }
+    
+    result[j] = '\0';
+    return result;
+}
+
 // Color the differences between strings
 void color_your_pi(const char* your_pi, const char* pi, bool verbose, bool colorblind_mode) {
     int error_count = 0;
     
     size_t pi_len = strlen(pi);
     for (int i = 0; your_pi[i] != '\0'; i++) {
+        // Add space after every 5 digits for better readability (after 3.)
+        if (i > 1 && (i - 2) % 5 == 0) {
+            printf(" ");
+        }
+            
         if ((size_t)i < pi_len && your_pi[i] == pi[i]) {
             printf("%c", your_pi[i]);
         } else {
@@ -160,13 +195,15 @@ int main(int argc, char* argv[]) {
                 }
                 
                 char* pi = calc_pi(length);
+                char* formatted_pi = format_pi_with_spaces(pi);
                 
                 if (verbose) {
-                    printf("π with %d decimals:\t%s\n", length, pi);
+                    printf("π with %d decimals:\t%s\n", length, formatted_pi);
                 } else {
-                    printf("%s\n", pi);
+                    printf("%s\n", formatted_pi);
                 }
                 
+                free(formatted_pi);
                 free(pi);
                 return 0;
                 break;
@@ -204,9 +241,10 @@ int main(int argc, char* argv[]) {
         if (length < 1) length = 1;
         
         char* pi = calc_pi(length);
+        char* formatted_pi = format_pi_with_spaces(pi);
 
         if (verbose) {
-            printf("π with %d decimals:\t%s\n", length, pi);
+            printf("π with %d decimals:\t%s\n", length, formatted_pi);
             printf("Your version of π:\t");
             color_your_pi(your_pi, pi, verbose, colorblind_mode);
             
@@ -220,7 +258,7 @@ int main(int argc, char* argv[]) {
                 printf("You can do better!\n");
             }
         } else {
-            printf("%s\n", pi);
+            printf("%s\n", formatted_pi);
             color_your_pi(your_pi, pi, verbose, colorblind_mode);
             
             if (strcmp(pi, your_pi) == 0) {
@@ -229,6 +267,8 @@ int main(int argc, char* argv[]) {
                 printf("No match\n");
             }
         }
+        
+        free(formatted_pi);
         
         free(pi);
     } else if (optind == argc && !verbose && length == DEFAULT_LENGTH) {

@@ -109,6 +109,29 @@ def calculate_pi(length: int) -> str:
     return f"3.{digits[:length]}"
 
 
+def format_pi_with_spaces(pi_str: str) -> str:
+    """
+    Format pi with spaces every 5 digits for better readability.
+    
+    Args:
+        pi_str (str): The pi string to format.
+        
+    Returns:
+        str: The formatted pi string with spaces.
+    """
+    # Start with the first 2 characters "3."
+    result = pi_str[:2]
+    
+    # Add the rest with spaces every 5 digits
+    for i, digit in enumerate(pi_str[2:]):
+        # Add space after every 5 digits
+        if i > 0 and i % 5 == 0:
+            result += " "
+        result += digit
+    
+    return result
+
+
 def color_your_pi(user_pi: str, calculated_pi: str, verbose: bool, colorblind_mode: bool = False) -> int:
     """
     Colors the digits of user_pi that do not match the corresponding digits of calculated_pi in red.
@@ -130,6 +153,10 @@ def color_your_pi(user_pi: str, calculated_pi: str, verbose: bool, colorblind_mo
     result = []
 
     for i, digit in enumerate(user_pi):
+        # Add space after every 5 digits for better readability (after the "3.")
+        if i > 1 and (i - 2) % 5 == 0:
+            result.append(" ")
+            
         if i < len(calculated_pi) and digit == calculated_pi[i]:
             result.append(digit)
         else:
@@ -157,8 +184,11 @@ def print_results(user_pi: str, calculated_pi: str, decimals: int, verbose: bool
     - verbose (bool): If True, display additional information.
     - colorblind_mode (bool): If True, uses underlines instead of color.
     """
+    # Format pi with spaces for better readability
+    formatted_pi = format_pi_with_spaces(calculated_pi)
+    
     if verbose:
-        print(f"π with {decimals} decimals:\t{calculated_pi}")
+        print(f"π with {decimals} decimals:\t{formatted_pi}")
         print("Your version of π:\t", end="")
         
     error_count = color_your_pi(user_pi, calculated_pi, verbose, colorblind_mode)
@@ -231,11 +261,12 @@ def main():
     if args.p:
         length = length_validation(args.p)
         calculated_pi = calculate_pi(length)
+        formatted_pi = format_pi_with_spaces(calculated_pi)
         
         if args.v:
-            print(f"π with {length} decimals:\t{calculated_pi}")
+            print(f"π with {length} decimals:\t{formatted_pi}")
         else:
-            print(calculated_pi)
+            print(formatted_pi)
         
         # If no user pi is provided, exit after displaying
         if not args.YOUR_PI:
