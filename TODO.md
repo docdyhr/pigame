@@ -2,15 +2,15 @@
 
 ### User Interface Improvements
 * Add proper spacing between numbers to increase readability
-* Support for color-blind mode (different highlighting method)
+* ✅ Support for color-blind mode (different highlighting method)
 * Interactive mode for practicing pi memorization
 * Support for dark/light terminal themes
 
 ### Technical Improvements
-* Add CI/CD pipeline with GitHub Actions
-* Add more comprehensive testing
-* Improve pi calculation algorithm in C implementation
-* Add proper error messages for all edge cases
+* ✅ Add CI/CD pipeline with GitHub Actions
+* ✅ Add more comprehensive testing
+* ✅ Improve pi calculation algorithm in C implementation
+* ✅ Add proper error messages for all edge cases
 * Add consistent logging across all implementations
 
 ### New Features
@@ -20,10 +20,10 @@
 * Add a timer mode
 
 ### Documentation
-* Create man page
-* Add tutorial for new users
+* ✅ Create man page
+* ✅ Add tutorial for new users (in README)
 * Document the algorithm used for calculating pi in each implementation
-* Add development guidelines for contributors
+* ✅ Add development guidelines for contributors (in CONTRIBUTING.md)
 
 ### Implementations
 * Add a web-based version

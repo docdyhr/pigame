@@ -18,11 +18,12 @@ MAX_LENGTH=5001
 
 # Print Usage
 usage() {
-    echo -e "Usage:\t$(basename "${0}") [-v] [-p LENGTH] [-V] YOUR_PI" >&2
+    echo -e "Usage:\t$(basename "${0}") [-v] [-p LENGTH] [-V] [-c] YOUR_PI" >&2
     echo -e "\tEvaluate your version of π (3.141.. )" >&2
     echo -e '\t-v          Increase verbosity.' >&2
     echo -e '\t-p LENGTH   Calculate and show π with LENGTH number of decimals.' >&2
     echo -e '\t-V          Version.' >&2
+    echo -e '\t-c          Color-blind mode (use underscores instead of color).' >&2
     exit 1
 }
 
@@ -81,9 +82,10 @@ print_results() {
 
 # colorize mistakes in YOUR_PI if any
 color_your_pi() {
-    # RED colour table
+    # Styling options
     local RED='\033[0;31m'
     local NO_COLOR='\033[0m' # No Color
+    local UNDERLINE='\033[4m'
 
     # Reset Count number of errors
     local error_count=0
@@ -94,7 +96,11 @@ color_your_pi() {
             printf "%s" "${YOUR_PI:$i:1}"
         else
             ((error_count++))
-            printf "${RED}%s${NO_COLOR}" "${YOUR_PI:$i:1}"
+            if [[ "${COLOR_BLIND_MODE}" = 'true' ]]; then
+                printf "${UNDERLINE}%s${NO_COLOR}" "${YOUR_PI:$i:1}"
+            else
+                printf "${RED}%s${NO_COLOR}" "${YOUR_PI:$i:1}"
+            fi
         fi
     done
     echo # terminate printf
@@ -127,7 +133,7 @@ fi
 
 # MENU: get command line options with Bash getopts
 # first : indicates we handle errors ourselves
-while getopts :vp:V OPTION; do
+while getopts :vp:Vc OPTION; do
     case ${OPTION} in
     v)
         VERBOSE='true'
@@ -152,6 +158,9 @@ while getopts :vp:V OPTION; do
         ;;
     V)
         echo "$(basename "${0}") version: ${VERSION} (https://github.com/docdyhr/pigame)"
+        ;;
+    c)
+        COLOR_BLIND_MODE='true'
         ;;
     ?)
         usage

@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved test release script
 - Version badge in README
 - Release notes generation from CHANGELOG
+- Color-blind mode with -c option (uses underlines instead of colors)
 
 ## [1.6.4] - 2025-03-21
 

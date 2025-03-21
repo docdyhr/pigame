@@ -24,6 +24,12 @@ show_implementations() {
     echo "  c      - C implementation"
     echo "  python - Python implementation" 
     echo
+    echo "Usage: pigame [-v] [-p LENGTH] [-V] [-c] YOUR_PI"
+    echo "  -v          Increase verbosity."
+    echo "  -p LENGTH   Calculate and show π with LENGTH number of decimals."
+    echo "  -V          Version."
+    echo "  -c          Color-blind mode (use underscores instead of color)."
+    echo
     echo "To select an implementation: export PIGAME_IMPLEMENTATION=<implementation>"
     echo "Or run directly: ${SCRIPT_DIR}/src/<implementation>/pigame[.ext]"
 }
