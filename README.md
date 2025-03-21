@@ -1,12 +1,12 @@
 # PIGAME - How many decimals of π can you remember?
 
-[![CI/CD Pipeline](https://github.com/docdyhr/pigame/actions/workflows/ci.yml/badge.svg)](https://github.com/docdyhr/pigame/actions/workflows/ci.yml)
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/docdyhr/pigame)](https://github.com/docdyhr/pigame/releases/latest)
-[![License](https://img.shields.io/github/license/docdyhr/pigame)](https://github.com/docdyhr/pigame/blob/master/LICENSE)
+[![CI/CD Pipeline](https://github.com/docdyhr/pigame/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/docdyhr/pigame/actions/workflows/ci.yml)
+[![Version](https://img.shields.io/badge/version-1.6.2-blue)](https://github.com/docdyhr/pigame/blob/master/src/VERSION)
+[![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/docdyhr/pigame/blob/master/LICENSE)
 
 ## Overview
 
-* Version: 1.6.0
+* Version: 1.6.2
 * Multiple implementations available: Bash (original), C, and Python
 * Author: Thomas J. Dyhr
 * Purpose: Memorisation of π
