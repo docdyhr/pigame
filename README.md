@@ -1,12 +1,12 @@
 # PIGAME - How many decimals of π can you remember?
 
 [![CI/CD Pipeline](https://github.com/docdyhr/pigame/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/docdyhr/pigame/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/badge/version-1.6.5-blue)](https://github.com/docdyhr/pigame/blob/master/src/VERSION)
+[![Version](https://img.shields.io/badge/version-1.6.6-blue)](https://github.com/docdyhr/pigame/blob/master/src/VERSION)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/docdyhr/pigame/blob/master/LICENSE)
 
 ## Overview
 
-* Version: 1.6.5
+* Version: 1.6.6
 * Multiple implementations available: Bash (original), C, and Python
 * Author: Thomas J. Dyhr
 * Purpose: Memorisation of π
@@ -15,7 +15,7 @@
 ## Usage
 
 ```
-pigame [-v] [-p LENGTH] [-V] YOUR_PI
+pigame [-v] [-p LENGTH] [-V] [-c] YOUR_PI
 ```
 
 Evaluate your version of π (3.141.. )
@@ -23,6 +23,7 @@ Evaluate your version of π (3.141.. )
 * `-v` Increase verbosity.
 * `-p LENGTH` Calculate and show π with LENGTH number of decimals.
 * `-V` Version.
+* `-c` Color-blind mode (use underscores instead of color).
 * `--list` Show available implementations.
 
 ## Installation
