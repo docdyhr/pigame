@@ -44,14 +44,17 @@ echo "$NEW_VERSION" > "$VERSION_FILE"
 
 # Update CHANGELOG.md with new version section
 TODAY=$(date +%Y-%m-%d)
-sed -i.bak -e "s/## \[Unreleased\]/## [Unreleased]\n\n### Added\n- TBD\n\n## [$NEW_VERSION] - $TODAY/" CHANGELOG.md
-sed -i.bak -e "s/\[Unreleased\]: https:\/\/github.com\/docdyhr\/pigame\/compare\/v[0-9]*\.[0-9]*\.[0-9]*\.\.\.HEAD/[Unreleased]: https:\/\/github.com\/docdyhr\/pigame\/compare\/v$NEW_VERSION...HEAD\n[$NEW_VERSION]: https:\/\/github.com\/docdyhr\/pigame\/compare\/v$CURRENT_VERSION...v$NEW_VERSION/" CHANGELOG.md
-rm -f CHANGELOG.md.bak
 
 # For macOS compatibility
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    echo "Running on macOS, applying additional compatibility fixes"
-    # Use sed with different syntax for macOS if needed
+    echo "Running on macOS, using compatible sed syntax"
+    # macOS requires an extension with -i
+    sed -i "" -e "s/## \[Unreleased\]/## [Unreleased]\n\n### Added\n- TBD\n\n## [$NEW_VERSION] - $TODAY/" CHANGELOG.md
+    sed -i "" -e "s/\[Unreleased\]: https:\/\/github.com\/docdyhr\/pigame\/compare\/v[0-9]*\.[0-9]*\.[0-9]*\.\.\.HEAD/[Unreleased]: https:\/\/github.com\/docdyhr\/pigame\/compare\/v$NEW_VERSION...HEAD\n[$NEW_VERSION]: https:\/\/github.com\/docdyhr\/pigame\/compare\/v$CURRENT_VERSION...v$NEW_VERSION/" CHANGELOG.md
+else
+    # Linux version
+    sed -i -e "s/## \[Unreleased\]/## [Unreleased]\n\n### Added\n- TBD\n\n## [$NEW_VERSION] - $TODAY/" CHANGELOG.md
+    sed -i -e "s/\[Unreleased\]: https:\/\/github.com\/docdyhr\/pigame\/compare\/v[0-9]*\.[0-9]*\.[0-9]*\.\.\.HEAD/[Unreleased]: https:\/\/github.com\/docdyhr\/pigame\/compare\/v$NEW_VERSION...HEAD\n[$NEW_VERSION]: https:\/\/github.com\/docdyhr\/pigame\/compare\/v$CURRENT_VERSION...v$NEW_VERSION/" CHANGELOG.md
 fi
 
 echo "Version updated to $NEW_VERSION and CHANGELOG.md has been updated."
