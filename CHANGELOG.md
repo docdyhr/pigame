@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- TBD
+
+## [1.6.4] - 2025-03-21
+
+### Added
 - Test coverage reports for Python implementation
 
 ## [1.6.0] - 2025-03-21
@@ -41,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Command-line interface with flags for verbosity and precision
 - Easter egg references to Archimedes
 
-[Unreleased]: https://github.com/docdyhr/pigame/compare/v1.6.0...HEAD
+[Unreleased]: https://github.com/docdyhr/pigame/compare/v1.6.4...HEAD
+[1.6.4]: https://github.com/docdyhr/pigame/compare/v1.6.3...v1.6.4
 [1.6.0]: https://github.com/docdyhr/pigame/compare/v1.5.1...v1.6.0
 [1.5.1]: https://github.com/docdyhr/pigame/releases/tag/v1.5.1
