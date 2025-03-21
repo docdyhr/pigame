@@ -13,7 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.6.5] - 2025-03-21
 
 ### Added
-- TBD
+- GitHub release workflow automation
+- Improved test release script
+- Version badge in README
+- Release notes generation from CHANGELOG
 
 ## [1.6.4] - 2025-03-21
 
