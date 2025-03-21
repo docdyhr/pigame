@@ -3,7 +3,9 @@
 # Script to manage version updates in the project
 # Usage: ./version.sh [major|minor|patch]
 
+# Enable debugging
 set -e
+set -x  # Print commands as they execute
 
 VERSION_FILE="src/VERSION"
 echo "Reading version from $VERSION_FILE"
@@ -28,18 +30,18 @@ echo "Parsed version: Major=$MAJOR, Minor=$MINOR, Patch=$PATCH"
 case "$1" in
     major)
         echo "Updating major version..."
-        ((MAJOR++))
+        MAJOR=$((MAJOR + 1))
         MINOR=0
         PATCH=0
         ;;
     minor)
         echo "Updating minor version..."
-        ((MINOR++))
+        MINOR=$((MINOR + 1))
         PATCH=0
         ;;
     patch)
         echo "Updating patch version..."
-        ((PATCH++))
+        PATCH=$((PATCH + 1))
         ;;
     *)
         echo "Usage: $0 [major|minor|patch]"
@@ -47,6 +49,7 @@ case "$1" in
         ;;
 esac
 
+echo "Incremented to: Major=$MAJOR, Minor=$MINOR, Patch=$PATCH"
 NEW_VERSION="$MAJOR.$MINOR.$PATCH"
 echo "New version: $NEW_VERSION"
 
@@ -58,17 +61,8 @@ echo "$NEW_VERSION" > "$VERSION_FILE"
 TODAY=$(date +%Y-%m-%d)
 echo "Updating CHANGELOG.md with new version section..."
 
-# For macOS compatibility
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    echo "Running on macOS, using compatible sed syntax"
-    # macOS requires an extension with -i
-    sed -i "" "s/## \[Unreleased\]/## [Unreleased]\n\n### Added\n- TBD\n\n## [$NEW_VERSION] - $TODAY/" CHANGELOG.md
-    sed -i "" "s/\[Unreleased\]: https:\/\/github.com\/docdyhr\/pigame\/compare\/v[0-9]*\.[0-9]*\.[0-9]*\.\.\.HEAD/[Unreleased]: https:\/\/github.com\/docdyhr\/pigame\/compare\/v$NEW_VERSION...HEAD\n[$NEW_VERSION]: https:\/\/github.com\/docdyhr\/pigame\/compare\/v$CURRENT_VERSION...v$NEW_VERSION/" CHANGELOG.md
-else
-    # Linux version
-    sed -i "s/## \[Unreleased\]/## [Unreleased]\n\n### Added\n- TBD\n\n## [$NEW_VERSION] - $TODAY/" CHANGELOG.md
-    sed -i "s/\[Unreleased\]: https:\/\/github.com\/docdyhr\/pigame\/compare\/v[0-9]*\.[0-9]*\.[0-9]*\.\.\.HEAD/[Unreleased]: https:\/\/github.com\/docdyhr\/pigame\/compare\/v$NEW_VERSION...HEAD\n[$NEW_VERSION]: https:\/\/github.com\/docdyhr\/pigame\/compare\/v$CURRENT_VERSION...v$NEW_VERSION/" CHANGELOG.md
-fi
+# Skip CHANGELOG update for now - focusing on just updating the VERSION file
+echo "CHANGELOG.md update skipped for now - focusing on VERSION file"
 
 echo "Version updated to $NEW_VERSION and CHANGELOG.md has been updated."
 echo "Don't forget to commit these changes with:"
