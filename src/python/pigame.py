@@ -14,7 +14,6 @@ import argparse
 import os
 import re
 import sys
-from math import pi
 
 # Read version from file or use default
 def get_version():
@@ -23,7 +22,7 @@ def get_version():
         version_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "VERSION")
         with open(version_file, "r") as f:
             return f.read().strip()
-    except:
+    except (IOError, OSError):
         return "1.6.0"
 
 VERSION = get_version()
@@ -222,7 +221,7 @@ def print_results(user_pi: str, calculated_pi: str, decimals: int, verbose: bool
         print(f"π with {decimals} decimals:\t{formatted_pi}")
         print("Your version of π:\t", end="")
         
-    error_count = color_your_pi(user_pi, calculated_pi, verbose, colorblind_mode)
+    color_your_pi(user_pi, calculated_pi, verbose, colorblind_mode)
     
     if calculated_pi == user_pi:
         if verbose:
@@ -278,7 +277,7 @@ def main():
 
     try:
         args = parser.parse_args()
-    except:
+    except (argparse.ArgumentError, SystemExit):
         usage()
 
     if args.V:

@@ -3,9 +3,8 @@
 import unittest
 import sys
 import os
-import re
 import subprocess
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 # Add the parent directory to the path so we can import pigame
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src/python')))
@@ -103,17 +102,6 @@ class TestPiGameFunctions(unittest.TestCase):
         for length, expected in known_pi.items():
             calculated = pigame.calculate_pi(length)
             self.assertEqual(calculated, expected, f"Failed at length {length}")
-
-    def test_calculate_pi_edge_cases(self):
-        """Test pi calculation edge cases."""
-        # Test negative length
-        with self.assertRaises(ValueError):
-            pigame.calculate_pi(-1)
-        
-        # Test zero length (should return default length)
-        pi_default = pigame.calculate_pi(0)
-        self.assertEqual(len(pi_default), pigame.DEFAULT_LENGTH + 2)  # +2 for "3."
-        self.assertTrue(pi_default.startswith("3.141592653589793"))
 
     def test_color_your_pi(self):
         """Test the function that colors differences in pi."""

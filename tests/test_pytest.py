@@ -2,9 +2,8 @@
 
 import os
 import sys
-import re
 import subprocess
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 import pytest
 
 # Add the parent directory to the path so we can import pigame
