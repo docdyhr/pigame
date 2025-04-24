@@ -1,5 +1,6 @@
 name: CI/CD Pipeline
 
+# This workflow runs linting, building and testing across all implementations
 on:
   push:
     branches: [ master, main ]
