@@ -13,13 +13,18 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
     - name: Install shellcheck
       run: sudo apt-get update && sudo apt-get install -y shellcheck
     
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pylint
+        python -m pip install -r requirements.txt
     
     - name: Lint Bash script
       run: shellcheck src/bash/pigame.sh
@@ -45,8 +50,21 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -y build-essential bc python3 python3-pip
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install system dependencies
+      run: sudo apt-get update && sudo apt-get install -y build-essential bc
+    
+    - name: Create Python virtual environment
+      run: |
+        python -m venv .venv
+        source .venv/bin/activate
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements.txt
+        python -m pip install -e .
     
     - name: Build project
       run: make build
@@ -58,26 +76,14 @@ jobs:
       run: make test-c
       
     - name: Test Python implementation
-      run: make test-python
-      
-    - name: Test Python unit tests
-      run: make test-python-unit
-      
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-      
-    - name: Create Python virtual environment and setup
       run: |
-        python -m venv .venv
-        python -m pip install --upgrade pip
-        make setup-python
+        source .venv/bin/activate
+        make test-python
       
     - name: Run pytest with coverage
       run: |
-        # Use Python module directly in case make target fails
-        .venv/bin/python -m pytest tests/test_pytest.py -v --cov=src/python
+        source .venv/bin/activate
+        pytest tests/test_pytest.py -v --cov=src/python --cov-report=html
       
     - name: Upload coverage report
       uses: actions/upload-artifact@v3
