@@ -93,15 +93,27 @@ class TestPiGameFunctions(unittest.TestCase):
 
     def test_pi_accuracy(self):
         """Test pi calculation accuracy against known values."""
+        # Use verified digits from our trusted source
         known_pi = {
-            9: "3.141592653",  # Match exact number of digits
+            10: "3.1415926535",
             20: "3.14159265358979323846",
-            27: "3.141592653589793238462643383"  # Updated to match verified digits
+            30: "3.141592653589793238462643383279"  # Updated to match our verified digits
         }
         
         for length, expected in known_pi.items():
             calculated = pigame.calculate_pi(length)
             self.assertEqual(calculated, expected, f"Failed at length {length}")
+
+    def test_calculate_pi_edge_cases(self):
+        """Test pi calculation edge cases."""
+        # Test negative length
+        with self.assertRaises(ValueError):
+            pigame.calculate_pi(-1)
+        
+        # Test zero length (should return default length)
+        pi_default = pigame.calculate_pi(0)
+        self.assertEqual(len(pi_default), pigame.DEFAULT_LENGTH + 2)  # +2 for "3."
+        self.assertTrue(pi_default.startswith("3.141592653589793"))
 
     def test_color_your_pi(self):
         """Test the function that colors differences in pi."""
