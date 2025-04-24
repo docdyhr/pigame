@@ -20,7 +20,7 @@ jobs:
         python-version: '3.10'
     
     - name: Install system dependencies
-      run: sudo apt-get update && sudo apt-get install -y shellcheck
+      run: sudo apt-get update && sudo apt-get install -y shellcheck clang-format
     
     - name: Create Python virtual environment
       run: |
@@ -30,8 +30,19 @@ jobs:
         python -m pip install -r requirements.txt
         python -m pip install -e .
     
+    - name: Run Ruff
+      run: |
+        source .venv/bin/activate
+        ruff check src/python/ tests/ --fix
+        ruff format src/python/ tests/
+    
     - name: Lint Bash script
       run: shellcheck src/bash/pigame.sh
+    
+    - name: Lint C code
+      run: |
+        find src/c -name "*.c" -o -name "*.h" | xargs clang-format -i --style=file
+        git diff --exit-code || (echo "C code not formatted correctly" && exit 1)
     
     - name: Lint Python script
       run: |
