@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <math.h>
+#include <gmp.h>
 
 #define DEFAULT_LENGTH 15
 #define MAX_LENGTH 5001
@@ -69,75 +70,143 @@ int length_validation(const char* input) {
     return (int)value;
 }
 
+// Factorial helper function using double to handle large numbers
+double factorial(int n) {
+    double result = 1.0;
+    for (int i = 2; i <= n; i++) {
+        result *= i;
+    }
+    return result;
+}
+
+// Calculate binomial coefficient using logarithms to handle large numbers
+double binomial(int n, int k) {
+    if (k > n - k) k = n - k; // optimization
+    double result = 1.0;
+    for (int i = 1; i <= k; i++) {
+        result *= (double)(n - k + i) / i;
+    }
+    return result;
+}
+
 // Calculate pi using the Bailey–Borwein–Plouffe formula
 char* calc_pi(int length) {
-    // Add space for "3." and null terminator
-    char* result = (char*)malloc(length + 3);
-    if (!result) {
-        fprintf(stderr, "Memory allocation error\n");
-        exit(1);
-    }
-
-    // Start with "3."
-    strcpy(result, "3.");
-
     // For small values, use a hardcoded string (most accurate for low precision)
     if (length <= 15) {
+        char* result = (char*)malloc(length + 3);
+        if (!result) {
+            fprintf(stderr, "Memory allocation error\n");
+            exit(1);
+        }
+        strcpy(result, "3.");
         const char* pi_digits = "141592653589793";
         strncat(result, pi_digits, length);
-        result[length + 2] = '\0'; // +2 for "3."
+        result[length + 2] = '\0';
         return result;
     }
 
-    // For lengths > 15, calculate using BBP formula with double precision.
-    // Note: double precision limits accuracy to about 15-16 decimal digits.
-    // Calculating more digits will not increase accuracy beyond this limit.
-    double pi = 0.0;
-    // BBP formula needs sufficient iterations to converge within double precision
-    int iterations = 15; // Adjust as needed for desired precision/performance trade-off
-
-    for (int k = 0; k < iterations; k++) {
-        pi += (1.0 / pow(16.0, k)) *
-              ( (4.0 / (8.0 * k + 1.0)) -
-                (2.0 / (8.0 * k + 4.0)) -
-                (1.0 / (8.0 * k + 5.0)) -
-                (1.0 / (8.0 * k + 6.0)) );
+    // Initialize GMP variables
+    mpf_t pi, sum, num, den, tmp;
+    mp_exp_t exp;
+    
+    // Set precision - need significant extra precision for intermediate calculations
+    mp_bitcnt_t precision = (length + 2) * 16;  // About 16 bits per decimal digit
+    mpf_set_default_prec(precision);
+    
+    // Initialize variables
+    mpf_init(pi);
+    mpf_init(sum);
+    mpf_init(num);
+    mpf_init(den);
+    mpf_init(tmp);
+    
+    // Constants for Chudnovsky algorithm
+    mpf_t C, A, B, J, D;
+    mpf_init(C);
+    mpf_init(A);
+    mpf_init(B);
+    mpf_init(J);
+    mpf_init(D);
+    
+    // C = 426880 * sqrt(10005)
+    mpf_set_ui(C, 10005);
+    mpf_sqrt(C, C);
+    mpf_mul_ui(C, C, 426880);
+    
+    // Initialize sum with first term
+    mpf_set_ui(sum, 13591409);
+    mpf_set_ui(A, 1);
+    mpf_set_ui(B, 1);
+    
+    // D = 640320^3
+    mpf_set_ui(D, 640320);
+    mpf_pow_ui(D, D, 3);
+    
+    // Number of iterations needed for desired precision
+    int terms = (length / 14) + 2;  // About 14 digits per iteration
+    
+    for (int k = 1; k <= terms; k++) {
+        // Update A
+        // A *= -(6k-5)(2k-1)(6k-1)
+        mpf_set_ui(tmp, 6 * k - 5);
+        mpf_set_ui(den, 2 * k - 1);
+        mpf_mul(tmp, tmp, den);
+        mpf_set_ui(den, 6 * k - 1);
+        mpf_mul(tmp, tmp, den);
+        mpf_neg(tmp, tmp);
+        mpf_mul(A, A, tmp);
+        
+        // Update B
+        // B *= k^3 * D
+        mpf_set_ui(tmp, k);
+        mpf_pow_ui(tmp, tmp, 3);
+        mpf_mul(tmp, tmp, D);
+        mpf_mul(B, B, tmp);
+        
+        // J = 13591409 + 545140134k
+        mpf_set_ui(J, k);
+        mpf_mul_ui(J, J, 545140134);
+        mpf_add_ui(J, J, 13591409);
+        
+        // num = A * J
+        mpf_mul(num, A, J);
+        
+        // sum += num / B
+        mpf_div(tmp, num, B);
+        mpf_add(sum, sum, tmp);
     }
-
-    // Format the result to the desired precision using snprintf for safety
-    // Calculate a few extra digits internally to help with rounding.
-    char temp[MAX_LENGTH + 20]; // Temporary buffer, ensure it's large enough
-    snprintf(temp, sizeof(temp), "%.*f", length + 5, pi);
-
-    // Copy the decimal part from temp (after "3.") to result
-    // Ensure we don't read past the calculated precision in temp or write past buffer
-    int copy_len = 0;
-    if (strlen(temp) > 2) {
-         // Calculate length of decimal part available in temp buffer
-         copy_len = strlen(temp) - 2;
-         // Limit copy length to the requested length
-         if (copy_len > length) {
-             copy_len = length;
-         }
-         // Copy the decimal digits
-         strncpy(result + 2, temp + 2, copy_len);
+    
+    // Final division
+    mpf_ui_div(pi, 1, sum);    // pi = 1/sum
+    mpf_mul(pi, pi, C);        // pi *= C
+    
+    // Convert to string
+    char* result = mpf_get_str(NULL, &exp, 10, length + 1, pi);
+    
+    // Format result string
+    char* formatted = (char*)malloc(length + 3);
+    if (!formatted) {
+        fprintf(stderr, "Memory allocation error\n");
+        exit(1);
     }
-
-    // Pad with '0' if calculated digits are fewer than requested length
-    // This will happen if length > ~15 due to double precision limits
-    if (copy_len < length) {
-        for (int i = copy_len; i < length; ++i) {
-            // Ensure we don't write past the allocated buffer for result
-            if (2 + i < length + 2) {
-                 result[2 + i] = '0'; // Pad with zeros
-            }
-        }
-    }
-
-    // Null-terminate the final string
-    result[length + 2] = '\0';
-
-    return result;
+    
+    // Add decimal point after first digit
+    sprintf(formatted, "3.%s", result + 1);
+    
+    // Free GMP variables
+    mpf_clear(pi);
+    mpf_clear(sum);
+    mpf_clear(num);
+    mpf_clear(den);
+    mpf_clear(tmp);
+    mpf_clear(C);
+    mpf_clear(A);
+    mpf_clear(B);
+    mpf_clear(J);
+    mpf_clear(D);
+    free(result);
+    
+    return formatted;
 }
 
 // Format PI with spaces for better readability
