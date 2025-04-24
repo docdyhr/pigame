@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
-# PIGAME - How many decimals of π can you remember?
-# Main wrapper script that selects the right implementation
+# PIGAME - Test your memory of π digits using verified mathematical sources
+#
+# A multi-implementation tool to help memorize π digits, using verified digits 
+# from trusted sources for perfect accuracy and consistent results.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-VERSION=$(cat "${SCRIPT_DIR}/src/VERSION" 2>/dev/null || echo "1.6.0")
+VERSION=$(cat "${SCRIPT_DIR}/src/VERSION" 2>/dev/null || echo "1.6.12")
 
 # Detect the preferred implementation
 detect_preference() {
@@ -21,8 +23,8 @@ detect_preference() {
 show_implementations() {
     echo "PIGAME - Multiple implementations available:"
     echo "  bash   - Original Bash implementation (default)"
-    echo "  c      - C implementation"
-    echo "  python - Python implementation" 
+    echo "  c      - Fast C implementation with verified pi digits"
+    echo "  python - Python implementation with enhanced features" 
     echo
     echo "Usage: pigame [-v] [-p LENGTH] [-V] [-c] YOUR_PI"
     echo "  -v          Increase verbosity."

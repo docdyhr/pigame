@@ -12,12 +12,13 @@ def read_version():
         with open(version_file, 'r') as f:
             return f.read().strip()
     except:
-        return '1.6.0'  # Default version
+        return '1.6.12'  # Default version
 
 setup(
     name="pigame",
     version=read_version(),
-    description="How many decimals of π can you remember?",
+    description="Test your memory of π using verified digits",
+    long_description="A multi-implementation tool to help memorize π digits, using verified digits from trusted mathematical sources for perfect accuracy.",
     author="Thomas J. Dyhr",
     author_email="thomas@dyhr.com",
     url="https://github.com/docdyhr/pigame",
@@ -42,6 +43,7 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Topic :: Education",
+        "Topic :: Scientific/Engineering :: Mathematics",
     ],
     python_requires=">=3.6",
 )

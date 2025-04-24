@@ -1,3 +1,14 @@
+/*
+ * PIGAME - Test your memory of π digits
+ * 
+ * C implementation using verified digits from trusted mathematical sources
+ * for perfect accuracy and consistent results across all implementations.
+ * 
+ * Version: 1.6.12
+ * Author: Thomas J. Dyhr
+ * Date: April 2024
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

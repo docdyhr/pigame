@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
 
-# This scripts calculates pi with bc and compares it with your version.
-
-# Name: pigame
+# PIGAME - Test your memory of π digits
+#
+# Bash implementation using verified digits from trusted mathematical sources
+# for perfect accuracy and consistent results across all implementations.
+#
+# Version: $(cat "$(dirname "$0")/../VERSION" 2>/dev/null || echo "1.6.12")
 # Author: thomas@dyhr.com
-# Date: 14. Jan 2022
-# Version: $(cat "$(dirname "$0")/../VERSION" 2>/dev/null || echo "1.6.0")
+# Date: April 2024
 
 # shellcheck source=src/VERSION
-VERSION=$(cat "$(dirname "$0")/../VERSION" 2>/dev/null || echo "1.6.0")
+VERSION=$(cat "$(dirname "$0")/../VERSION" 2>/dev/null || echo "1.6.12")
 
 # Default LENGTH of π: '3.141592653589793'
 DEFAULT_LENGTH=15
@@ -165,12 +167,6 @@ calc_pi() {
     
     PI="${result}"
 }
-
-# Check if BC is available on the system
-if ! command -v bc &>/dev/null; then
-    echo "bc could not be found, see https://www.gnu.org/software/bc/bc.html" >&2
-    exit 1
-fi
 
 # MENU: get command line options with Bash getopts
 # first : indicates we handle errors ourselves

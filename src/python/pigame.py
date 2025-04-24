@@ -1,4 +1,14 @@
 #!/usr/bin/env python3
+"""
+PIGAME - Test your memory of π digits
+
+Python implementation using verified digits from trusted mathematical sources
+for perfect accuracy and consistent results across all implementations.
+
+Version: (see VERSION file)
+Author: Thomas J. Dyhr
+Date: April 2024
+"""
 
 import argparse
 import os
@@ -8,6 +18,7 @@ from math import pi
 
 # Read version from file or use default
 def get_version():
+    """Read version from VERSION file or return default version."""
     try:
         version_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "VERSION")
         with open(version_file, "r") as f:
