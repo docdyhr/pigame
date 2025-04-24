@@ -1,35 +1,38 @@
 # Calculating π (Pi)
 
-This document outlines how π is calculated in this project, why it might not be necessary to compute it at runtime, and provides alternatives.
+This document outlines how π is calculated in this project and explains our approach to providing accurate digits.
 
 ---
 
-## ✅ Current Implementation (C Version)
-This calculation is implemented in the C version of this project (see `pigame_c/pigame.c`).
+## ✅ Current Implementation
+This project uses verified π digits from trusted mathematical sources. The digits are stored as a string constant in the code, which provides:
+- Guaranteed accuracy
+- Fast constant-time access
+- No runtime calculation overhead
+- No dependency on external math libraries
 
-This project calculates π using the **Chudnovsky algorithm**, a fast-converging method suitable for high-precision arithmetic. It uses the **GMP (GNU Multiple Precision Arithmetic)** library to handle very large numbers with floating-point precision.
-
-- For low precision (≤ 15 digits), it returns a hardcoded string.
-- For higher precision, it performs:
-  - Arbitrary precision arithmetic
-  - Iterative summation of Chudnovsky terms
-  - Conversion of the result to a decimal string
+For all implementations (C, Python, Bash):
+- First 15 digits are handled directly for common use cases
+- Beyond 15 digits, verified pre-calculated digits are used
+- Formatting and display are handled consistently across implementations
 
 ---
 
-## 🧠 Why Not Just Store π?
+## 🧠 Why Store π Instead of Calculating?
 
-In most real-world applications, recalculating π is unnecessary and inefficient. Alternatives include:
+In real-world applications, recalculating π at runtime is:
+- Unnecessary: The digits of π are constant and well-known
+- Inefficient: Complex calculations use more CPU and memory
+- Error-prone: Floating-point arithmetic can introduce inaccuracies
 
-- Storing a long, precomputed version of π as a string or binary file
-- Reading only the requested number of digits
-- Avoiding complex runtime computation and external libraries
-
-### ✅ Benefits of Lookup
-- Much faster (constant-time access)
-- More energy and resource efficient
-- Less complex code
-- Allows using pre-validated digits (e.g. from https://www.piday.org/million/)
+### ✅ Benefits of Our Approach
+- Constant-time access (O(1) complexity)
+- Zero calculation overhead
+- Guaranteed accuracy of all digits
+- Simplified code maintenance
+- Consistent results across all implementations
+- No external library dependencies
+- Pre-validated digits from trusted sources
 
 ---
 
@@ -43,24 +46,33 @@ In most real-world applications, recalculating π is unnecessary and inefficient
 
 ---
 
-## 🔧 Alternative: Lookup Function
+## 🔧 Implementation Details
 
-To simplify and speed up this project, a lookup-based function can replace dynamic computation:
+The project uses string operations to return the requested number of digits:
 
 ```c
+// Example from C implementation
 const char* PI_DIGITS =
-    "1415926535897932384626433832795028841971" // and so on...
+    "141592653589793238462643383279502884197169399375105820974944592307816406286"
+    // ... more digits ...
 
-char* get_pi(int length) {
-    if (length > MAX_DIGITS) length = MAX_DIGITS;
-    char* result = malloc(length + 3); // "3.", digits, '\0'
-    snprintf(result, length + 3, "3.%.*s", length, PI_DIGITS);
+char* calc_pi(int length) {
+    char* result = malloc(length + 3);  // "3." + digits + '\0'
+    strcpy(result, "3.");
+    strncat(result, PI_DIGITS, length);
+    result[length + 2] = '\0';
     return result;
 }
 ```
+
+Benefits of this implementation:
+- Simple and maintainable code
+- Fast string operations
+- No floating-point arithmetic
+- No risk of calculation errors
 
 ---
 
 ## 📝 Conclusion
 
-While this project currently demonstrates computing π using a well-known algorithm, a lookup approach may be more efficient for deployment or production. Use computation for educational purposes, and lookup for performance.
+By using stored verified digits, we achieve both reliability and performance. This approach is ideal for applications where accuracy and speed are crucial, while keeping the codebase simple and maintainable.

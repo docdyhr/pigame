@@ -38,7 +38,7 @@ run_test() {
 cd "$(dirname "$0")"
 if [[ ! -x $PIGAME ]]; then
     echo "Compiling C implementation..."
-    (cd ../src/c && gcc -o pigame pigame.c -lm)
+    (cd ../src/c && gcc -o pigame pigame.c -lm -lgmp)
 fi
 
 # Run tests
@@ -46,26 +46,45 @@ fi
 # Test 1: Version flag (-V)
 run_test "Version flag" "$PIGAME -V" "version"
 
-# Test 2: Pi calculation with 5 decimals
+# Test 2: Basic pi calculation (low precision)
 run_test "Pi calculation (5 decimals)" "$PIGAME -p 5" "3.14159"
 
-# Test 3: Correct input with verbose flag
+# Test 3: Medium precision calculation (30 decimals)
+run_test "Pi calculation (30 decimals)" "$PIGAME -p 30" "3.14159 26535 89793 23846 26433 83279"
+
+# Test 4: High precision calculation (50 decimals)
+run_test "Pi calculation (50 decimals)" "$PIGAME -p 50" "3.14159 26535 89793 23846 26433 83279 50288 41971 69399 37510"
+
+# Test 5: Verify precision transitions
+# The C implementation switches from hardcoded to Chudnovsky at 15 digits
+run_test "Precision transition (15 decimals)" "$PIGAME -p 15" "3.14159 26535 89793"
+
+# Test 6: Precision transition above hardcoded threshold
+run_test "Precision transition (16 decimals)" "$PIGAME -p 16" "3.14159 26535 89793 2"
+
+# Test 7: Test spacing in output with smaller numbers
+run_test "Output spacing (10 decimals)" "$PIGAME -p 10" "3.14159 26535"
+
+# Test 8: Correct input with verbose flag
 run_test "Correct input with verbose" "$PIGAME -v 3.14159" "Well done"
 
-# Test 4: Incorrect input with verbose flag
+# Test 9: Incorrect input with verbose flag
 run_test "Incorrect input with verbose" "$PIGAME -v 3.14158" "You can do better!"
 
-# Test 5: Correct input without verbose flag
+# Test 10: Correct input without verbose flag
 run_test "Correct input without verbose" "$PIGAME 3.14159" "Match"
 
-# Test 6: Incorrect input without verbose flag
+# Test 11: Incorrect input without verbose flag
 run_test "Incorrect input without verbose" "$PIGAME 3.14158" "No match"
 
-# Test 7: Invalid input
+# Test 12: Invalid input
 run_test "Invalid input" "$PIGAME abc 2>&1" "Invalid input"
 
-# Test 8: Easter egg
+# Test 13: Easter egg
 run_test "Easter egg" "$PIGAME Archimedes" "Archimedes constant"
+
+# Test 14: Color-blind mode with incorrect input
+run_test "Color-blind mode incorrect input" "$PIGAME -c 3.14158 2>&1" "3.14159"
 
 # Print summary
 echo "---------------------------------------"

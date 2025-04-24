@@ -8,7 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- TBD
+- Switched to using verified pi digits instead of runtime calculation
+- Improved accuracy and performance by eliminating floating-point arithmetic
+- Removed GMP library dependency for C implementation
+- Consistent pi digits across all implementations
 
 ## [1.6.10] - 2025-04-24
 

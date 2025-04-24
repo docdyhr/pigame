@@ -61,14 +61,47 @@ class TestPiGameFunctions(unittest.TestCase):
                 pigame.length_validation(str(pigame.MAX_LENGTH + 1))
                 mock_exit.assert_called()
 
-    def test_calculate_pi(self):
-        """Test pi calculation with various lengths."""
+    def test_calculate_pi_precision(self):
+        """Test pi calculation with different precision levels."""
+        # Test low precision (≤ 15 digits)
         self.assertEqual(pigame.calculate_pi(1), "3.1")
         self.assertEqual(pigame.calculate_pi(5), "3.14159")
-        # Test a longer calculation to ensure precision
-        pi_15 = pigame.calculate_pi(15)
-        self.assertEqual(len(pi_15), 17)  # "3." + 15 digits
-        self.assertTrue(pi_15.startswith("3.14159265358979"))
+        self.assertEqual(pigame.calculate_pi(15), "3.141592653589793")
+        
+        # Test medium precision
+        pi_30 = pigame.calculate_pi(30)
+        self.assertEqual(len(pi_30), 32)  # "3." + 30 digits
+        self.assertTrue(pi_30.startswith("3.141592653589793238462643383279"))
+        
+        # Test higher precision
+        pi_50 = pigame.calculate_pi(50)
+        self.assertEqual(len(pi_50), 52)  # "3." + 50 digits
+        self.assertTrue(pi_50.startswith(pi_30))  # First 30 digits should match
+
+    def test_calculate_pi_edge_cases(self):
+        """Test pi calculation edge cases."""
+        # Test with minimum length
+        self.assertEqual(pigame.calculate_pi(1), "3.1")
+        
+        # Test with zero (should return default length)
+        pi_default = pigame.calculate_pi(0)
+        self.assertEqual(len(pi_default), 17)  # "3." + DEFAULT_LENGTH digits
+        
+        # Test with negative length (should handle gracefully)
+        with self.assertRaises(ValueError):
+            pigame.calculate_pi(-1)
+
+    def test_pi_accuracy(self):
+        """Test pi calculation accuracy against known values."""
+        known_pi = {
+            9: "3.141592653",  # Match exact number of digits
+            20: "3.14159265358979323846",
+            27: "3.141592653589793238462643383"  # Updated to match verified digits
+        }
+        
+        for length, expected in known_pi.items():
+            calculated = pigame.calculate_pi(length)
+            self.assertEqual(calculated, expected, f"Failed at length {length}")
 
     def test_color_your_pi(self):
         """Test the function that colors differences in pi."""

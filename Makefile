@@ -2,7 +2,7 @@
 
 CC = gcc
 CFLAGS = -Wall -Wextra -O2
-LDFLAGS = -lm -lgmp
+LDFLAGS = -lm
 PREFIX ?= /usr/local
 
 all: build

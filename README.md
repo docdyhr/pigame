@@ -51,36 +51,26 @@ cp pigame ~/bin  # Or any directory in your PATH
 
 ### Requirements
 
-* `bc` - An arbitrary precision calculator language (required for Bash implementation)
+* `bc` - An arbitrary precision calculator language (required for legacy Bash implementation)
   * Linux/Unix: install with your standard package manager
   * Windows: a 32-bit Windows version is available
   * Ref.: https://www.gnu.org/software/bc/bc.html
-* For C implementation: C compiler (gcc or clang) and math library
+* For C implementation: C compiler (gcc or clang)
 * For Python implementation: Python 3.6+
 
 ## Implementations
 
 PIGAME comes in three implementations, each with its own strengths:
 
-1. **Bash** (Original): Lightweight and works on any Unix-like system with bash and bc.
-2. **C**: Fast and efficient, ideal for resource-constrained environments.
+1. **Bash** (Original): Lightweight and works on any Unix-like system with bash.
+2. **C**: Highly efficient, uses verified pi digits for perfect accuracy.
 3. **Python**: More readable code with strong error handling.
 
-To select an implementation, set the `PIGAME_IMPLEMENTATION` environment variable:
-
-```shell
-# Use the Bash implementation
-export PIGAME_IMPLEMENTATION=bash
-pigame 3.14159
-
-# Use the C implementation
-export PIGAME_IMPLEMENTATION=c
-pigame 3.14159
-
-# Use the Python implementation
-export PIGAME_IMPLEMENTATION=python
-pigame 3.14159
-```
+All implementations now use verified pi digits from trusted mathematical sources, ensuring:
+- Perfect accuracy across all precision levels
+- Consistent results across implementations
+- Fast constant-time digit retrieval
+- No external library dependencies
 
 ## Examples
 

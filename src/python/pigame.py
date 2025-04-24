@@ -90,23 +90,43 @@ def length_validation(length_str: str) -> int:
 
 def calculate_pi(length: int) -> str:
     """
-    Calculate the value of pi with a specified decimal length.
+    Return pi digits from a verified source.
 
     Parameters:
-    - length (int): The number of decimal places to calculate pi.
+    - length (int): The number of decimal places to return.
 
     Returns:
-    - str: The value of pi formatted as a string with the specified decimal length.
+    - str: The value of pi with the specified decimal length.
+
+    Raises:
+    - ValueError: If length is negative
     """
-    # Format pi to the required precision
-    format_string = f"{{:.{length+2}f}}".format(pi)
-    # Remove leading "3." if present and trim to exact length needed
-    if format_string.startswith("3."):
-        digits = format_string[2:]
-    else:
-        digits = format_string.replace(".", "")
+    # Verified digits of π from a trusted source
+    PI_DIGITS = (
+        "141592653589793238462643383279502884197169399375105820974944592307816406286"
+        "208998628034825342117067982148086513282306647093844609550582231725359408128"
+        "481117450284102701938521105559644622948954930381964428810975665933446128475"
+        "648233786783165271201909145648566923460348610454326648213393607260249141273"
+        "724587006606315588174881520920962829254091715364367892590360011330530548820"
+        "466521384146951941511609433057270365759591953092186117381932611793105118548"
+        "074462379962749567351885752724891227938183011949129833673362440656643"
+    )
     
-    return f"3.{digits[:length]}"
+    # Check for negative length
+    if length < 0:
+        raise ValueError("Length cannot be negative")
+        
+    # For zero length, use default length
+    if length == 0:
+        length = DEFAULT_LENGTH
+    
+    # Return exactly the requested number of digits
+    digits = PI_DIGITS[:length]
+    if len(digits) < length:
+        raise ValueError(f"Requested {length} digits but only {len(digits)} are available")
+    
+    # Return "3." + digits
+    return f"3.{digits}"
 
 
 def format_pi_with_spaces(pi_str: str) -> str:
