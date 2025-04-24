@@ -70,7 +70,6 @@ int length_validation(const char* input) {
 }
 
 // Calculate pi using the Bailey–Borwein–Plouffe formula
-// This is more accurate than a simple constant for arbitrary precision
 char* calc_pi(int length) {
     // Add space for "3." and null terminator
     char* result = (char*)malloc(length + 3);
@@ -78,42 +77,66 @@ char* calc_pi(int length) {
         fprintf(stderr, "Memory allocation error\n");
         exit(1);
     }
-    
+
     // Start with "3."
     strcpy(result, "3.");
-    
-    // For small values, use a hardcoded string
+
+    // For small values, use a hardcoded string (most accurate for low precision)
     if (length <= 15) {
-        const char* pi_digits = "141592653589793"; 
+        const char* pi_digits = "141592653589793";
         strncat(result, pi_digits, length);
         result[length + 2] = '\0'; // +2 for "3."
         return result;
     }
-    
-    // For longer values, calculate with series
-    // Using the Nilakantha series
-    double pi = 3.0;
-    double term;
-    
-    for (int i = 0; i < length * 10; i++) {
-        term = (i % 2 == 0 ? 4.0 : -4.0) / ((2 * i + 2) * (2 * i + 3) * (2 * i + 4));
-        pi += term;
-        
-        // Stop if we've reached sufficient precision
-        if (fabs(term) < 1e-15) break;
+
+    // For lengths > 15, calculate using BBP formula with double precision.
+    // Note: double precision limits accuracy to about 15-16 decimal digits.
+    // Calculating more digits will not increase accuracy beyond this limit.
+    double pi = 0.0;
+    // BBP formula needs sufficient iterations to converge within double precision
+    int iterations = 15; // Adjust as needed for desired precision/performance trade-off
+
+    for (int k = 0; k < iterations; k++) {
+        pi += (1.0 / pow(16.0, k)) *
+              ( (4.0 / (8.0 * k + 1.0)) -
+                (2.0 / (8.0 * k + 4.0)) -
+                (1.0 / (8.0 * k + 5.0)) -
+                (1.0 / (8.0 * k + 6.0)) );
     }
-    
-    // Format the result to the desired precision
-    char format[20];
-    sprintf(format, "%%.%df", length);
-    
-    char temp[MAX_LENGTH + 10];
-    sprintf(temp, format, pi);
-    
-    // Remove the "3." part
-    strncpy(result + 2, temp + 2, length);
+
+    // Format the result to the desired precision using snprintf for safety
+    // Calculate a few extra digits internally to help with rounding.
+    char temp[MAX_LENGTH + 20]; // Temporary buffer, ensure it's large enough
+    snprintf(temp, sizeof(temp), "%.*f", length + 5, pi);
+
+    // Copy the decimal part from temp (after "3.") to result
+    // Ensure we don't read past the calculated precision in temp or write past buffer
+    int copy_len = 0;
+    if (strlen(temp) > 2) {
+         // Calculate length of decimal part available in temp buffer
+         copy_len = strlen(temp) - 2;
+         // Limit copy length to the requested length
+         if (copy_len > length) {
+             copy_len = length;
+         }
+         // Copy the decimal digits
+         strncpy(result + 2, temp + 2, copy_len);
+    }
+
+    // Pad with '0' if calculated digits are fewer than requested length
+    // This will happen if length > ~15 due to double precision limits
+    if (copy_len < length) {
+        for (int i = copy_len; i < length; ++i) {
+            // Ensure we don't write past the allocated buffer for result
+            if (2 + i < length + 2) {
+                 result[2 + i] = '0'; // Pad with zeros
+            }
+        }
+    }
+
+    // Null-terminate the final string
     result[length + 2] = '\0';
-    
+
     return result;
 }
 
