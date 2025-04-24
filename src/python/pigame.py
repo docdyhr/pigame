@@ -20,7 +20,7 @@ def get_version():
     """Read version from VERSION file or return default version."""
     try:
         version_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "VERSION")
-        with open(version_file, "r") as f:
+        with open(version_file, "r", encoding="utf-8") as f:
             return f.read().strip()
     except (IOError, OSError):
         return "1.6.0"
@@ -81,7 +81,7 @@ def length_validation(length_str: str) -> int:
         usage()
         # For unit tests, raise ValueError explicitly
         raise ValueError("Input is not an integer")
-        
+
     # Convert to integer
     length = int(length_str)
 
@@ -265,7 +265,7 @@ def main():
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("-v", action="store_true", help="Increase verbosity.")
     parser.add_argument(
-        "-p", 
+        "-p",
         type=str,
         help="Calculate and show π with LENGTH number of decimals.",
     )
@@ -292,28 +292,28 @@ def main():
         length = length_validation(args.p)
         calculated_pi = calculate_pi(length)
         formatted_pi = format_pi_with_spaces(calculated_pi)
-        
+
         if args.v:
             print(f"π with {length} decimals:\t{formatted_pi}")
         else:
             print(formatted_pi)
-        
+
         # If no user pi is provided, exit after displaying
         if not args.YOUR_PI:
             sys.exit(0)
     else:
         length = DEFAULT_LENGTH
-    
-    # Handle YOUR_PI argument    
+
+    # Handle YOUR_PI argument
     if args.YOUR_PI:
         # Check for easter eggs
         if handle_easter_egg(args.YOUR_PI):
             sys.exit(0)
-        
+
         # Validate input
         input_validation(args.YOUR_PI)
         user_pi = args.YOUR_PI
-        
+
         # If -p was not provided, determine length from user_pi
         if not args.p:
             # Number of decimals is length - 2 (for "3.")
@@ -322,7 +322,7 @@ def main():
         else:
             decimals = length
             calculated_pi = calculate_pi(decimals)
-        
+
         print_results(user_pi, calculated_pi, decimals, args.v, args.c)
 
 

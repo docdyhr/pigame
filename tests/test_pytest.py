@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
 
 import os
-import sys
 import subprocess
 from unittest.mock import patch
-import pytest
+import pytest  # type: ignore
 
-# Add the parent directory to the path so we can import pigame
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src/python')))
-import pigame
+from src.python import pigame
 
 
 # Unit tests for core functions
@@ -117,53 +114,53 @@ class TestPiGameIntegration:
     def run_pigame(self, args, pigame_path):
         """Helper function to run the pigame script with given arguments."""
         cmd = [pigame_path] + args
-        process = subprocess.run(cmd, capture_output=True, text=True)
+        process = subprocess.run(cmd, capture_output=True, text=True, check=False)
         return process.stdout, process.stderr, process.returncode
     
     def test_version_flag(self, pigame_path):
         """Test the -V flag."""
-        stdout, stderr, returncode = self.run_pigame(["-V"], pigame_path)
+        stdout, _, returncode = self.run_pigame(["-V"], pigame_path)
         assert "version:" in stdout
         assert returncode == 0
     
     def test_pi_calculation(self, pigame_path):
         """Test pi calculation with -p flag."""
-        stdout, stderr, returncode = self.run_pigame(["-p", "5"], pigame_path)
+        stdout, _, returncode = self.run_pigame(["-p", "5"], pigame_path)
         assert "3.14159" in stdout
         assert returncode == 0
     
     def test_correct_input_verbose(self, pigame_path):
         """Test with correct pi input and verbose flag."""
-        stdout, stderr, returncode = self.run_pigame(["-v", "3.14159"], pigame_path)
+        stdout, _, returncode = self.run_pigame(["-v", "3.14159"], pigame_path)
         assert ("Well done" in stdout or "Perfect" in stdout)
         assert returncode == 0
     
     def test_incorrect_input_verbose(self, pigame_path):
         """Test with incorrect pi input and verbose flag."""
-        stdout, stderr, returncode = self.run_pigame(["-v", "3.14158"], pigame_path)
+        stdout, _, returncode = self.run_pigame(["-v", "3.14158"], pigame_path)
         assert "You can do better" in stdout
         assert returncode == 0
     
     def test_correct_input(self, pigame_path):
         """Test with correct pi input without verbose flag."""
-        stdout, stderr, returncode = self.run_pigame(["3.14159"], pigame_path)
+        stdout, _, returncode = self.run_pigame(["3.14159"], pigame_path)
         assert "Match" in stdout
         assert returncode == 0
     
     def test_incorrect_input(self, pigame_path):
         """Test with incorrect pi input without verbose flag."""
-        stdout, stderr, returncode = self.run_pigame(["3.14158"], pigame_path)
+        stdout, _, returncode = self.run_pigame(["3.14158"], pigame_path)
         assert "No match" in stdout
         assert returncode == 0
     
     def test_invalid_input(self, pigame_path):
         """Test with invalid input."""
-        stdout, stderr, returncode = self.run_pigame(["abc"], pigame_path)
+        _, stderr, returncode = self.run_pigame(["abc"], pigame_path)
         assert "Invalid input" in stderr
         assert returncode == 1
     
     def test_easter_egg(self, pigame_path):
         """Test the easter egg functionality."""
-        stdout, stderr, returncode = self.run_pigame(["Archimedes"], pigame_path)
+        stdout, _, returncode = self.run_pigame(["Archimedes"], pigame_path)
         assert "Archimedes constant" in stdout
         assert returncode == 0
