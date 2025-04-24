@@ -18,19 +18,24 @@ jobs:
       with:
         python-version: '3.10'
     
-    - name: Install shellcheck
+    - name: Install system dependencies
       run: sudo apt-get update && sudo apt-get install -y shellcheck
     
-    - name: Install Python dependencies
+    - name: Create Python virtual environment
       run: |
+        python -m venv .venv
+        source .venv/bin/activate
         python -m pip install --upgrade pip
         python -m pip install -r requirements.txt
+        python -m pip install -e .
     
     - name: Lint Bash script
       run: shellcheck src/bash/pigame.sh
     
     - name: Lint Python script
-      run: pylint src/python/pigame.py || true
+      run: |
+        source .venv/bin/activate
+        pylint src/python/pigame.py || true
   
   build:
     runs-on: ubuntu-latest
@@ -58,10 +63,10 @@ jobs:
     - name: Install system dependencies
       run: sudo apt-get update && sudo apt-get install -y build-essential bc
     
-    - name: Create Python virtual environment
+    - name: Set up Python environment
       run: |
         python -m venv .venv
-        source .venv/bin/activate
+        . .venv/bin/activate
         python -m pip install --upgrade pip
         python -m pip install -r requirements.txt
         python -m pip install -e .
@@ -77,13 +82,13 @@ jobs:
       
     - name: Test Python implementation
       run: |
-        source .venv/bin/activate
+        . .venv/bin/activate
         make test-python
       
     - name: Run pytest with coverage
       run: |
-        source .venv/bin/activate
-        pytest tests/test_pytest.py -v --cov=src/python --cov-report=html
+        . .venv/bin/activate
+        pytest tests/test_pytest.py -v --cov=src/python --cov-report=term-missing --cov-report=html
       
     - name: Upload coverage report
       uses: actions/upload-artifact@v3
