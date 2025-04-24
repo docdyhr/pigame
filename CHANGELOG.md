@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- TBD
+
+## [1.6.12] - 2025-04-24
+
+### Added
 - Switched to using verified pi digits instead of runtime calculation
 - Improved accuracy and performance by eliminating floating-point arithmetic
 - Removed GMP library dependency for C implementation
@@ -88,7 +93,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Command-line interface with flags for verbosity and precision
 - Easter egg references to Archimedes
 
-[Unreleased]: https://github.com/docdyhr/pigame/compare/v1.6.11...HEAD
+[Unreleased]: https://github.com/docdyhr/pigame/compare/v1.6.12...HEAD
+[1.6.12]: https://github.com/docdyhr/pigame/compare/v1.6.11...v1.6.12
 [1.6.11]: https://github.com/docdyhr/pigame/compare/v1.6.10...v1.6.11
 [1.6.10]: https://github.com/docdyhr/pigame/compare/v1.6.9...v1.6.10
 [1.6.9]: https://github.com/docdyhr/pigame/compare/v1.6.8...v1.6.9
