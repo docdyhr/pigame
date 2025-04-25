@@ -1,0 +1,3 @@
+"""
+pigame package initialization
+"""

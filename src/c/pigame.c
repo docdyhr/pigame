@@ -1,9 +1,9 @@
 /*
  * PIGAME - Test your memory of π digits
- * 
+ *
  * C implementation using verified digits from trusted mathematical sources
  * for perfect accuracy and consistent results across all implementations.
- * 
+ *
  * Version: 1.6.12
  * Author: Thomas J. Dyhr
  * Date: April 2024
@@ -21,22 +21,27 @@
 #define MAX_LENGTH 5001
 
 // Read version from file or use default
-const char* get_version() {
-    static char version[20] = {0};
-    if (version[0] == 0) {
-        FILE *fp = fopen("../VERSION", "r");
-        if (fp) {
-            if (fgets(version, sizeof(version), fp)) {
-                // Remove newline if present
-                char *newline = strchr(version, '\n');
-                if (newline) *newline = 0;
-            } else {
-                strcpy(version, "1.6.0");
+char* get_version() {
+    static char version[16];
+    FILE *fp;
+    char version_file[256];
+
+    // Try to read from VERSION file
+    snprintf(version_file, sizeof(version_file), "%s/../VERSION", get_program_dir());
+    fp = fopen(version_file, "r");
+    if (fp) {
+        if (fgets(version, sizeof(version), fp)) {
+            // Remove newline if present
+            size_t len = strlen(version);
+            if (len > 0 && version[len-1] == '\n') {
+                version[len-1] = '\0';
             }
-            fclose(fp);
         } else {
-            strcpy(version, "1.6.0");
+            strcpy(version, "1.6.20");
         }
+        fclose(fp);
+    } else {
+        strcpy(version, "1.6.20");
     }
     return version;
 }
@@ -53,11 +58,11 @@ void usage(char* program_name) {
 
 bool input_validation(const char* input) {
     int dot_count = 0;
-    
+
     if (!input || strlen(input) == 0) {
         return false;
     }
-    
+
     for (int i = 0; input[i] != '\0'; i++) {
         if (input[i] == '.') {
             dot_count++;
@@ -100,7 +105,7 @@ double binomial(int n, int k) {
 }
 
 // Verified digits of π from a trusted source
-const char* PI_DIGITS = 
+const char* PI_DIGITS =
     "141592653589793238462643383279502884197169399375105820974944592307816406286"
     "208998628034825342117067982148086513282306647093844609550582231725359408128"
     "481117450284102701938521105559644622948954930381964428810975665933446128475"
@@ -116,14 +121,14 @@ char* calc_pi(int length) {
         fprintf(stderr, "Memory allocation error\n");
         exit(1);
     }
-    
+
     // Start with "3."
     strcpy(result, "3.");
-    
+
     // Copy requested number of digits
     strncat(result, PI_DIGITS, length);
     result[length + 2] = '\0';  // Ensure proper termination
-    
+
     return result;
 }
 
@@ -137,13 +142,13 @@ char* format_pi_with_spaces(const char* pi_str) {
         fprintf(stderr, "Memory allocation error\n");
         exit(1);
     }
-    
+
     // Copy the "3." part
     result[0] = pi_str[0];
     result[1] = pi_str[1];
-    
+
     int j = 2; // index for the result string
-    
+
     // Add the rest with spaces every 5 digits
     for (int i = 2; i < len; i++) {
         // Add space after every 5 digits (after 3.)
@@ -152,7 +157,7 @@ char* format_pi_with_spaces(const char* pi_str) {
         }
         result[j++] = pi_str[i];
     }
-    
+
     result[j] = '\0';
     return result;
 }
@@ -160,14 +165,14 @@ char* format_pi_with_spaces(const char* pi_str) {
 // Color the differences between strings
 void color_your_pi(const char* your_pi, const char* pi, bool verbose, bool colorblind_mode) {
     int error_count = 0;
-    
+
     size_t pi_len = strlen(pi);
     for (int i = 0; your_pi[i] != '\0'; i++) {
         // Add space after every 5 digits for better readability (after 3.)
         if (i > 1 && (i - 2) % 5 == 0) {
             printf(" ");
         }
-            
+
         if ((size_t)i < pi_len && your_pi[i] == pi[i]) {
             printf("%c", your_pi[i]);
         } else {
@@ -180,7 +185,7 @@ void color_your_pi(const char* your_pi, const char* pi, bool verbose, bool color
         }
     }
     printf("\n");
-    
+
     if (verbose) {
         printf("Number of errors: %d\n", error_count);
     }
@@ -203,16 +208,16 @@ int main(int argc, char* argv[]) {
                 if (length == -1) {
                     usage(argv[0]);
                 }
-                
+
                 char* pi = calc_pi(length);
                 char* formatted_pi = format_pi_with_spaces(pi);
-                
+
                 if (verbose) {
                     printf("π with %d decimals:\t%s\n", length, formatted_pi);
                 } else {
                     printf("%s\n", formatted_pi);
                 }
-                
+
                 free(formatted_pi);
                 free(pi);
                 return 0;
@@ -230,26 +235,26 @@ int main(int argc, char* argv[]) {
 
     if (optind < argc) {
         your_pi = argv[optind];
-        
+
         // Easter egg
-        if (strcmp(your_pi, "Archimedes") == 0 || 
-            strcmp(your_pi, "pi") == 0 || 
+        if (strcmp(your_pi, "Archimedes") == 0 ||
+            strcmp(your_pi, "pi") == 0 ||
             strcmp(your_pi, "PI") == 0) {
             printf("π is also called Archimedes constant and is commonly defined as\n");
             printf("the ratio of a circles circumference C to its diameter d:\n");
             printf("π = C / d\n");
             return 0;
         }
-        
+
         if (!input_validation(your_pi)) {
             fprintf(stderr, "pigame error: Invalid input - NOT a float\n");
             usage(argv[0]);
         }
-        
+
         // Determine length from your_pi
         length = strlen(your_pi) - 2; // accounting for "3."
         if (length < 1) length = 1;
-        
+
         char* pi = calc_pi(length);
         char* formatted_pi = format_pi_with_spaces(pi);
 
@@ -257,7 +262,7 @@ int main(int argc, char* argv[]) {
             printf("π with %d decimals:\t%s\n", length, formatted_pi);
             printf("Your version of π:\t");
             color_your_pi(your_pi, pi, verbose, colorblind_mode);
-            
+
             if (strcmp(pi, your_pi) == 0) {
                 if (length < 15) {
                     printf("Well done.\n");
@@ -270,16 +275,16 @@ int main(int argc, char* argv[]) {
         } else {
             printf("%s\n", formatted_pi);
             color_your_pi(your_pi, pi, verbose, colorblind_mode);
-            
+
             if (strcmp(pi, your_pi) == 0) {
                 printf("Match\n");
             } else {
                 printf("No match\n");
             }
         }
-        
+
         free(formatted_pi);
-        
+
         free(pi);
     } else if (optind == argc && !verbose && length == DEFAULT_LENGTH) {
         usage(argv[0]);

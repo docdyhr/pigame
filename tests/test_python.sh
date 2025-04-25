@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
 # Test script for Python implementation of pigame
+set -euo pipefail
 
 GREEN="\033[0;32m"
 RED="\033[0;31m"
+YELLOW="\033[1;33m"
 RESET="\033[0m"
 
 PIGAME="../src/python/pigame.py"
@@ -17,11 +19,25 @@ run_test() {
     local expected_output=$3
     local actual_output
 
-    echo -n "Running test: $test_name... "
-    
-    # Execute the command
-    actual_output=$(eval "$command")
-    
+    echo -e "${YELLOW}Running test:${RESET} $test_name... "
+
+    # Execute the command and capture output
+    if ! actual_output=$(eval "$command" 2>&1); then
+        if [[ "$command" =~ "Invalid input" ]]; then
+            # Expected failure for invalid input test
+            if [[ "$actual_output" =~ "$expected_output" ]]; then
+                echo -e "${GREEN}PASSED${RESET}"
+                ((TESTS_PASSED++))
+                return 0
+            fi
+        fi
+        echo -e "${RED}FAILED${RESET} (command failed)"
+        echo "Expected output: '$expected_output'"
+        echo "Actual output: '$actual_output'"
+        ((TESTS_FAILED++))
+        return 1
+    fi
+
     # Check if the output matches the expected output
     if [[ "$actual_output" =~ "$expected_output" ]]; then
         echo -e "${GREEN}PASSED${RESET}"
@@ -34,11 +50,11 @@ run_test() {
     fi
 }
 
-# Run tests
-cd "$(dirname "$0")"
+# Ensure we're in the correct directory
+cd "$(dirname "$0")" || exit 1
 
 # Make sure the script is executable
-chmod +x $PIGAME
+chmod 700 "$PIGAME"
 
 # Test 1: Version flag (-V)
 run_test "Version flag" "$PIGAME -V" "version"
@@ -64,13 +80,13 @@ run_test "Invalid input" "$PIGAME abc 2>&1" "Invalid input"
 # Test 8: Easter egg
 run_test "Easter egg" "$PIGAME Archimedes" "Archimedes constant"
 
-# Print summary
-echo "---------------------------------------"
-echo "Test summary:"
-echo "Passed: $TESTS_PASSED"
-echo "Failed: $TESTS_FAILED"
-echo "Total: $((TESTS_PASSED + TESTS_FAILED))"
-echo "---------------------------------------"
+# Print summary with improved formatting
+echo -e "\n${YELLOW}---------------------------------------${RESET}"
+echo -e "${YELLOW}Test summary:${RESET}"
+echo -e "Passed: ${GREEN}$TESTS_PASSED${RESET}"
+echo -e "Failed: ${RED}$TESTS_FAILED${RESET}"
+echo -e "Total:  $((TESTS_PASSED + TESTS_FAILED))"
+echo -e "${YELLOW}---------------------------------------${RESET}"
 
 # Return appropriate exit code
 if [[ $TESTS_FAILED -eq 0 ]]; then

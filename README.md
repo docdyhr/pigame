@@ -1,20 +1,20 @@
 # PIGAME - How many decimals of π can you remember?
 
 [![CI/CD Pipeline](https://github.com/docdyhr/pigame/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/docdyhr/pigame/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/badge/version-1.6.12-blue)](https://github.com/docdyhr/pigame/blob/master/src/VERSION)
+[![Version](https://img.shields.io/badge/version-1.6.20-blue)](https://github.com/docdyhr/pigame/blob/master/src/VERSION)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/docdyhr/pigame/blob/master/LICENSE)
 
 ## Overview
 
-* Version: 1.6.12
+* Version: 1.6.20
 * Multiple implementations available: Bash (original), C, and Python
 * Author: Thomas J. Dyhr
 * Purpose: Memorisation of π
-* Release date: 14. Jan 2022
+* Release date: 24. Apr 2025
 
 ## Usage
 
-```
+```shell
 pigame [-v] [-p LENGTH] [-V] [-c] YOUR_PI
 ```
 
@@ -54,7 +54,7 @@ cp pigame ~/bin  # Or any directory in your PATH
 * `bc` - An arbitrary precision calculator language (required for legacy Bash implementation)
   * Linux/Unix: install with your standard package manager
   * Windows: a 32-bit Windows version is available
-  * Ref.: https://www.gnu.org/software/bc/bc.html
+  * Ref.: <https://www.gnu.org/software/bc/bc.html>
 * For C implementation: C compiler (gcc or clang)
 * For Python implementation: Python 3.6+
 
@@ -67,10 +67,11 @@ PIGAME comes in three implementations, each with its own strengths:
 3. **Python**: More readable code with strong error handling.
 
 All implementations now use verified pi digits from trusted mathematical sources, ensuring:
-- Perfect accuracy across all precision levels
-- Consistent results across implementations
-- Fast constant-time digit retrieval
-- No external library dependencies
+
+* Perfect accuracy across all precision levels
+* Consistent results across implementations
+* Fast constant-time digit retrieval
+* No external library dependencies
 
 ## Examples
 
@@ -81,7 +82,8 @@ pigame 3.14158
 ```
 
 Output:
-```
+
+```shell
 3.14159
 3.14158
 No match
@@ -94,7 +96,8 @@ pigame -v -p 25
 ```
 
 Output:
-```
+
+```shell
 π with 25 decimals: 3.1415926535897932384626434
 ```
 
@@ -105,7 +108,8 @@ pigame -v 3.1415926
 ```
 
 Output:
-```
+
+```shell
 π with 7 decimals: 3.1415926
 Your version of π: 3.1415926
 Number of errors: 0

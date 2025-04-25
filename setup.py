@@ -1,18 +1,23 @@
 #!/usr/bin/env python3
 
-from setuptools import setup, find_packages
 import os
+
+from setuptools import find_packages, setup
+
 
 # Read the version from the VERSION file
 def read_version():
     version_file = os.path.join(
-        os.path.dirname(__file__), 'src', 'VERSION'
+        os.path.dirname(__file__),
+        "src",
+        "VERSION",
     )
     try:
-        with open(version_file, 'r') as f:
+        with open(version_file, encoding="utf-8") as f:
             return f.read().strip()
-    except:
-        return '1.6.12'  # Default version
+    except (OSError, IOError):
+        return "1.7.0"  # Default version
+
 
 setup(
     name="pigame",
@@ -27,8 +32,8 @@ setup(
     include_package_data=True,
     py_modules=["python.pigame"],
     entry_points={
-        'console_scripts': [
-            'pigame-py=python.pigame:main',
+        "console_scripts": [
+            "pigame-py=python.pigame:main",
         ],
     },
     classifiers=[

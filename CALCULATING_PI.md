@@ -4,14 +4,16 @@ This document outlines how π is calculated in this project and explains our app
 
 ---
 
-## ✅ Current Implementation
+*## ✅ Current Implementation*
 This project uses verified π digits from trusted mathematical sources. The digits are stored as a string constant in the code, which provides:
-- Guaranteed accuracy
+*- Guaranteed accuracy*
+
 - Fast constant-time access
 - No runtime calculation overhead
 - No dependency on external math libraries
 
 For all implementations (C, Python, Bash):
+
 - First 15 digits are handled directly for common use cases
 - Beyond 15 digits, verified pre-calculated digits are used
 - Formatting and display are handled consistently across implementations
@@ -21,11 +23,13 @@ For all implementations (C, Python, Bash):
 ## 🧠 Why Store π Instead of Calculating?
 
 In real-world applications, recalculating π at runtime is:
+
 - Unnecessary: The digits of π are constant and well-known
 - Inefficient: Complex calculations use more CPU and memory
 - Error-prone: Floating-point arithmetic can introduce inaccuracies
 
 ### ✅ Benefits of Our Approach
+
 - Constant-time access (O(1) complexity)
 - Zero calculation overhead
 - Guaranteed accuracy of all digits
@@ -66,6 +70,7 @@ char* calc_pi(int length) {
 ```
 
 Benefits of this implementation:
+
 - Simple and maintainable code
 - Fast string operations
 - No floating-point arithmetic

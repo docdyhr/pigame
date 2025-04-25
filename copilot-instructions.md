@@ -8,9 +8,11 @@
    - Ensure all Python files end with a final newline
    - Remove all trailing whitespace
    - Use Ruff for automatic linting and fixing:
+
      ```bash
      ruff check --fix src/python/ tests/
      ```
+
    - Maximum line length: 88 characters (Black default)
    - Use 4 spaces for indentation
    - Use snake_case for functions and variables
@@ -34,11 +36,14 @@
 
 4. **Error Handling**
    - Always specify encoding when opening files:
+
      ```python
      with open(file_path, 'r', encoding='utf-8') as f:
      ```
+
    - Use specific exception types, avoid bare except clauses
    - Handle subprocess calls with explicit check parameter:
+
      ```python
      subprocess.run(cmd, check=False)
      ```
@@ -144,7 +149,7 @@
      - src/bash/
      - src/c/
    - Maintain parallel test structure
-   - Use __init__.py for Python packages
+   - Use **init**.py for Python packages
 
 ## Performance
 
