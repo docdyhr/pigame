@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Markdown style: All lists in markdown files must now be surrounded by blank lines (before and after the list), as required by copilot-instructions.md.
 
+## [1.7.1] - 2025-04-26
+
+### Changed
+- Removed isort from pre-commit hooks and project dependencies; Ruff now handles all import sorting and linting for Python code.
+- Updated all documentation and project files to reflect Ruff as the only Python linter.
+- Fixed all ruff/pre-commit errors in Python code, including docstrings, exception formatting, and file permissions.
+- Updated CI/CD and development instructions for the new workflow.
+
 ## [1.7.1] - 2025-04-25
 
 ### Added

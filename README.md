@@ -1,16 +1,16 @@
 # PIGAME - How many decimals of π can you remember?
 
 [![CI/CD Pipeline](https://github.com/docdyhr/pigame/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/docdyhr/pigame/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/badge/version-1.7.0-blue)](https://github.com/docdyhr/pigame/blob/master/src/VERSION)
+[![Version](https://img.shields.io/badge/version-1.7.1-blue)](https://github.com/docdyhr/pigame/blob/master/src/VERSION)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/docdyhr/pigame/blob/master/LICENSE)
 
 ## Overview
 
-* Version: 1.7.0
+* Version: 1.7.1
 * Multiple implementations available: Bash (original), C, and Python
 * Author: Thomas J. Dyhr
 * Purpose: Memorisation of π
-* Release date: 24. Apr 2025
+* Release date: 26. Apr 2025
 
 ## Usage
 
@@ -68,6 +68,8 @@ cp pigame ~/bin  # Or any directory in your PATH
 - `bc` (for Bash implementation)
 - C compiler (gcc or clang, for C implementation)
 - Python 3.6+ (for Python implementation)
+
+- **isort is no longer used. Ruff now handles all import sorting and linting for Python.**
 
 ## Implementations
 
@@ -153,6 +155,7 @@ make test-python   # Test only the Python implementation
   ruff check src/python/ tests/
   ```
 - Ruff is not managed by pip or requirements.txt.
+- isort is no longer used; import sorting is handled by Ruff.
 - 100% test coverage is the goal. To check coverage:
   ```sh
   .venv/bin/pytest --cov=src/python --cov-report=html

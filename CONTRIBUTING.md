@@ -44,6 +44,9 @@ By participating in this project, you agree to be respectful and considerate of 
    make lint-bash     # Lint Bash implementation
    make lint-python   # Lint Python implementation
    ```
+   - **Python linting and import sorting is handled exclusively by Ruff. isort is no longer used.**
+   - All Python code must pass `ruff check src/python/ tests/` with no errors before merging or release.
+   - Ruff will automatically fix most issues with `ruff check --fix src/python/ tests/`.
 
 5. **Commit your changes** with a descriptive commit message:
    - For new features: `feat: Add new feature X`
