@@ -1,17 +1,15 @@
 [tool.ruff]
+fix = true
 line-length = 88
-target-version = "py38"
+target-version = "py311"
 
-# Enable all rules by default
+[tool.ruff.lint]
 select = ["ALL"]
-
-# Ignore specific rules
 ignore = [
     "D203",  # one-blank-line-before-class
     "D213",  # multi-line-summary-second-line
+    "T201",  # allow print statements in CLI
 ]
-
-# Exclude files and directories
 exclude = [
     ".git",
     ".venv",
@@ -20,26 +18,29 @@ exclude = [
     "dist",
 ]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/*" = [
     "D",     # Ignore documentation in tests
     "S101",  # Use of assert in tests is fine
+    "S603",  # Allow subprocess in tests
 ]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "google"
 
-[tool.ruff.mccabe]
-max-complexity = 10
+[tool.ruff.lint.mccabe]
+max-complexity = 15
 
-[tool.ruff.pylint]
+[tool.ruff.lint.pylint]
 max-args = 6
+max-branches = 20
 
-[tool.ruff.flake8-quotes]
+[tool.ruff.lint.flake8-quotes]
 docstring-quotes = "double"
 inline-quotes = "double"
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
+known-first-party = ["pigame"]
 combine-as-imports = true
 lines-after-imports = 2
 extra-standard-library = ["typing"]

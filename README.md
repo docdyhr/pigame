@@ -1,12 +1,12 @@
 # PIGAME - How many decimals of π can you remember?
 
 [![CI/CD Pipeline](https://github.com/docdyhr/pigame/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/docdyhr/pigame/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/badge/version-1.6.20-blue)](https://github.com/docdyhr/pigame/blob/master/src/VERSION)
+[![Version](https://img.shields.io/badge/version-1.7.0-blue)](https://github.com/docdyhr/pigame/blob/master/src/VERSION)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/docdyhr/pigame/blob/master/LICENSE)
 
 ## Overview
 
-* Version: 1.6.20
+* Version: 1.7.0
 * Multiple implementations available: Bash (original), C, and Python
 * Author: Thomas J. Dyhr
 * Purpose: Memorisation of π
@@ -57,6 +57,17 @@ cp pigame ~/bin  # Or any directory in your PATH
   * Ref.: <https://www.gnu.org/software/bc/bc.html>
 * For C implementation: C compiler (gcc or clang)
 * For Python implementation: Python 3.6+
+
+## Dependencies
+
+- **Ruff** (Python linter): Install via Homebrew on macOS:
+  ```sh
+  brew install ruff
+  ```
+  Do not install Ruff with pip or add it to requirements.txt.
+- `bc` (for Bash implementation)
+- C compiler (gcc or clang, for C implementation)
+- Python 3.6+ (for Python implementation)
 
 ## Implementations
 
@@ -136,11 +147,27 @@ make test-python   # Test only the Python implementation
 
 ### Linting
 
-```shell
-make lint          # Lint all implementations
-make lint-bash     # Lint only the Bash implementation
-make lint-python   # Lint only the Python implementation
-```
+- All Python code must pass Ruff linting before merging or release.
+- Run Ruff directly from the command line:
+  ```sh
+  ruff check src/python/ tests/
+  ```
+- Ruff is not managed by pip or requirements.txt.
+- 100% test coverage is the goal. To check coverage:
+  ```sh
+  .venv/bin/pytest --cov=src/python --cov-report=html
+  open htmlcov/index.html
+  ```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+
+- Use type hints and Google-style docstrings in all Python code.
+- Follow the code style and linting requirements in [copilot-instructions.md](copilot-instructions.md).
+- Use conventional commit messages (feat:, fix:, docs:, etc.).
+- All code must pass tests and linting before submitting a pull request.
+- The canonical version is always stored in src/VERSION; all references must match.
 
 ## To-Do List
 
@@ -149,3 +176,7 @@ See [TODO.md](https://github.com/docdyhr/pigame/blob/master/TODO.md) for the lis
 ## License
 
 [MIT](https://github.com/docdyhr/pigame/blob/master/LICENSE)
+
+## References
+
+- [CALCULATING_PI.md](CALCULATING_PI.md) – Technical background and pi calculation details.

@@ -25,7 +25,7 @@ run_test() {
     if ! actual_output=$(eval "$command" 2>&1); then
         if [[ "$command" =~ "Invalid input" ]]; then
             # Expected failure for invalid input test
-            if [[ "$actual_output" =~ "$expected_output" ]]; then
+            if [[ "$actual_output" =~ $expected_output ]]; then
                 echo -e "${GREEN}PASSED${RESET}"
                 ((TESTS_PASSED++))
                 return 0
@@ -39,7 +39,7 @@ run_test() {
     fi
 
     # Check if the output matches the expected output
-    if [[ "$actual_output" =~ "$expected_output" ]]; then
+    if [[ "$actual_output" =~ $expected_output ]]; then
         echo -e "${GREEN}PASSED${RESET}"
         ((TESTS_PASSED++))
     else
@@ -81,6 +81,8 @@ run_test "Invalid input" "$PIGAME abc 2>&1" "Invalid input"
 run_test "Easter egg" "$PIGAME Archimedes" "Archimedes constant"
 
 # Print summary with improved formatting
+set +e # Disable exit on error for summary and exit logic
+
 echo -e "\n${YELLOW}---------------------------------------${RESET}"
 echo -e "${YELLOW}Test summary:${RESET}"
 echo -e "Passed: ${GREEN}$TESTS_PASSED${RESET}"

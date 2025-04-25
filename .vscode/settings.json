@@ -5,7 +5,7 @@
     "python.formatting.provider": "none",
     "python.linting.enabled": true,
     "python.linting.lintOnSave": true,
-    
+
     // Ruff settings
     "ruff.enable": true,
     "ruff.organizeImports": true,

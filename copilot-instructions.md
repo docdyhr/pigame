@@ -69,6 +69,14 @@
    - Use 4 spaces for indentation
    - Maximum line length: 80 characters
 
+## Python Linting Requirements
+
+- Ruff is the required and only Python linter for this project.
+- All Python code must pass `ruff check src/python/ tests/` with no errors before merging or release.
+- All safe linting issues must be automatically fixed using `ruff check --fix src/python/ tests/` before merging or release.
+- Contributors should run `make lint-python` or `make lint` to check Python code style and linting.
+- Do not use pylint or flake8; Ruff replaces them for all linting and formatting needs.
+
 ## Testing Guidelines
 
 1. **Python Tests**
@@ -130,6 +138,14 @@
    - Update VERSION file
    - Update CHANGELOG.md
 
+## Version Consistency Requirements
+
+- The canonical version is always stored in src/VERSION.
+- All version references in the project (setup.py, README.md badge, C code, etc.) must match src/VERSION.
+- The version badge in README.md must always reflect the version in src/VERSION.
+- Automate badge update in README.md whenever the version in src/VERSION changes.
+- If src/VERSION is missing, default versions in code must be updated to match the latest release.
+
 ## Dependencies
 
 1. **Python**
@@ -172,3 +188,7 @@
    - Use Ruff as the default linter
    - Configure pytest for testing
    - Enable shellcheck for bash files
+
+## Markdown Style Requirements
+
+- Lists should always be surrounded by blank lines (before and after the list) in all markdown files.

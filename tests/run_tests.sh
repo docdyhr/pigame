@@ -7,7 +7,7 @@ RED="\033[0;31m"
 YELLOW="\033[0;33m"
 RESET="\033[0m"
 
-cd "$(dirname "$0")"
+cd "$(dirname "$0")" || exit
 
 # Make all test scripts executable
 chmod +x ./*.sh
@@ -20,9 +20,9 @@ TOTAL_TESTS_FAILED=0
 run_implementation_tests() {
     local implementation=$1
     local test_script=$2
-    
+
     echo -e "${YELLOW}=== Testing $implementation implementation ===${RESET}"
-    
+
     if [[ -x "$test_script" ]]; then
         # Run the test script
         if $test_script; then
@@ -41,7 +41,7 @@ run_implementation_tests() {
 # Run Python unit tests
 run_python_unit_tests() {
     echo -e "${YELLOW}=== Running Python unit tests ===${RESET}"
-    
+
     if python3 ./test_python_unit.py -v; then
         echo -e "${GREEN}All Python unit tests passed!${RESET}"
         return 0
@@ -55,7 +55,7 @@ run_python_unit_tests() {
 track_result() {
     local implementation=$1
     local result=$2
-    
+
     if [[ $result -eq 0 ]]; then
         ((TOTAL_TESTS_PASSED++))
     else

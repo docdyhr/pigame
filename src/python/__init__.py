@@ -1,3 +1,1 @@
-"""
-Python implementation of pigame
-"""
+"""Python implementation of pigame."""

@@ -18,12 +18,12 @@ run_test() {
     local actual_output
 
     echo -n "Running test: $test_name... "
-    
+
     # Execute the command
     actual_output=$(eval "$command")
-    
+
     # Check if the output matches the expected output
-    if [[ "$actual_output" =~ "$expected_output" ]]; then
+    if [[ "$actual_output" =~ $expected_output ]]; then
         echo -e "${GREEN}PASSED${RESET}"
         ((TESTS_PASSED++))
     else
@@ -35,7 +35,7 @@ run_test() {
 }
 
 # Run tests
-cd "$(dirname "$0")"
+cd "$(dirname "$0")" || exit
 
 # Test 1: Version flag (-V)
 run_test "Version flag" "$PIGAME -V" "version"

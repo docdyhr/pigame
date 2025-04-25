@@ -34,7 +34,7 @@ test-python:
 test-python-unit:
 	@echo "Running Python unit tests..."
 	@python3 tests/test_python_unit.py -v
-	
+
 test-pytest:
 	@echo "Running pytest tests..."
 	@.venv/bin/pytest
@@ -54,12 +54,8 @@ setup-python: requirements.txt
 	@.venv/bin/pip install -e .
 
 lint-python:
-	@echo "Linting Python implementation..."
-	@.venv/bin/pylint src/python/pigame.py tests/test_pytest.py || true
-	@echo "Running flake8..."
-	@.venv/bin/flake8 src/python/pigame.py tests/test_pytest.py || true
-	@echo "Running mypy..."
-	@.venv/bin/mypy src/python/pigame.py tests/test_pytest.py || true
+	@echo "Linting Python implementation with Ruff..."
+	@ruff check src/python/ tests/
 
 lint: lint-bash lint-python
 

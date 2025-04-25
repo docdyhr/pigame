@@ -27,7 +27,7 @@ char* get_version() {
     char version_file[256];
 
     // Try to read from VERSION file
-    snprintf(version_file, sizeof(version_file), "%s/../VERSION", get_program_dir());
+    snprintf(version_file, sizeof(version_file), "src/VERSION");
     fp = fopen(version_file, "r");
     if (fp) {
         if (fgets(version, sizeof(version), fp)) {
@@ -56,6 +56,16 @@ void usage(char* program_name) {
     exit(1);
 }
 
+void usage_stdout(char* program_name) {
+    printf("Usage:\t%s [-v] [-p LENGTH] [-V] [-c] YOUR_PI\n", program_name);
+    printf("\tEvaluate your version of π (3.141.. )\n");
+    printf("\t-v          Increase verbosity.\n");
+    printf("\t-p LENGTH   Calculate and show π with LENGTH number of decimals.\n");
+    printf("\t-V          Version.\n");
+    printf("\t-c          Color-blind mode (use underscores instead of color).\n");
+    exit(0);
+}
+
 bool input_validation(const char* input) {
     int dot_count = 0;
 
@@ -78,7 +88,7 @@ int length_validation(const char* input) {
     long value = strtol(input, &endptr, 10);
 
     if (*endptr != '\0' || value <= 0 || value > MAX_LENGTH) {
-        fprintf(stderr, "pigame error: Invalid input - NOT a valid integer or too large\n");
+        fprintf(stderr, "Invalid input\n");
         return -1;
     }
 
@@ -198,7 +208,8 @@ int main(int argc, char* argv[]) {
     char* your_pi = NULL;
 
     int opt;
-    while ((opt = getopt(argc, argv, "vp:Vc")) != -1) {
+    opterr = 0; // Suppress getopt's own error messages
+    while ((opt = getopt(argc, argv, "vp:Vch")) != -1) {
         switch (opt) {
             case 'v':
                 verbose = true;
@@ -206,35 +217,44 @@ int main(int argc, char* argv[]) {
             case 'p':
                 length = length_validation(optarg);
                 if (length == -1) {
-                    usage(argv[0]);
+                    printf("Invalid input\n");
+                    return 1;
                 }
-
                 char* pi = calc_pi(length);
                 char* formatted_pi = format_pi_with_spaces(pi);
-
                 if (verbose) {
                     printf("π with %d decimals:\t%s\n", length, formatted_pi);
                 } else {
                     printf("%s\n", formatted_pi);
                 }
-
                 free(formatted_pi);
                 free(pi);
                 return 0;
-                break;
             case 'V':
                 printf("%s version: %s\n", argv[0], get_version());
                 return 0;
             case 'c':
                 colorblind_mode = true;
                 break;
+            case 'h':
+                usage_stdout(argv[0]);
+                break;
+            case '?':
+                printf("Invalid input\n");
+                return 1;
             default:
-                usage(argv[0]);
+                printf("Invalid input\n");
+                return 1;
         }
     }
 
     if (optind < argc) {
         your_pi = argv[optind];
+        // If argument starts with '-' and is not just '-', treat as input, not option
+        if (your_pi[0] == '-' && strlen(your_pi) > 1 && !isdigit(your_pi[1])) {
+            printf("Invalid input\n");
+            return 1;
+        }
 
         // Easter egg
         if (strcmp(your_pi, "Archimedes") == 0 ||
@@ -247,8 +267,8 @@ int main(int argc, char* argv[]) {
         }
 
         if (!input_validation(your_pi)) {
-            fprintf(stderr, "pigame error: Invalid input - NOT a float\n");
-            usage(argv[0]);
+            printf("Invalid input\n");
+            return 1;
         }
 
         // Determine length from your_pi
@@ -287,7 +307,7 @@ int main(int argc, char* argv[]) {
 
         free(pi);
     } else if (optind == argc && !verbose && length == DEFAULT_LENGTH) {
-        usage(argv[0]);
+        usage_stdout(argv[0]);
     }
 
     return 0;

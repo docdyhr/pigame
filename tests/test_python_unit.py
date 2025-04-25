@@ -7,6 +7,7 @@ import pytest
 
 from src.python import pigame
 
+
 # Test constants
 VALID_PI = "3.14159"
 INVALID_PI = "abc"
@@ -60,23 +61,31 @@ def test_calculate_pi() -> None:
 
 def test_color_your_pi_match() -> None:
     """Test color_your_pi with matching input."""
-    error_count = pigame.color_your_pi(VALID_PI, VALID_PI, verbose=True)
+    error_count = pigame.color_your_pi(
+        input_pi=VALID_PI,
+        correct_pi=VALID_PI,
+        verbose=True,
+    )
     assert error_count == 0
 
 
 def test_color_your_pi_no_match() -> None:
     """Test color_your_pi with non-matching input."""
-    error_count = pigame.color_your_pi(VALID_PI, "3.14158", verbose=True)
+    error_count = pigame.color_your_pi(
+        input_pi=VALID_PI,
+        correct_pi="3.14158",
+        verbose=True,
+    )
     assert error_count == 1
 
 
 def test_color_your_pi_colorblind() -> None:
     """Test color_your_pi with colorblind mode."""
     error_count = pigame.color_your_pi(
-        VALID_PI,
-        VALID_PI,
+        input_pi=VALID_PI,
+        correct_pi=VALID_PI,
         verbose=True,
-        colorblind_mode=True
+        colorblind_mode=True,
     )
     assert error_count == 0
 

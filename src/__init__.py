@@ -1,3 +1,1 @@
-"""
-pigame package initialization
-"""
+"""pigame package initialization."""

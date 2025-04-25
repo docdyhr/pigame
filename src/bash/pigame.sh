@@ -60,10 +60,10 @@ length_validation() {
 format_pi_with_spaces() {
     local pi_str="$1"
     local result=""
-    
+
     # Add "3." to result
     result="${pi_str:0:2}"
-    
+
     # Process the rest of the digits with spaces every 5 digits
     local remaining_digits="${pi_str:2}"
     local i=0
@@ -75,7 +75,7 @@ format_pi_with_spaces() {
         result="${result}${remaining_digits:$i:1}"
         ((i++))
     done
-    
+
     echo "$result"
 }
 
@@ -84,7 +84,7 @@ print_results() {
     # Format PI with spaces
     local formatted_pi
     formatted_pi=$(format_pi_with_spaces "${PI}")
-    
+
     # Print results to STDOUT
     if [[ "${VERBOSE}" = 'true' ]]; then
         echo -e "π with ${DEC} decimals:\t${formatted_pi}"
@@ -125,7 +125,7 @@ color_your_pi() {
         if ((i > 1)) && (((i - 2) % 5 == 0)); then
             printf " "
         fi
-        
+
         if [[ "${YOUR_PI:$i:1}" = "${PI:$i:1}" ]]; then
             printf "%s" "${YOUR_PI:$i:1}"
         else
@@ -158,13 +158,13 @@ calc_pi() {
     if [[ "${LENGTH}" -gt "${MAX_LENGTH}" ]]; then
         LENGTH="${MAX_LENGTH}"
     fi
-    
+
     # Start with "3."
     result="3."
-    
+
     # Add requested number of digits without extra whitespace
     result="${result}${PI_DIGITS:0:$((LENGTH-2))}"
-    
+
     PI="${result}"
 }
 
@@ -177,7 +177,7 @@ while getopts :vp:Vc OPTION; do
         ;;
     p)
         length_validation
-        
+
         # Default value for -p = 15 decimals
         if [[ "${OPTARG}" -eq 0 ]]; then
             OPTARG="${DEFAULT_LENGTH}"
@@ -189,7 +189,7 @@ while getopts :vp:Vc OPTION; do
 
         # Format PI with spaces
         formatted_pi=$(format_pi_with_spaces "${PI}")
-        
+
         if [[ "${VERBOSE}" = 'true' ]]; then
             echo -e "π with $((LENGTH - 2)) decimals:\t${formatted_pi}" # remove 2 decimals (calc_pi)
         else

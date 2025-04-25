@@ -14,6 +14,7 @@ import sys
 from pathlib import Path
 from typing import NoReturn
 
+
 # Constants
 MIN_PI_LENGTH = 3
 SHORT_PI_LENGTH = 15
@@ -38,41 +39,40 @@ no_color = "\033[0m"
 class PiError(Exception):
     """Base class for Pi-related exceptions."""
 
-    def __init__(self, msg: str) -> None:
+    def __init__(self: PiError, msg: str) -> None:
         """Initialize the base Pi error.
 
         Args:
             msg: The error message to display.
         """
-        self.msg = msg
-        super().__init__(self.msg)
+        super().__init__(msg)
 
 
 class NegativeLengthError(PiError):
     """Raised when a negative length is provided."""
 
-    def __init__(self, length: int) -> None:
+    def __init__(self: NegativeLengthError, length: int) -> None:
         """Initialize negative length error.
 
         Args:
             length: The negative length that caused the error.
         """
-        super().__init__(f"Length {length} cannot be negative")
+        msg = f"Length {length} cannot be negative"
+        super().__init__(msg)
 
 
 class TooManyDigitsError(PiError):
     """Raised when more digits are requested than available."""
 
-    def __init__(self, requested: int, available: int) -> None:
+    def __init__(self: TooManyDigitsError, requested: int, available: int) -> None:
         """Initialize too many digits error.
 
         Args:
             requested: The number of digits requested.
             available: The number of digits available.
         """
-        super().__init__(
-            f"Requested {requested} digits but only {available} are available",
-        )
+        msg = f"Requested {requested} digits but only {available} are available"
+        super().__init__(msg)
 
 
 def get_version() -> str:
@@ -90,30 +90,34 @@ VERSION = get_version()
 def usage(exit_code: int = 1) -> NoReturn:
     """Print usage information and exit."""
     program = Path(sys.argv[0]).name
-    logger.error("Usage: %s [-v] [-p LENGTH] [-V] [-c] YOUR_PI", program)
-    logger.error("\tEvaluate your version of π (3.141.. )")
-    logger.error("\t-v          Increase verbosity.")
-    logger.error("\t-p LENGTH   Calculate and show π with LENGTH number of decimals.")
-    logger.error("\t-V          Version.")
-    logger.error("\t-c          Color-blind mode (use underscores instead of color).")
+    print(f"Usage: {program} [-v] [-p LENGTH] [-V] [-c] YOUR_PI")
+    print("\tEvaluate your version of π (3.141.. )")
+    print("\t-v          Increase verbosity.")
+    print("\t-p LENGTH   Calculate and show π with LENGTH number of decimals.")
+    print("\t-V          Version.")
+    print("\t-c          Color-blind mode (use underscores instead of color).")
     sys.exit(exit_code)
 
 
 def input_validation(input_str: str) -> bool:
     """Validate that input contains only digits and at most one decimal point."""
     if not input_str:
-        raise ValueError("Invalid input")
-    dot_count = input_str.count('.')
-    comma_count = input_str.count(',')
+        msg = "Invalid input"
+        raise ValueError(msg)
+    dot_count = input_str.count(".")
+    comma_count = input_str.count(",")
 
     if comma_count > 0:
-        raise ValueError("Invalid input")
+        msg = "Invalid input"
+        raise ValueError(msg)
 
-    if not all(c.isdigit() or c == '.' for c in input_str):
-        raise ValueError("Invalid input")
+    if not all(c.isdigit() or c == "." for c in input_str):
+        msg = "Invalid input"
+        raise ValueError(msg)
 
     if dot_count > 1:
-        raise ValueError("Invalid input")
+        msg = "Invalid input"
+        raise ValueError(msg)
 
     return True
 
@@ -132,14 +136,16 @@ def length_validation(length_str: str) -> int:
         SystemExit: If length is too large
     """
     if not re.match(r"^-?[0-9]+$", length_str):
-        raise ValueError("Invalid input")
+        msg = "Invalid input"
+        raise ValueError(msg)
 
     length = int(length_str)
 
     if length <= 0:
         return DEFAULT_LENGTH
     if length > MAX_LENGTH:
-        sys.exit("too big")  # This exits the program
+        msg = "too big"
+        sys.exit(msg)  # This exits the program
 
     return length
 
@@ -159,7 +165,8 @@ def calculate_pi(length: int) -> str:
 
     # Check for negative length
     if length < 0:
-        raise ValueError("Length cannot be negative")
+        msg = "Length cannot be negative"
+        raise ValueError(msg)
 
     # For zero length, use default length
     if length == 0:
@@ -168,6 +175,7 @@ def calculate_pi(length: int) -> str:
     # Return exactly the requested number of digits
     digits = pi_digits[:length]
     if len(digits) < length:
+        msg = f"Requested {length} digits but only {len(digits)} are available"
         raise TooManyDigitsError(length, len(digits))
 
     # Return "3." + digits
@@ -189,7 +197,13 @@ def format_pi_with_spaces(pi_str: str) -> str:
     return result
 
 
-def color_your_pi(input_pi: str, correct_pi: str, *, verbose: bool = False, colorblind_mode: bool = False) -> int:
+def color_your_pi(
+    input_pi: str,
+    correct_pi: str,
+    *,
+    verbose: bool = False,
+    colorblind_mode: bool = False,
+) -> int:
     """Compare input pi digits with correct pi digits and colorize differences.
 
     Args:
@@ -202,19 +216,23 @@ def color_your_pi(input_pi: str, correct_pi: str, *, verbose: bool = False, colo
         Number of incorrect digits found
     """
     error_count = 0
-    for input_digit, correct_digit in zip(input_pi, correct_pi):
+    output = []
+    for input_digit, correct_digit in zip(input_pi, correct_pi, strict=False):
         if input_digit != correct_digit:
             error_count += 1
             if colorblind_mode:
-                print(f"\033[38;5;208m{input_digit}\033[0m", end='')  # Orange for colorblind
+                colored_digit = f"\033[38;5;208m{input_digit}\033[0m"
+                output.append(colored_digit)
             else:
-                print(f"\033[91m{input_digit}\033[0m", end='')  # Red for incorrect
+                colored_digit = f"\033[91m{input_digit}\033[0m"
+                output.append(colored_digit)
+        elif colorblind_mode:
+            colored_digit = f"\033[38;5;34m{input_digit}\033[0m"
+            output.append(colored_digit)
         else:
-            if colorblind_mode:
-                print(f"\033[38;5;34m{input_digit}\033[0m", end='')  # Green for colorblind
-            else:
-                print(f"\033[92m{input_digit}\033[0m", end='')  # Green for correct
-    print()
+            colored_digit = f"\033[92m{input_digit}\033[0m"
+            output.append(colored_digit)
+    print("".join(output))
 
     if verbose:
         print(f"Found {error_count} incorrect digits")
@@ -236,7 +254,7 @@ def print_results(
 
     if verbose:
         print(f"π with {decimals} decimals:\t{formatted_pi}")
-        print("Your version of π:\t", end="")
+        print(f"Your version of π:\t{user_pi}")
 
     color_your_pi(
         input_pi=user_pi,
@@ -273,7 +291,7 @@ def main() -> None:
     """Parse command line arguments and perform calculations."""
     parser = argparse.ArgumentParser(
         description="Evaluate your version of π (3.141..)",
-        formatter_class=argparse.RawTextHelpFormatter
+        formatter_class=argparse.RawTextHelpFormatter,
     )
     parser.add_argument("-v", action="store_true", help="Increase verbosity.")
     parser.add_argument(
@@ -292,6 +310,7 @@ def main() -> None:
     try:
         args = parser.parse_args()
     except (argparse.ArgumentError, SystemExit):
+        logger.exception("Argument parsing failed")
         usage(0)
 
     if args.V:
@@ -327,8 +346,8 @@ def main() -> None:
         # Validate input
         try:
             input_validation(args.YOUR_PI)
-        except ValueError as e:
-            logger.error("pigame error: %s", e)
+        except ValueError:
+            logger.exception("pigame error")
             sys.exit(1)
         user_pi = args.YOUR_PI
 

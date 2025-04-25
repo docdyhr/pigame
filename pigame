@@ -2,11 +2,12 @@
 
 # PIGAME - Test your memory of π digits using verified mathematical sources
 #
-# A multi-implementation tool to help memorize π digits, using verified digits 
+# A multi-implementation tool to help memorize π digits, using verified digits
 # from trusted sources for perfect accuracy and consistent results.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VERSION=$(cat "${SCRIPT_DIR}/src/VERSION" 2>/dev/null || echo "1.6.12")
+export VERSION
 
 # Detect the preferred implementation
 detect_preference() {
@@ -15,7 +16,7 @@ detect_preference() {
         echo "${PIGAME_IMPLEMENTATION}"
         return
     fi
-    
+
     # Default to bash implementation
     echo "bash"
 }
@@ -24,7 +25,7 @@ show_implementations() {
     echo "PIGAME - Multiple implementations available:"
     echo "  bash   - Original Bash implementation (default)"
     echo "  c      - Fast C implementation with verified pi digits"
-    echo "  python - Python implementation with enhanced features" 
+    echo "  python - Python implementation with enhanced features"
     echo
     echo "Usage: pigame [-v] [-p LENGTH] [-V] [-c] YOUR_PI"
     echo "  -v          Increase verbosity."
@@ -45,27 +46,27 @@ fi
 IMPL=$(detect_preference)
 
 case "${IMPL}" in
-    bash)
-        "${SCRIPT_DIR}/src/bash/pigame.sh" "$@"
-        ;;
-    c)
-        # Check if the C implementation is compiled
-        if [[ ! -x "${SCRIPT_DIR}/src/c/pigame" ]]; then
-            echo "Compiling C implementation..."
-            (cd "${SCRIPT_DIR}/src/c" && gcc -o pigame pigame.c -lm)
-        fi
-        "${SCRIPT_DIR}/src/c/pigame" "$@"
-        ;;
-    python)
-        "${SCRIPT_DIR}/src/python/pigame.py" "$@"
-        ;;
-    --list)
-        show_implementations
-        ;;
-    *)
-        echo "Unknown implementation: ${IMPL}"
-        echo "Available implementations: bash, c, python"
-        echo "To select an implementation: export PIGAME_IMPLEMENTATION=<implementation>"
-        exit 1
-        ;;
+bash)
+    "${SCRIPT_DIR}/src/bash/pigame.sh" "$@"
+    ;;
+c)
+    # Check if the C implementation is compiled
+    if [[ ! -x "${SCRIPT_DIR}/src/c/pigame" ]]; then
+        echo "Compiling C implementation..."
+        (cd "${SCRIPT_DIR}/src/c" && gcc -o pigame pigame.c -lm)
+    fi
+    "${SCRIPT_DIR}/src/c/pigame" "$@"
+    ;;
+python)
+    "${SCRIPT_DIR}/src/python/pigame.py" "$@"
+    ;;
+--list)
+    show_implementations
+    ;;
+*)
+    echo "Unknown implementation: ${IMPL}"
+    echo "Available implementations: bash, c, python"
+    echo "To select an implementation: export PIGAME_IMPLEMENTATION=<implementation>"
+    exit 1
+    ;;
 esac
