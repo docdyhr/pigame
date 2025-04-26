@@ -4,7 +4,7 @@
 
 from pathlib import Path
 
-from setuptools import find_packages, setup
+from setuptools import setup
 
 
 # Read the version from the VERSION file
@@ -38,10 +38,9 @@ setup(
     author="Thomas J. Dyhr",
     author_email="thomas@dyhr.com",
     url="https://github.com/docdyhr/pigame",
-    packages=find_packages(),
-    package_dir={"": "src"},
-    include_package_data=True,
     py_modules=["pigame"],
+    package_dir={"": "src/python"},
+    include_package_data=True,
     entry_points={
         "console_scripts": [
             "pigame-py=python.pigame:main",
@@ -53,13 +52,11 @@ setup(
         "Intended Audience :: Education",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
         "Topic :: Education",
         "Topic :: Scientific/Engineering :: Mathematics",
     ],
-    python_requires=">=3.6",
+    python_requires=">=3.11",
 )
