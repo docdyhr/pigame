@@ -63,7 +63,7 @@ echo "$NEW_VERSION" >"$VERSION_FILE"
 TODAY=$(date +%Y-%m-%d)
 echo "Updating CHANGELOG.md with new version section..."
 
-# For macOS compatibility
+# For macOS/Linux compatibility
 if [[ "$OSTYPE" == "darwin"* ]]; then
     echo "Running on macOS, using compatible sed syntax"
     # macOS requires an extension with -i
@@ -83,8 +83,16 @@ echo "git tag -a v$NEW_VERSION -m \"Version $NEW_VERSION\""
 
 # Update README.md with new version
 echo "Updating README.md with new version..."
-sed -i '' -E "s|(\[!\[Version\]\(https://img.shields.io/badge/version-)[0-9]+\.[0-9]+\.[0-9]+(-blue\)\]\(https://github.com/docdyhr/pigame/blob/master/src/VERSION\))|\1$NEW_VERSION\2|" "$README"
-sed -i '' -E "s|(\* Version: )[0-9]+\.[0-9]+\.[0-9]+|\1$NEW_VERSION|" "$README"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS sed
+    sed -i "" -E "s|(\[!\[Version\]\(https://img.shields.io/badge/version-)[0-9]+\.[0-9]+\.[0-9]+(-blue\)\]\(https://github.com/docdyhr/pigame/blob/master/src/VERSION\))|\1$NEW_VERSION\2|" "$README"
+    sed -i "" -E "s|(\* Version: )[0-9]+\.[0-9]+\.[0-9]+|\1$NEW_VERSION|" "$README"
+else
+    # Linux sed
+    sed -i -E "s|(\[!\[Version\]\(https://img.shields.io/badge/version-)[0-9]+\.[0-9]+\.[0-9]+(-blue\)\]\(https://github.com/docdyhr/pigame/blob/master/src/VERSION\))|\1$NEW_VERSION\2|" "$README"
+    sed -i -E "s|(\* Version: )[0-9]+\.[0-9]+\.[0-9]+|\1$NEW_VERSION|" "$README"
+fi
+
 echo "README.md version badge and references updated to $NEW_VERSION."
 
 # Return success
