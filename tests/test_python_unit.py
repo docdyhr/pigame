@@ -3,12 +3,14 @@
 
 from __future__ import annotations
 
-import os
 import sys
+from pathlib import Path
+
 import pytest
 
+
 # Add parent directory to path so we can import the src module
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, Path(__file__).parent.resolve().parent.as_posix())
 from src.python import pigame
 
 

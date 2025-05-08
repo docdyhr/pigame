@@ -42,9 +42,9 @@ run_test() {
 
     # Strip ANSI color codes for comparison
     stripped_output=$(echo "$actual_output" | sed 's/\x1b\[[0-9;]*m//g')
-    
+
     echo "Actual output: '$stripped_output'"
-    
+
     # Check if the output matches the expected output
     if [[ "$stripped_output" =~ $expected_output ]]; then
         echo -e "${GREEN}PASSED${RESET}"
