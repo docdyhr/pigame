@@ -11,12 +11,12 @@ on:
 jobs:
   bump-version:
     runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, 'Release version')"
+    if: ${{ !contains(github.event.head_commit.message, 'Release version') }}
     permissions:
       contents: write  # Needed for pushing to the repository
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
 

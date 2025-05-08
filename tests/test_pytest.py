@@ -122,97 +122,97 @@ class TestPiGameFunctions:
 class TestPiGameIntegration:
     """Integration tests for the pigame command-line interface."""
 
-    def test_version_flag(self: TestPiGameIntegration, pigame_path: Path) -> None:
+    def test_version_flag(self: TestPiGameIntegration, pigame_exec: Path) -> None:
         """Test the version flag."""
         # subprocess calls below use only trusted, static input (test scripts)
         # no user input is passed to subprocess
         result = subprocess.run(
-            [str(pigame_path), "-V"],
+            [str(pigame_exec), "-V"],
             capture_output=True,
             text=True,
             check=True,
         )  # - trusted input
         assert "version" in result.stdout.lower()
 
-    def test_help_flag(self: TestPiGameIntegration, pigame_path: Path) -> None:
+    def test_help_flag(self: TestPiGameIntegration, pigame_exec: Path) -> None:
         """Test the help flag."""
         # subprocess calls below use only trusted, static input (test scripts)
         # no user input is passed to subprocess
         result = subprocess.run(
-            [str(pigame_path), "-h"],
+            [str(pigame_exec), "-h"],
             capture_output=True,
             text=True,
             check=True,
         )  # - trusted input
         assert "usage:" in result.stdout.lower()
 
-    def test_pi_calculation(self: TestPiGameIntegration, pigame_path: Path) -> None:
+    def test_pi_calculation(self: TestPiGameIntegration, pigame_exec: Path) -> None:
         """Test pi calculation with specified precision."""
         # subprocess calls below use only trusted, static input (test scripts)
         # no user input is passed to subprocess
         result = subprocess.run(
-            [str(pigame_path), "-p", str(TEST_LENGTH_SHORT)],
+            [str(pigame_exec), "-p", str(TEST_LENGTH_SHORT)],
             capture_output=True,
             text=True,
             check=True,
         )  # - trusted input
         assert VALID_PI_SHORT in result.stdout
 
-    def test_correct_input(self: TestPiGameIntegration, pigame_path: Path) -> None:
+    def test_correct_input(self: TestPiGameIntegration, pigame_exec: Path) -> None:
         """Test with correct pi input."""
         # subprocess calls below use only trusted, static input (test scripts)
         # no user input is passed to subprocess
         result = subprocess.run(
-            [str(pigame_path), VALID_PI_SHORT],
+            [str(pigame_exec), VALID_PI_SHORT],
             capture_output=True,
             text=True,
             check=True,
         )  # - trusted input
         assert "Match" in result.stdout
 
-    def test_incorrect_input(self: TestPiGameIntegration, pigame_path: Path) -> None:
+    def test_incorrect_input(self: TestPiGameIntegration, pigame_exec: Path) -> None:
         """Test with incorrect pi input."""
         # subprocess calls below use only trusted, static input (test scripts)
         # no user input is passed to subprocess
         result = subprocess.run(
-            [str(pigame_path), INCORRECT_PI],
+            [str(pigame_exec), INCORRECT_PI],
             capture_output=True,
             text=True,
             check=True,
         )  # - trusted input
         assert "No match" in result.stdout
 
-    def test_verbose_mode(self: TestPiGameIntegration, pigame_path: Path) -> None:
+    def test_verbose_mode(self: TestPiGameIntegration, pigame_exec: Path) -> None:
         """Test verbose mode output."""
         # subprocess calls below use only trusted, static input (test scripts)
         # no user input is passed to subprocess
         result = subprocess.run(
-            [str(pigame_path), "-v", INCORRECT_PI],
+            [str(pigame_exec), "-v", INCORRECT_PI],
             capture_output=True,
             text=True,
             check=True,
         )  # - trusted input
         assert "You can do better!" in result.stdout
 
-    def test_invalid_input(self: TestPiGameIntegration, pigame_path: Path) -> None:
+    def test_invalid_input(self: TestPiGameIntegration, pigame_exec: Path) -> None:
         """Test with invalid input."""
         # subprocess calls below use only trusted, static input (test scripts)
         # no user input is passed to subprocess
         with pytest.raises(subprocess.CalledProcessError) as excinfo:
             subprocess.run(
-                [str(pigame_path), "abc"],
+                [str(pigame_exec), "abc"],
                 capture_output=True,
                 text=True,
                 check=True,
             )  # - trusted input
         assert "Invalid input" in excinfo.value.stderr
 
-    def test_easter_egg(self: TestPiGameIntegration, pigame_path: Path) -> None:
+    def test_easter_egg(self: TestPiGameIntegration, pigame_exec: Path) -> None:
         """Test the easter egg functionality."""
         # subprocess calls below use only trusted, static input (test scripts)
         # no user input is passed to subprocess
         result = subprocess.run(
-            [str(pigame_path), "Archimedes"],
+            [str(pigame_exec), "Archimedes"],
             capture_output=True,
             text=True,
             check=True,

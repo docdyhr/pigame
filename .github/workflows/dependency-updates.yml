@@ -13,12 +13,12 @@ jobs:
       pull-requests: write  # Needed for creating pull requests
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
-        python-version: "3.10"
+        python-version: "3.13"
 
     - name: Install pip-tools
       run: |
@@ -37,7 +37,7 @@ jobs:
         rm requirements.in
 
     - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v5
+      uses: peter-evans/create-pull-request@v6
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         commit-message: "chore: Update dependencies"
