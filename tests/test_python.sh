@@ -38,14 +38,18 @@ run_test() {
         return 1
     fi
 
+    # Strip ANSI color codes for comparison
+    stripped_output=$(echo "$actual_output" | sed 's/\x1b\[[0-9;]*m//g')
+    
     # Check if the output matches the expected output
-    if [[ "$actual_output" =~ $expected_output ]]; then
+    if [[ "$stripped_output" =~ $expected_output ]]; then
         echo -e "${GREEN}PASSED${RESET}"
         ((TESTS_PASSED++))
     else
         echo -e "${RED}FAILED${RESET}"
         echo "Expected output: '$expected_output'"
         echo "Actual output: '$actual_output'"
+        echo "Stripped output: '$stripped_output'"
         ((TESTS_FAILED++))
     fi
 }
@@ -57,7 +61,7 @@ cd "$(dirname "$0")" || exit 1
 chmod 700 "$PIGAME"
 
 # Test 1: Version flag (-V)
-run_test "Version flag" "$PIGAME -V" "version"
+run_test "Version flag" "$PIGAME -V" "version: [0-9]+\.[0-9]+\.[0-9]+"
 
 # Test 2: Pi calculation with 5 decimals
 run_test "Pi calculation (5 decimals)" "$PIGAME -p 5" "3.14159"
