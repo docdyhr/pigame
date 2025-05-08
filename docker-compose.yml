@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  pigame:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    command: --help
+    stdin_open: true
+    tty: true
+
+  dev:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - .:/home/developer/workspace
+      - ~/.gitconfig:/home/developer/.gitconfig:ro
+      - ~/.ssh:/home/developer/.ssh:ro
+      - pigame-bash-history:/commandhistory
+    command: /bin/bash
+    stdin_open: true
+    tty: true
+    environment:
+      - PYTHONPATH=/home/developer/workspace
+    ports:
+      - "8000:8000"
+
+  test:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - .:/home/developer/workspace
+    command: bash -c "cd /home/developer/workspace && make test"
+    environment:
+      - PYTHONPATH=/home/developer/workspace
+
+volumes:
+  pigame-bash-history:

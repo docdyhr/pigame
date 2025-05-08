@@ -26,6 +26,33 @@ By participating in this project, you agree to be respectful and considerate of 
    make build-c       # For C development
    ```
 
+4. **Install required system dependencies**:
+
+   - **bc**: Arbitrary precision calculator (required for all implementations)
+   - **ShellCheck**: Shell script linter (required for development)
+   - **clang-format**: C code formatter (required for C development)
+
+   ```
+   # On Ubuntu/Debian
+   sudo apt-get install bc shellcheck clang-format
+
+   # On macOS with Homebrew
+   brew install bc shellcheck clang-format
+
+   # On Windows with Chocolatey
+   choco install shellcheck gnuwin32-bc llvm
+   ```
+
+5. **Set up pre-commit hooks**:
+
+   ```
+   # Install pre-commit
+   pip install pre-commit
+
+   # Install the git hooks
+   pre-commit install
+   ```
+
 
 ## Development Workflow
 
@@ -44,7 +71,6 @@ By participating in this project, you agree to be respectful and considerate of 
    make test          # Run all tests
    make test-bash     # Test Bash implementation
    make test-c        # Test C implementation
-
    make test-python   # Test Python implementation
    make test-pytest   # Run pytest with coverage
    ```
@@ -61,6 +87,8 @@ By participating in this project, you agree to be respectful and considerate of 
    - **Python linting and import sorting is handled exclusively by Ruff. isort is no longer used.**
    - All Python code must pass `ruff check src/python/ tests/` with no errors before merging or release.
    - Ruff will automatically fix most issues with `ruff check --fix src/python/ tests/`.
+   - Pre-commit hooks will automatically run linters on each commit.
+   - If pre-commit hooks fail, fix the issues and try committing again.
 
 5. **Commit your changes** with a descriptive commit message:
 
@@ -122,6 +150,32 @@ git push && git push --tags  # Trigger the release workflow
 2. Update the documentation if necessary
 3. The PR will be reviewed by maintainers
 4. Once approved, your PR will be merged
+
+## CI/CD Pipeline
+
+The project uses GitHub Actions for continuous integration and deployment. The CI/CD pipeline includes:
+
+1. **Lint job**: Checks code quality using Ruff, ShellCheck, and clang-format
+2. **Build job**: Builds the project and verifies it compiles correctly
+3. **Test job**: Runs all tests for Bash, C, and Python implementations
+4. **Release job**: Creates release artifacts when a new version tag is pushed
+
+When you create a PR, the CI pipeline will automatically run to verify your changes. Your PR will only be merged if all CI checks pass.
+
+## Development Environment
+
+We recommend using a virtual environment for Python development:
+
+```
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+pip install -e .
+```
+
+For IDE integration:
+- VS Code: The repository includes recommended extensions and settings in .vscode
+- PyCharm: Import the project and use the provided pytest configuration
 
 ## Communication
 

@@ -1,8 +1,10 @@
 # PIGAME - How many decimals of π can you remember?
 
 [![CI/CD Pipeline](https://github.com/docdyhr/pigame/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/docdyhr/pigame/actions/workflows/ci.yml)
+[![Test Coverage](https://img.shields.io/codecov/c/github/docdyhr/pigame)](https://codecov.io/gh/docdyhr/pigame)
 [![Version](https://img.shields.io/badge/version-1.7.1-blue)](https://github.com/docdyhr/pigame/blob/master/src/VERSION)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/docdyhr/pigame/blob/master/LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/docdyhr/pigame/blob/master/CONTRIBUTING.md)
 
 ## Overview
 
@@ -49,6 +51,25 @@ chmod 755 pigame
 cp pigame ~/bin  # Or any directory in your PATH
 ```
 
+### Docker Install
+
+You can also run PIGAME using Docker:
+
+```shell
+# Build the Docker image
+docker build -t pigame .
+
+# Run PIGAME with Docker
+docker run -it pigame -p 10
+
+# Run with custom input
+docker run -it pigame 3.14159
+
+# For development environment
+docker-compose up -d dev
+docker-compose exec dev bash
+```
+
 ### Requirements
 
 * `bc` - An arbitrary precision calculator language (required for legacy Bash implementation)
@@ -57,6 +78,19 @@ cp pigame ~/bin  # Or any directory in your PATH
   * Ref.: <https://www.gnu.org/software/bc/bc.html>
 * For C implementation: C compiler (gcc or clang)
 * For Python implementation: Python 3.6+
+
+### Development Environment
+
+For local development, you can use the provided setup script:
+
+```shell
+# Quick environment setup
+./scripts/setup.sh
+
+# Or using Docker
+docker-compose up -d dev
+docker-compose exec dev bash
+```
 
 ## Dependencies
 
@@ -131,11 +165,36 @@ Perfect!
 
 ## Development
 
+### Setup Development Environment
+
+```shell
+# Clone the repository
+git clone https://github.com/docdyhr/pigame
+cd pigame
+
+# Install system dependencies
+# Ubuntu/Debian:
+sudo apt-get install bc shellcheck clang-format
+# macOS:
+# brew install bc shellcheck clang-format
+
+# Set up Python environment
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+pip install -e .
+
+# Set up pre-commit hooks
+pip install pre-commit
+pre-commit install
+```
+
 ### Building
 
 ```shell
-make         # Build all implementations
-make build-c # Build only the C implementation
+make              # Build all implementations
+make build-c      # Build only the C implementation
+make build-python # Build only the Python implementation
 ```
 
 ### Testing
@@ -145,6 +204,10 @@ make test          # Test all implementations
 make test-bash     # Test only the Bash implementation
 make test-c        # Test only the C implementation
 make test-python   # Test only the Python implementation
+make test-pytest   # Run Python unit tests with pytest
+
+# Run tests in Docker
+docker-compose up test
 ```
 
 ### Linting
@@ -153,9 +216,14 @@ make test-python   # Test only the Python implementation
 - Run Ruff directly from the command line:
   ```sh
   ruff check src/python/ tests/
+  ruff check --fix src/python/ tests/  # Auto-fix issues
   ```
 - Ruff is not managed by pip or requirements.txt.
 - isort is no longer used; import sorting is handled by Ruff.
+- Run shellcheck on bash scripts:
+  ```sh
+  shellcheck pigame src/bash/pigame.sh
+  ```
 - 100% test coverage is the goal. To check coverage:
   ```sh
   .venv/bin/pytest --cov=src/python --cov-report=html
@@ -171,6 +239,12 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 - Use conventional commit messages (feat:, fix:, docs:, etc.).
 - All code must pass tests and linting before submitting a pull request.
 - The canonical version is always stored in src/VERSION; all references must match.
+- All implementations (Bash, C, Python) must maintain compatibility with each other.
+- CI/CD pipeline will automatically verify your changes.
+
+## Security
+
+For security issues, please see [SECURITY.md](SECURITY.md) for our vulnerability reporting process.
 
 ## To-Do List
 

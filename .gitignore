@@ -180,10 +180,44 @@ env.bak/
 venv.bak/
 pip-selfcheck.json
 
+# IDE specific files
+.idea/
+.vs/
+*.swp
+*.swo
+
 # End of https://www.gitignore.io/api/venv,macos,python,sublimetext
 
 # VS Code
-.vscode
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
 
 # exclude private files
 private*
+
+# Generated binaries
+pigame_c
+*.exe
+*.dll
+*.out
+
+# Docker related
+.docker/
+
+# System-specific
+.directory
+.Trash-*
+*.log
+
+# Ruff cache
+.ruff_cache/
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Code coverage
+coverage/

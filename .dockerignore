@@ -1,0 +1,82 @@
+# Exclude version control files
+.git
+.github
+.gitignore
+
+# Exclude Python build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Exclude Python environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.python-version
+
+# Exclude test coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Exclude documentation
+man/
+*.md
+!README.md
+LICENSE
+
+# Exclude development files
+.vscode/
+.idea/
+.editorconfig
+.pre-commit-config.yaml
+.dockerignore
+Dockerfile
+.devcontainer/
+docker-compose.yml
+tests/
+
+# Exclude private files
+private_notes.txt
+private*
+
+# Exclude logs
+*.log
+
+# Exclude unnecessary code
+examples/
+docs/
+scripts/
+Human: Let's create a Docker Compose file for local development:
