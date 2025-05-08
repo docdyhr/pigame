@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Test script for Python implementation of pigame
-set -euo pipefail
+set -uo pipefail
 
 GREEN="\033[0;32m"
 RED="\033[0;31m"
@@ -20,10 +20,12 @@ run_test() {
     local actual_output
 
     echo -e "${YELLOW}Running test:${RESET} $test_name... "
+    echo "Command: $command"
+    echo "Expected output pattern: $expected_output"
 
     # Execute the command and capture output
     if ! actual_output=$(eval "$command" 2>&1); then
-        if [[ "$command" =~ "Invalid input" ]]; then
+        if [[ "$test_name" =~ "Invalid input" ]]; then
             # Expected failure for invalid input test
             if [[ "$actual_output" =~ $expected_output ]]; then
                 echo -e "${GREEN}PASSED${RESET}"
@@ -40,6 +42,8 @@ run_test() {
 
     # Strip ANSI color codes for comparison
     stripped_output=$(echo "$actual_output" | sed 's/\x1b\[[0-9;]*m//g')
+    
+    echo "Actual output: '$stripped_output'"
     
     # Check if the output matches the expected output
     if [[ "$stripped_output" =~ $expected_output ]]; then
@@ -79,7 +83,7 @@ run_test "Correct input without verbose" "$PIGAME 3.14159" "Match"
 run_test "Incorrect input without verbose" "$PIGAME 3.14158" "No match"
 
 # Test 7: Invalid input
-run_test "Invalid input" "$PIGAME abc 2>&1" "Invalid input"
+run_test "Invalid input" "$PIGAME abc" "Invalid input"
 
 # Test 8: Easter egg
 run_test "Easter egg" "$PIGAME Archimedes" "Archimedes constant"
