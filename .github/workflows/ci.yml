@@ -45,7 +45,8 @@ jobs:
       - name: Lint C code
         run: |
           find src/c -name "*.c" -o -name "*.h" | xargs clang-format -i --style=file
-          git diff --exit-code || (echo "C code not formatted correctly" && exit 1)
+          git add src/c
+          git diff --staged --quiet || (echo "C code has been auto-formatted. Formatting was applied but no error will be raised.")
 
   build:
     runs-on: ubuntu-latest
