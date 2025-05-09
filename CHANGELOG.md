@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - TBD
 
+### Fixed
+- Fixed practice mode function calls to use keyword-only arguments properly
+- Updated test suite to properly isolate practice mode test cases
+- Added proper mocking of system stdin for keyboard interrupt tests
+- Improved test fixture cleanup for more reliable testing
+
 ## [1.9.1] - 2025-05-09
 
 ### Added
