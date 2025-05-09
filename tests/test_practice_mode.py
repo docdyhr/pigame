@@ -25,6 +25,13 @@ def _mock_practice_config() -> None:
         temp_path = Path(temp_dir)
         pigame.PRACTICE_CONFIG_DIR = temp_path
         pigame.PRACTICE_STATS_FILE = temp_path / "stats.json"
+
+        # Make sure the directory exists but the file doesn't
+        if not temp_path.exists():
+            temp_path.mkdir(parents=True)
+        if pigame.PRACTICE_STATS_FILE.exists():
+            pigame.PRACTICE_STATS_FILE.unlink()
+
         yield
         # Restore original values
         pigame.PRACTICE_CONFIG_DIR = original_config_dir
@@ -34,7 +41,7 @@ def _mock_practice_config() -> None:
 class TestPracticeMode:
     """Test suite for practice mode functionality."""
 
-    def test_load_practice_stats_new_file(self) -> None:
+    def test_load_practice_stats_new_file(self, _mock_practice_config) -> None:
         """Test loading practice stats when no file exists."""
         # Should create a new file with default stats
         stats = pigame.load_practice_stats()
@@ -50,7 +57,7 @@ class TestPracticeMode:
         # Check that the file was created
         assert pigame.PRACTICE_STATS_FILE.exists()
 
-    def test_save_practice_stats(self) -> None:
+    def test_save_practice_stats(self, _mock_practice_config) -> None:
         """Test saving practice stats."""
         # Create test stats
         test_stats = {
@@ -85,29 +92,59 @@ class TestPracticeMode:
 )
 def test_input_digit(digit: str, expected: str) -> None:
     """Test the input_digit function with mocked stdin."""
-    with mock.patch("sys.stdin.fileno", return_value=0), mock.patch(
-        "termios.tcgetattr",
-        return_value=[0, 0, 0, 0, 0, 0],
-    ), mock.patch("termios.tcsetattr"), mock.patch("tty.setraw"), mock.patch(
-        "sys.stdin.read",
-        return_value=digit,
+    with (
+        mock.patch("sys.stdin.fileno", return_value=0),
+        mock.patch(
+            "termios.tcgetattr",
+            return_value=[0, 0, 0, 0, 0, 0],
+        ),
+        mock.patch("termios.tcsetattr"),
+        mock.patch("tty.setraw"),
+        mock.patch(
+            "sys.stdin.read",
+            return_value=digit,
+        ),
     ):
         result = pigame.input_digit()
         assert result == expected
 
 
-def test_practice_mode_keyboard_interrupt() -> None:
+def test_practice_mode_keyboard_interrupt(_mock_practice_config) -> None:
     """Test practice mode with keyboard interrupt."""
-    # Mock dependencies
-    with mock.patch("pigame.input_digit", side_effect=KeyboardInterrupt), mock.patch(
-        "termios.tcgetattr",
-        return_value=[0, 0, 0, 0, 0, 0],
-    ), mock.patch("termios.tcsetattr"), mock.patch("time.sleep"), mock.patch(
-        "sys.stdout.write",
-    ), mock.patch(
-        "sys.stdout.flush",
-    ):
+    # Create a mock stdin with fileno method
+    mock_stdin = mock.MagicMock()
+    mock_stdin.fileno.return_value = 0
 
+    # Mock dependencies
+    with (
+        mock.patch("pigame.input_digit", side_effect=KeyboardInterrupt),
+        mock.patch("sys.stdin", mock_stdin),
+        mock.patch(
+            "termios.tcgetattr",
+            return_value=[0, 0, 0, 0, 0, 0],
+        ),
+        mock.patch("termios.tcsetattr"),
+        mock.patch("time.sleep"),
+        mock.patch(
+            "sys.stdout.write",
+        ),
+        mock.patch(
+            "sys.stdout.flush",
+        ),
+        # Ensure the test runs with a fresh configuration each time
+        mock.patch(
+            "pigame.load_practice_stats",
+            return_value={
+                "max_digits": 0,
+                "total_digits_correct": 0,
+                "total_practice_sessions": 0,
+                "last_session_date": None,
+                "fastest_time": None,
+                "best_speed": None,
+                "history": [],
+            },
+        ),
+    ):
         # Should not raise exception
         pigame.practice_mode()
 

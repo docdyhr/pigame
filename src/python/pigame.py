@@ -449,27 +449,39 @@ def configure_practice_mode() -> None:
                     print("Invalid selection. No changes made.")
 
             elif choice == "2":
-                prompt = f"Enter minimum digits ({PRACTICE_MIN_DIGITS}-{PRACTICE_MAX_DIGITS}): "
+                prompt = (
+                    f"Enter minimum digits ({PRACTICE_MIN_DIGITS}-"
+                    f"{PRACTICE_MAX_DIGITS}): "
+                )
                 min_digits_input = input(prompt).strip()
                 try:
                     min_digits = int(min_digits_input)
                     if PRACTICE_MIN_DIGITS <= min_digits <= PRACTICE_MAX_DIGITS:
                         config["min_digits"] = min_digits
                     else:
-                        msg = f"Value must be between {PRACTICE_MIN_DIGITS} and {PRACTICE_MAX_DIGITS}."
+                        msg = (
+                            f"Value must be between {PRACTICE_MIN_DIGITS} "
+                            f"and {PRACTICE_MAX_DIGITS}."
+                        )
                         print(msg)
                 except ValueError:
                     print("Invalid input. Please enter a number.")
 
             elif choice == "3":
-                prompt = f"Enter maximum digits ({PRACTICE_MIN_DIGITS}-{PRACTICE_MAX_DIGITS}): "
+                prompt = (
+                    f"Enter maximum digits ({PRACTICE_MIN_DIGITS}-"
+                    f"{PRACTICE_MAX_DIGITS}): "
+                )
                 max_digits_input = input(prompt).strip()
                 try:
                     max_digits = int(max_digits_input)
                     if PRACTICE_MIN_DIGITS <= max_digits <= PRACTICE_MAX_DIGITS:
                         config["max_digits"] = max_digits
                     else:
-                        msg = f"Value must be between {PRACTICE_MIN_DIGITS} and {PRACTICE_MAX_DIGITS}."
+                        msg = (
+                            f"Value must be between {PRACTICE_MIN_DIGITS} "
+                            f"and {PRACTICE_MAX_DIGITS}."
+                        )
                         print(msg)
                 except ValueError:
                     print("Invalid input. Please enter a number.")
@@ -482,7 +494,10 @@ def configure_practice_mode() -> None:
                     if MIN_CHUNK_SIZE <= chunk_size <= MAX_CHUNK_SIZE:
                         config["chunk_size"] = chunk_size
                     else:
-                        msg = f"Value must be between {MIN_CHUNK_SIZE} and {MAX_CHUNK_SIZE}."
+                        msg = (
+                            f"Value must be between {MIN_CHUNK_SIZE} and "
+                            f"{MAX_CHUNK_SIZE}."
+                        )
                         print(msg)
                 except ValueError:
                     print("Invalid input. Please enter a number.")
@@ -498,7 +513,10 @@ def configure_practice_mode() -> None:
                     if MIN_TIME_LIMIT <= time_limit <= MAX_TIME_LIMIT:
                         config["time_limit"] = time_limit
                     else:
-                        msg = f"Value must be between {MIN_TIME_LIMIT} and {MAX_TIME_LIMIT}."
+                        msg = (
+                            f"Value must be between {MIN_TIME_LIMIT} "
+                            f"and {MAX_TIME_LIMIT}."
+                        )
                         print(msg)
                 except ValueError:
                     print("Invalid input. Please enter a number.")
@@ -944,7 +962,7 @@ def practice_mode(
         # Show first digits as reference (except in timed mode)
         if practice_mode != "timed":
             ref_digits = min(5, current_digits)
-            print(f"First {ref_digits} digits: {pi_digits[:ref_digits+2]}")
+            print(f"First {ref_digits} digits: {pi_digits[: ref_digits + 2]}")
             time.sleep(1)
 
         # Start practice session
@@ -956,8 +974,8 @@ def practice_mode(
                 all_correct, correct_count = standard_practice(
                     pi_digits,
                     current_digits,
-                    colorblind_mode,
-                    show_visual_aid,
+                    colorblind_mode=colorblind_mode,
+                    visual_aid=show_visual_aid,
                 )
                 session_correct_digits += correct_count
                 elapsed_time = None
@@ -966,8 +984,8 @@ def practice_mode(
                     pi_digits,
                     current_digits,
                     time_limit,
-                    colorblind_mode,
-                    show_timer,
+                    colorblind_mode=colorblind_mode,
+                    show_timer=show_timer,
                 )
                 session_correct_digits += correct_count
 
@@ -984,7 +1002,7 @@ def practice_mode(
                     pi_digits,
                     chunk_size,
                     current_digits,
-                    colorblind_mode,
+                    colorblind_mode=colorblind_mode,
                 )
                 session_correct_digits += correct_count
                 elapsed_time = None
@@ -1234,9 +1252,11 @@ def main() -> None:
                     f"[{session.get('mode', 'standard')}] " if "mode" in session else ""
                 )
                 print(
-                    f"  {i+1}. {session['date']} - {mode_str}Level {session['max_level']}"
+                    f"  {i + 1}. {session['date']} - "
+                    f"{mode_str}Level {session['max_level']}"
                     f" ({session['correct_digits']} correct digits,"
-                    f" {session['duration_seconds'] // 60}m {session['duration_seconds'] % 60}s)",
+                    f" {session['duration_seconds'] // 60}m "
+                    f"{session['duration_seconds'] % 60}s)",
                 )
         print("=================================")
         sys.exit(0)
