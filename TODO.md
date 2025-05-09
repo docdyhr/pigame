@@ -85,17 +85,17 @@
     - Create automated user feedback collection system
 
 ### Next Steps (High Priority)
-1. Implement interactive practice mode
-   - Add `--practice` flag for interactive digit-by-digit input
-   - Implement immediate feedback on each digit
-   - Save progress between sessions
-   - Add difficulty progression system
-   - Implement a scoring mechanism for accuracy and speed
+1. ✅ Implement interactive practice mode
+   - ✅ Add `--practice` flag for interactive digit-by-digit input
+   - ✅ Implement immediate feedback on each digit
+   - ✅ Save progress between sessions
+   - ✅ Add difficulty progression system
+   - ✅ Implement a scoring mechanism for accuracy and speed
 
-2. Add statistics tracking
-   - Create ~/.pigame directory for user data
-   - Track accuracy and improvement over time
-   - Add `--stats` command to show historical performance
+2. ✅ Add statistics tracking
+   - ✅ Create ~/.pigame directory for user data
+   - ✅ Track accuracy and improvement over time
+   - ✅ Add `--stats` command to show historical performance
 
 3. Support for additional constants
    - Add e, φ, √2 with high-precision calculations
@@ -108,10 +108,10 @@
 ### User Interface Improvements
 * ✅ Add proper spacing between numbers to increase readability
 * ✅ Support for color-blind mode (different highlighting method)
-* Interactive mode for practicing pi memorization
-  - Add interactive input for each digit with immediate feedback
-  - Support arrow keys to navigate/correct previous entries
-  - Add progress visualization (e.g., progress bar)
+* ✅ Interactive mode for practicing pi memorization
+  - ✅ Add interactive input for each digit with immediate feedback
+  - ✅ Support single-keystroke input without Enter
+  - ✅ Add progress visualization (e.g., progress bar)
 * Support for dark/light terminal themes
   - Detect terminal theme using environment variables
   - Add `--theme [dark|light|auto]` option
@@ -134,28 +134,28 @@
   - Optimize algorithms for speed and memory usage
   - Add benchmarking tools to compare implementations
   - Implement caching for frequently used precision levels
-* Add configuration file support
-  - Support for ~/.pigame/config.{json,yaml,toml}
-  - Store default settings and preferences
-  - Allow overriding with command-line options
+* ✅ Add configuration file support
+  - ✅ Support for ~/.pigame/stats.json and ~/.pigame/config.json
+  - ✅ Store default settings and preferences
+  - ✅ Allow overriding with command-line options
 
 ### New Features
-* Add a practice mode that gradually increases difficulty
-  - Implement an interactive mode with `--practice` flag
-  - Start with fewer digits and increase based on success
-  - Add option to retry after mistakes
-  - Store progress between sessions
-* Add statistics tracking (e.g., how many digits you've memorized over time)
-  - Create a ~/.pigame/ directory for storing user data
-  - Track accuracy, improvement over time, and max digits achieved
-  - Add `--stats` flag to show historical performance
-* Add a difficulty rating system
-  - Rating from 1-10 based on number of digits and time
-  - Award achievements for reaching milestones
-* Add a timer mode
-  - Add `--timer` flag to measure response time
-  - Set time limits with `--time-limit SECONDS` option
-  - Show performance metrics compared to average users
+* ✅ Add a practice mode that gradually increases difficulty
+  - ✅ Implement an interactive mode with `--practice` flag
+  - ✅ Start with fewer digits and increase based on success
+  - ✅ Add option to retry after mistakes
+  - ✅ Store progress between sessions
+* ✅ Add statistics tracking (e.g., how many digits you've memorized over time)
+  - ✅ Create a ~/.pigame/ directory for storing user data
+  - ✅ Track accuracy, improvement over time, and max digits achieved
+  - ✅ Add `--stats` flag to show historical performance
+* ✅ Add a difficulty rating system
+  - ✅ Rating based on number of digits and time
+  - ✅ Track achievements for reaching milestones
+* ✅ Add a timer mode
+  - ✅ Add time-based practice mode
+  - ✅ Set time limits with `--time-limit SECONDS` option
+  - ✅ Show performance metrics during and after practice
 
 ### Documentation
 * ✅ Create man page

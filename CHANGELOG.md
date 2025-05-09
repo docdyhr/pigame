@@ -8,7 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- TBD
+- Interactive practice mode with `--practice` flag for memorizing π digits
+- Statistics tracking with `--stats` flag to show progress over time
+- Session history and performance metrics for practice mode
+- Difficulty progression system that adapts based on user performance
+- User data saved in ~/.pigame directory for persistent progress tracking
+- Multiple practice strategies: standard, timed, and chunk-based modes
+- Interactive configuration with `--config` flag for customizing practice settings
+- Visual progress indicators and timers during practice sessions
+- Speed tracking in digits per minute with personal bests
+- Command-line options for all practice mode settings (min/max digits, time limits, etc.)
 
 ## [1.8.0] - 2025-05-08
 

@@ -1,4 +1,4 @@
-.TH PIGAME 1 "April 2025" "pigame 1.6.12" "User Commands"
+.TH PIGAME 1 "April 2025" "pigame 1.7.1" "User Commands"
 .SH NAME
 pigame \- How many decimals of π can you remember?
 .SH SYNOPSIS
@@ -6,6 +6,17 @@ pigame \- How many decimals of π can you remember?
 [\fB\-v\fR]
 [\fB\-p\fR \fILENGTH\fR]
 [\fB\-V\fR]
+[\fB\-c\fR]
+[\fB\-\-practice\fR]
+[\fB\-\-practice-mode\fR \fIMODE\fR]
+[\fB\-\-min-digits\fR \fIN\fR]
+[\fB\-\-max-digits\fR \fIN\fR]
+[\fB\-\-chunk-size\fR \fIN\fR]
+[\fB\-\-time-limit\fR \fIN\fR]
+[\fB\-\-visual-aid\fR]
+[\fB\-\-no-visual-aid\fR]
+[\fB\-\-stats\fR]
+[\fB\-\-config\fR]
 [\fIYOUR_PI\fR]
 .SH DESCRIPTION
 .B pigame
@@ -21,8 +32,41 @@ Calculate and show π with LENGTH number of decimals.
 .BR \-V
 Display version information.
 .TP
+.BR \-c
+Color-blind mode (use underscores instead of color).
+.TP
 .BR \-\-list
 Show available implementations.
+.TP
+.BR \-\-practice
+Start interactive practice mode for memorizing digits.
+.TP
+.BR \-\-practice-mode " " \fIMODE\fR
+Select practice mode strategy. Available modes: standard, timed, chunk.
+.TP
+.BR \-\-min-digits " " \fIN\fR
+Set minimum starting digits for practice.
+.TP
+.BR \-\-max-digits " " \fIN\fR
+Set maximum digits to practice.
+.TP
+.BR \-\-chunk-size " " \fIN\fR
+Set size of chunks in chunk practice mode.
+.TP
+.BR \-\-time-limit " " \fIN\fR
+Set time limit in seconds for timed practice mode.
+.TP
+.BR \-\-visual-aid
+Enable visual progress indicators in practice mode.
+.TP
+.BR \-\-no-visual-aid
+Disable visual progress indicators in practice mode.
+.TP
+.BR \-\-stats
+Show your practice statistics.
+.TP
+.BR \-\-config
+Configure practice mode settings interactively.
 .SH EXAMPLES
 .TP
 .BR "pigame 3.14159"
@@ -36,6 +80,21 @@ Display π with 25 decimal places.
 .TP
 .BR "pigame \-v \-p 25"
 Display π with 25 decimal places with verbose output.
+.TP
+.BR "pigame \-\-practice"
+Start interactive practice mode to memorize π digits.
+.TP
+.BR "pigame \-\-stats"
+Display your practice statistics and progress.
+.TP
+.BR "pigame \-\-practice \-\-practice-mode timed"
+Start timed practice mode with countdown.
+.TP
+.BR "pigame \-\-practice \-\-practice-mode chunk"
+Start chunk-based practice mode.
+.TP
+.BR "pigame \-\-config"
+Configure practice mode settings interactively.
 .SH IMPLEMENTATIONS
 PIGAME comes in three implementations:
 .TP
@@ -63,6 +122,15 @@ The main executable script.
 .TP
 .I /usr/local/share/pigame/
 Directory containing the implementation files.
+.TP
+.I ~/.pigame/
+Directory containing user practice statistics, configuration, and session history.
+.TP
+.I ~/.pigame/stats.json
+Statistics and history of practice sessions.
+.TP
+.I ~/.pigame/config.json
+Configuration settings for practice mode.
 .SH EXIT STATUS
 .TP
 .BR 0

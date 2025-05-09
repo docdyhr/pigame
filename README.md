@@ -17,7 +17,7 @@
 ## Usage
 
 ```shell
-pigame [-v] [-p LENGTH] [-V] [-c] YOUR_PI
+pigame [-v] [-p LENGTH] [-V] [-c] [--practice] [--stats] YOUR_PI
 ```
 
 Evaluate your version of π (3.141.. )
@@ -26,6 +26,16 @@ Evaluate your version of π (3.141.. )
 * `-p LENGTH` Calculate and show π with LENGTH number of decimals.
 * `-V` Version.
 * `-c` Color-blind mode (use underscores instead of color).
+* `--practice` Start interactive practice mode for memorizing digits.
+* `--practice-mode [standard|timed|chunk]` Select practice mode strategy.
+* `--min-digits N` Set minimum starting digits for practice.
+* `--max-digits N` Set maximum digits to practice.
+* `--chunk-size N` Set size of chunks in chunk practice mode.
+* `--time-limit N` Set time limit in seconds for timed practice mode.
+* `--visual-aid` Enable visual progress indicators in practice mode.
+* `--no-visual-aid` Disable visual progress indicators in practice mode.
+* `--stats` Show your practice statistics.
+* `--config` Configure practice mode settings interactively.
 * `--list` Show available implementations.
 
 ## Installation
@@ -161,6 +171,54 @@ Output:
 Your version of π: 3.1415926
 Number of errors: 0
 Perfect!
+```
+
+Practice mode for interactive learning:
+
+```shell
+pigame --practice                               # Standard mode
+pigame --practice --practice-mode timed         # Timed mode with countdown
+pigame --practice --practice-mode chunk         # Chunk-based mode
+pigame --practice --min-digits 10 --max-digits 50 # Custom difficulty
+```
+
+Output (Standard mode):
+
+```shell
+🔢 PIGAME PRACTICE MODE 🔢
+=========================
+
+Practice memorizing digits of π one by one.
+Type each digit (0-9) without pressing Enter.
+Press Ctrl+C at any time to exit.
+
+Your best: 0 digits
+Starting with 5 digits
+
+First 5 digits: 3.14159
+...
+```
+
+Output (Timed mode):
+
+```shell
+🔢 PIGAME PRACTICE MODE 🔢
+=========================
+
+Timed practice: You have 180 seconds to enter as many digits as possible.
+Type each digit (0-9) without pressing Enter.
+Press Ctrl+C at any time to exit.
+
+Your best: 12 digits
+Best speed: 8.5 digits/minute
+Starting with 13 digits
+...
+```
+
+Configure practice mode settings:
+
+```shell
+pigame --config
 ```
 
 ## Development

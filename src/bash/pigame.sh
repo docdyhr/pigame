@@ -20,12 +20,14 @@ MAX_LENGTH=5001
 
 # Print Usage
 usage() {
-    echo -e "Usage:\t$(basename "${0}") [-v] [-p LENGTH] [-V] [-c] YOUR_PI" >&2
+    echo -e "Usage:\t$(basename "${0}") [-v] [-p LENGTH] [-V] [-c] [--practice] [--stats] YOUR_PI" >&2
     echo -e "\tEvaluate your version of π (3.141.. )" >&2
     echo -e '\t-v          Increase verbosity.' >&2
     echo -e '\t-p LENGTH   Calculate and show π with LENGTH number of decimals.' >&2
     echo -e '\t-V          Version.' >&2
     echo -e '\t-c          Color-blind mode (use underscores instead of color).' >&2
+    echo -e '\t--practice  Start interactive practice mode for memorizing digits.' >&2
+    echo -e '\t--stats     Show your practice statistics.' >&2
     exit 1
 }
 
