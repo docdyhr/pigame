@@ -302,7 +302,7 @@ def handle_easter_egg(input_str: str) -> bool:
     return False
 
 
-def load_practice_stats() -> dict:
+def load_practice_stats() -> dict[str, object]:
     """Load practice statistics from file."""
     # Create directory if it doesn't exist
     if not PRACTICE_CONFIG_DIR.exists():
@@ -340,7 +340,7 @@ def load_practice_stats() -> dict:
         }
 
 
-def save_practice_stats(stats: dict) -> None:
+def save_practice_stats(stats: dict[str, object]) -> None:
     """Save practice statistics to file."""
     # Create directory if it doesn't exist
     if not PRACTICE_CONFIG_DIR.exists():
@@ -351,7 +351,7 @@ def save_practice_stats(stats: dict) -> None:
         json.dump(stats, f, indent=2)
 
 
-def load_practice_config() -> dict:
+def load_practice_config() -> dict[str, object]:
     """Load practice configuration from file."""
     # Create directory if it doesn't exist
     if not PRACTICE_CONFIG_DIR.exists():
@@ -389,7 +389,7 @@ def load_practice_config() -> dict:
         }
 
 
-def save_practice_config(config: dict) -> None:
+def save_practice_config(config: dict[str, object]) -> None:
     """Save practice configuration to file."""
     # Create directory if it doesn't exist
     if not PRACTICE_CONFIG_DIR.exists():
@@ -398,6 +398,13 @@ def save_practice_config(config: dict) -> None:
     # Save config
     with PRACTICE_CONFIG_FILE.open("w", encoding="utf-8") as f:
         json.dump(config, f, indent=2)
+
+
+# Module-level constants for configuration constraints
+MIN_CHUNK_SIZE = 2
+MAX_CHUNK_SIZE = 10
+MIN_TIME_LIMIT = 30
+MAX_TIME_LIMIT = 600
 
 
 def configure_practice_mode() -> None:
@@ -442,32 +449,28 @@ def configure_practice_mode() -> None:
                     print("Invalid selection. No changes made.")
 
             elif choice == "2":
-                min_digits_input = input(
-                    f"Enter minimum digits ({PRACTICE_MIN_DIGITS}-{PRACTICE_MAX_DIGITS}): ",
-                ).strip()
+                prompt = f"Enter minimum digits ({PRACTICE_MIN_DIGITS}-{PRACTICE_MAX_DIGITS}): "
+                min_digits_input = input(prompt).strip()
                 try:
                     min_digits = int(min_digits_input)
                     if PRACTICE_MIN_DIGITS <= min_digits <= PRACTICE_MAX_DIGITS:
                         config["min_digits"] = min_digits
                     else:
-                        print(
-                            f"Value must be between {PRACTICE_MIN_DIGITS} and {PRACTICE_MAX_DIGITS}."
-                        )
+                        msg = f"Value must be between {PRACTICE_MIN_DIGITS} and {PRACTICE_MAX_DIGITS}."
+                        print(msg)
                 except ValueError:
                     print("Invalid input. Please enter a number.")
 
             elif choice == "3":
-                max_digits_input = input(
-                    f"Enter maximum digits ({PRACTICE_MIN_DIGITS}-{PRACTICE_MAX_DIGITS}): ",
-                ).strip()
+                prompt = f"Enter maximum digits ({PRACTICE_MIN_DIGITS}-{PRACTICE_MAX_DIGITS}): "
+                max_digits_input = input(prompt).strip()
                 try:
                     max_digits = int(max_digits_input)
                     if PRACTICE_MIN_DIGITS <= max_digits <= PRACTICE_MAX_DIGITS:
                         config["max_digits"] = max_digits
                     else:
-                        print(
-                            f"Value must be between {PRACTICE_MIN_DIGITS} and {PRACTICE_MAX_DIGITS}."
-                        )
+                        msg = f"Value must be between {PRACTICE_MIN_DIGITS} and {PRACTICE_MAX_DIGITS}."
+                        print(msg)
                 except ValueError:
                     print("Invalid input. Please enter a number.")
 
@@ -475,33 +478,28 @@ def configure_practice_mode() -> None:
                 chunk_size_input = input("Enter chunk size (2-10): ").strip()
                 try:
                     chunk_size = int(chunk_size_input)
-                    # Using defined constants for min/max chunk size
-                    MIN_CHUNK_SIZE = 2
-                    MAX_CHUNK_SIZE = 10
+                    # Check against defined constants for min/max chunk size
                     if MIN_CHUNK_SIZE <= chunk_size <= MAX_CHUNK_SIZE:
                         config["chunk_size"] = chunk_size
                     else:
-                        print(
-                            f"Value must be between {MIN_CHUNK_SIZE} and {MAX_CHUNK_SIZE}."
-                        )
+                        msg = f"Value must be between {MIN_CHUNK_SIZE} and {MAX_CHUNK_SIZE}."
+                        print(msg)
                 except ValueError:
                     print("Invalid input. Please enter a number.")
 
             elif choice == "5":
-                time_limit_input = input(
-                    "Enter time limit in seconds (30-600): "
-                ).strip()
+                prompt = (
+                    f"Enter time limit in seconds ({MIN_TIME_LIMIT}-{MAX_TIME_LIMIT}): "
+                )
+                time_limit_input = input(prompt).strip()
                 try:
                     time_limit = int(time_limit_input)
-                    # Using defined constants for min/max time limit
-                    MIN_TIME_LIMIT = 30
-                    MAX_TIME_LIMIT = 600
+                    # Check against defined constants for min/max time limit
                     if MIN_TIME_LIMIT <= time_limit <= MAX_TIME_LIMIT:
                         config["time_limit"] = time_limit
                     else:
-                        print(
-                            f"Value must be between {MIN_TIME_LIMIT} and {MAX_TIME_LIMIT}."
-                        )
+                        msg = f"Value must be between {MIN_TIME_LIMIT} and {MAX_TIME_LIMIT}."
+                        print(msg)
                 except ValueError:
                     print("Invalid input. Please enter a number.")
 
@@ -529,7 +527,7 @@ def configure_practice_mode() -> None:
                 # Validate configuration
                 if config.get("min_digits", 0) > config.get("max_digits", 0):
                     print(
-                        "Error: Minimum digits cannot be greater than maximum digits."
+                        "Error: Minimum digits cannot be greater than maximum digits.",
                     )
                     continue
 
@@ -568,9 +566,10 @@ def configure_practice_mode() -> None:
             print(f"2. Minimum digits: {config.get('min_digits', PRACTICE_MIN_DIGITS)}")
             print(f"3. Maximum digits: {config.get('max_digits', PRACTICE_MAX_DIGITS)}")
             print(f"4. Chunk size: {config.get('chunk_size', DEFAULT_CHUNK_SIZE)}")
-            print(
+            time_limit_str = (
                 f"5. Time limit: {config.get('time_limit', DEFAULT_TIME_LIMIT)} seconds"
             )
+            print(time_limit_str)
             print(f"6. Show timer: {'Yes' if config.get('show_timer', True) else 'No'}")
             print(f"7. Visual aid: {'Yes' if config.get('visual_aid', True) else 'No'}")
             print("8. Save and exit")
@@ -915,7 +914,7 @@ def practice_mode(
         print("Type each digit (0-9) without pressing Enter.")
     elif practice_mode == "timed":
         print(
-            f"Timed practice: You have {time_limit} seconds to enter as many digits as possible.",
+            f"Timed practice: You have {time_limit} seconds to enter digits.",
         )
         print("Type each digit (0-9) without pressing Enter.")
     elif practice_mode == "chunk":
@@ -1033,9 +1032,12 @@ def practice_mode(
     stats["last_session_date"] = time.strftime("%Y-%m-%d %H:%M:%S")
 
     # For timed mode, update fastest time if applicable
-    if practice_mode == "timed" and elapsed_time is not None:
-        if not stats.get("fastest_time") or elapsed_time < stats.get("fastest_time"):
-            stats["fastest_time"] = elapsed_time
+    time_improved = not stats.get("fastest_time") or (
+        elapsed_time is not None
+        and elapsed_time < stats.get("fastest_time", float("inf"))
+    )
+    if practice_mode == "timed" and elapsed_time is not None and time_improved:
+        stats["fastest_time"] = elapsed_time
 
     # Add session to history
     session_record = {
@@ -1052,8 +1054,11 @@ def practice_mode(
     stats["history"].append(session_record)
 
     # Limit history to last 100 sessions
-    if len(stats["history"]) > 100:
-        stats["history"] = stats["history"][-100:]
+    max_history = 100
+
+    # Limit history to last max_history sessions
+    if len(stats["history"]) > max_history:
+        stats["history"] = stats["history"][-max_history:]
 
     # Save updated stats
     save_practice_stats(stats)
@@ -1093,9 +1098,8 @@ def input_digit() -> str:
         # Only accept digits
         if char.isdigit():
             return char
-        else:
-            # Handle non-digit input silently
-            return input_digit()
+        # Handle non-digit input silently
+        return input_digit()
     finally:
         # Restore terminal settings
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
@@ -1178,7 +1182,7 @@ def main() -> None:
         # If this is help output, we don't need to report it as an error
         if "--help" in sys.argv or "-h" in sys.argv:
             sys.exit(0)
-        logger.error("Argument parsing failed")
+        logger.exception("Argument parsing failed")
         usage(1)
 
     # Handle version display
@@ -1230,9 +1234,9 @@ def main() -> None:
                     f"[{session.get('mode', 'standard')}] " if "mode" in session else ""
                 )
                 print(
-                    f"  {i+1}. {session['date']} - {mode_str}Level {session['max_level']} "
-                    f"({session['correct_digits']} correct digits, "
-                    f"{session['duration_seconds'] // 60}m {session['duration_seconds'] % 60}s)",
+                    f"  {i+1}. {session['date']} - {mode_str}Level {session['max_level']}"
+                    f" ({session['correct_digits']} correct digits,"
+                    f" {session['duration_seconds'] // 60}m {session['duration_seconds'] % 60}s)",
                 )
         print("=================================")
         sys.exit(0)

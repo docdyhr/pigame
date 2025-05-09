@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 """Tests for the practice mode of pigame."""
 
 import json
@@ -16,7 +16,7 @@ import pigame
 
 
 @pytest.fixture()
-def mock_practice_config():
+def _mock_practice_config() -> None:
     """Create a temporary directory for practice mode configuration."""
     original_config_dir = pigame.PRACTICE_CONFIG_DIR
     original_stats_file = pigame.PRACTICE_STATS_FILE
@@ -34,7 +34,7 @@ def mock_practice_config():
 class TestPracticeMode:
     """Test suite for practice mode functionality."""
 
-    def test_load_practice_stats_new_file(self, mock_practice_config):
+    def test_load_practice_stats_new_file(self) -> None:
         """Test loading practice stats when no file exists."""
         # Should create a new file with default stats
         stats = pigame.load_practice_stats()
@@ -50,7 +50,7 @@ class TestPracticeMode:
         # Check that the file was created
         assert pigame.PRACTICE_STATS_FILE.exists()
 
-    def test_save_practice_stats(self, mock_practice_config):
+    def test_save_practice_stats(self) -> None:
         """Test saving practice stats."""
         # Create test stats
         test_stats = {
@@ -78,12 +78,12 @@ class TestPracticeMode:
 
 
 @pytest.mark.parametrize(
-    "digit,expected",
+    ("digit", "expected"),
     [
         ("5", "5"),  # Valid digit
     ],
 )
-def test_input_digit(digit, expected):
+def test_input_digit(digit: str, expected: str) -> None:
     """Test the input_digit function with mocked stdin."""
     with mock.patch("sys.stdin.fileno", return_value=0), mock.patch(
         "termios.tcgetattr",
@@ -96,7 +96,7 @@ def test_input_digit(digit, expected):
         assert result == expected
 
 
-def test_practice_mode_keyboard_interrupt(mock_practice_config):
+def test_practice_mode_keyboard_interrupt() -> None:
     """Test practice mode with keyboard interrupt."""
     # Mock dependencies
     with mock.patch("pigame.input_digit", side_effect=KeyboardInterrupt), mock.patch(
@@ -115,7 +115,7 @@ def test_practice_mode_keyboard_interrupt(mock_practice_config):
         assert pigame.PRACTICE_STATS_FILE.exists()
 
         # Verify stats content
-        with open(pigame.PRACTICE_STATS_FILE) as f:
+        with pigame.PRACTICE_STATS_FILE.open("r") as f:
             stats = json.load(f)
             assert stats["total_practice_sessions"] == 1
             assert len(stats["history"]) == 1
