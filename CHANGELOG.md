@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - TBD
 
+## [1.9.2] - 2025-05-09
+
+### Added
+- TBD
+
 ### Fixed
 - Fixed practice mode function calls to use keyword-only arguments properly
 - Updated test suite to properly isolate practice mode test cases
@@ -243,7 +248,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Command-line interface with flags for verbosity and precision
 - Easter egg references to Archimedes
 
-[Unreleased]: https://github.com/docdyhr/pigame/compare/v1.9.1...HEAD
+[Unreleased]: https://github.com/docdyhr/pigame/compare/v1.9.2...HEAD
+[1.9.2]: https://github.com/docdyhr/pigame/compare/v1.9.1...v1.9.2
 [1.9.1]: https://github.com/docdyhr/pigame/compare/v1.9.0...v1.9.1
 [1.9.0]: https://github.com/docdyhr/pigame/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/docdyhr/pigame/compare/v1.7.6...v1.8.0
