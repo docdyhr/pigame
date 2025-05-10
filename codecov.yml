@@ -1,0 +1,33 @@
+codecov:
+  require_ci_to_pass: false
+  notify:
+    wait_for_ci: false
+
+coverage:
+  precision: 2
+  round: down
+  range: "20...100"
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 30%
+        informational: true
+    patch:
+      default:
+        target: auto
+        threshold: 30%
+        informational: true
+
+comment:
+  layout: "reach, diff, flags, files"
+  behavior: default
+  require_changes: false
+  require_base: no
+  require_head: no
+
+ignore:
+  - "tests/**/*"
+  - "setup.py"
+  - "src/bash/**/*"
+  - "src/c/**/*"

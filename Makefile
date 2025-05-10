@@ -7,18 +7,31 @@ PREFIX ?= /usr/local
 
 all: build
 
-build: build-c
+build:
+	@if command -v $(CC) >/dev/null 2>&1; then \
+		$(MAKE) build-c; \
+	else \
+		echo "C compiler not found, skipping C build"; \
+	fi
 
 build-c:
-	$(CC) $(CFLAGS) -o src/c/pigame src/c/pigame.c $(LDFLAGS)
+	@if command -v $(CC) >/dev/null 2>&1; then \
+		$(CC) $(CFLAGS) -o src/c/pigame src/c/pigame.c $(LDFLAGS); \
+	else \
+		echo "C compiler not found, skipping C build"; \
+	fi
 
 test: test-bash test-c test-python test-all
 
 test-bash:
 	@echo "Testing Bash implementation..."
-	@chmod +x src/bash/pigame.sh
-	@chmod +x tests/test_bash.sh
-	@tests/test_bash.sh
+	@chmod +x src/bash/pigame.sh 2>/dev/null || true
+	@chmod +x tests/test_bash.sh 2>/dev/null || true
+	@if command -v bash >/dev/null 2>&1; then \
+		tests/test_bash.sh; \
+	else \
+		echo "Bash not found, skipping test"; \
+	fi
 
 test-c: build-c
 	@echo "Testing C implementation..."
@@ -37,7 +50,25 @@ test-python-unit:
 
 test-pytest:
 	@echo "Running pytest tests..."
-	@.venv/bin/pytest
+	@if [ -f .venv/bin/python ]; then \
+		.venv/bin/python -m pytest; \
+	elif [ -f .venv/Scripts/python.exe ]; then \
+		.venv/Scripts/python -m pytest; \
+	else \
+		echo "Virtual environment not found"; \
+		exit 1; \
+	fi
+
+coverage:
+	@echo "Running tests with coverage..."
+	@if [ -f .venv/bin/python ]; then \
+		.venv/bin/python -m pytest tests/test_pytest.py -v --cov=src/python --cov-report=term-missing --cov-report=html --cov-report=xml; \
+	elif [ -f .venv/Scripts/python.exe ]; then \
+		.venv/Scripts/python -m pytest tests/test_pytest.py -v --cov=src/python --cov-report=term-missing --cov-report=html --cov-report=xml; \
+	else \
+		echo "Virtual environment not found"; \
+		exit 1; \
+	fi
 
 test-all:
 	@echo "Running all tests..."
@@ -50,8 +81,16 @@ lint-bash:
 
 setup-python: requirements.txt
 	@echo "Setting up Python environment..."
-	@.venv/bin/pip install -r requirements.txt
-	@.venv/bin/pip install -e .
+	@if [ -f .venv/bin/pip ]; then \
+		.venv/bin/pip install -r requirements.txt && \
+		.venv/bin/pip install -e .; \
+	elif [ -f .venv/Scripts/pip.exe ]; then \
+		.venv/Scripts/pip install -r requirements.txt && \
+		.venv/Scripts/pip install -e .; \
+	else \
+		echo "Virtual environment not found"; \
+		exit 1; \
+	fi
 
 lint-python:
 	@echo "Linting Python implementation with Ruff..."
@@ -97,4 +136,4 @@ release: version-patch
 	git tag -a v$$VERSION -m "Version $$VERSION"; \
 	echo "Version $$VERSION prepared for release. Push with: git push && git push --tags"
 
-.PHONY: all build build-c test test-bash test-c test-python lint lint-bash lint-python install uninstall clean
+.PHONY: all build build-c test test-bash test-c test-python test-pytest coverage lint lint-bash lint-python install uninstall clean

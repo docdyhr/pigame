@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import subprocess
-from pathlib import Path
 from typing import TYPE_CHECKING
 from unittest.mock import patch
 
@@ -14,7 +13,8 @@ from src.python import pigame
 
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from pathlib import Path
+
 
 # Test constants
 VALID_PI_SHORT = "3.14159"
@@ -27,14 +27,7 @@ LINES_EASTER_EGG = 3
 LINES_ERROR_MSG = 2
 
 
-@pytest.fixture()
-def pigame_path() -> Iterator[Path]:
-    """Provides a secure test environment path."""
-    path = Path(__file__).parent.parent / "src/python/pigame.py"
-    path.chmod(0o700)  # Restrictive permissions for security
-    yield path
-    # Cleanup after tests
-    path.chmod(0o600)
+# This fixture is now imported from conftest.py
 
 
 class TestPiGameFunctions:
