@@ -225,26 +225,20 @@ pigame --config
 
 ### Setup Development Environment
 
+The easiest way to set up your development environment is to use our unified setup script:
+
 ```shell
 # Clone the repository
 git clone https://github.com/docdyhr/pigame
 cd pigame
 
-# Install system dependencies
-# Ubuntu/Debian:
-sudo apt-get install bc shellcheck clang-format
-# macOS:
-# brew install bc shellcheck clang-format
-
-# Set up Python environment
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-pip install -e .
-
-# Set up pre-commit hooks
-pip install pre-commit
-pre-commit install
+# Run the setup script (automatically installs dependencies and sets up environment)
+./scripts/setup.sh
+# The setup script will automatically:
+# - Create and activate a Python virtual environment
+# - Install all development dependencies
+# - Set up pre-commit hooks
+# - Make all scripts executable
 ```
 
 ### Building
@@ -252,36 +246,43 @@ pre-commit install
 ```shell
 make              # Build all implementations
 make build-c      # Build only the C implementation
-make build-python # Build only the Python implementation
 ```
 
 ### Testing
 
-```shell
-make test          # Test all implementations
-make test-bash     # Test only the Bash implementation
-make test-c        # Test only the C implementation
-make test-python   # Test only the Python implementation
-make test-pytest   # Run Python unit tests with pytest
+We now have unified testing scripts that provide consistent results across all environments:
 
-# Run tests in Docker
-docker-compose up test
+```shell
+./scripts/run_tests.sh           # Run all tests with coverage
+./scripts/run_tests.sh --no-c    # Skip C tests
+./scripts/run_tests.sh --no-bash # Skip Bash tests
+make test                        # Run all tests (calls the script)
+make coverage                    # Run Python tests with coverage
 ```
 
 ### Linting
 
-- All Python code must pass Ruff linting before merging or release.
-- Run Ruff directly from the command line:
-  ```sh
-  ruff check src/python/ tests/
-  ruff check --fix src/python/ tests/  # Auto-fix issues
-  ```
-- Ruff is not managed by pip or requirements.txt.
-- isort is no longer used; import sorting is handled by Ruff.
-- Run shellcheck on bash scripts:
-  ```sh
-  shellcheck pigame src/bash/pigame.sh
-  ```
+We now have a unified linting script that handles all code formatting and style checks:
+
+```shell
+./scripts/lint.sh                # Run all linting checks
+make lint                        # Run all linting checks (calls the script)
+```
+
+This script handles:
+- Python code formatting and checks (using Ruff)
+- Bash script linting (using ShellCheck)
+- C code formatting (using clang-format)
+- Common file formatting (trailing whitespace, file endings)
+
+### CI/CD Pipeline
+
+The CI/CD pipeline uses the same scripts as local development, ensuring consistent results:
+
+```shell
+./scripts/lint.sh      # Same script used in CI for linting
+./scripts/run_tests.sh # Same script used in CI for tests
+```
 - 100% test coverage is the goal. To check coverage:
   ```sh
   .venv/bin/pytest --cov=src/python --cov-report=html

@@ -22,36 +22,21 @@ By participating in this project, you agree to be respectful and considerate of 
 3. **Set up the development environment**:
 
    ```
-   make setup-python  # For Python development
-   make build-c       # For C development
+   # One-command setup for all dependencies and configurations
+   ./scripts/setup.sh
    ```
 
-4. **Install required system dependencies**:
+4. **Required system dependencies**:
 
-   - **bc**: Arbitrary precision calculator (required for all implementations)
-   - **ShellCheck**: Shell script linter (required for development)
-   - **clang-format**: C code formatter (required for C development)
+   The setup script will check for these dependencies and provide instructions if they're missing:
+   
+   - **Python 3**: Required for all development
+   - **bc**: Arbitrary precision calculator (for Bash implementation)
+   - **ShellCheck**: Shell script linter (optional for development)
+   - **clang-format**: C code formatter (optional for C development)
+   - **gcc/clang**: C compiler (optional for C development)
 
-   ```
-   # On Ubuntu/Debian
-   sudo apt-get install bc shellcheck clang-format
-
-   # On macOS with Homebrew
-   brew install bc shellcheck clang-format
-
-   # On Windows with Chocolatey
-   choco install shellcheck gnuwin32-bc llvm
-   ```
-
-5. **Set up pre-commit hooks**:
-
-   ```
-   # Install pre-commit
-   pip install pre-commit
-
-   # Install the git hooks
-   pre-commit install
-   ```
+   The `./scripts/setup.sh` script handles all Python dependencies and pre-commit hooks automatically.
 
 
 ## Development Workflow
@@ -79,16 +64,14 @@ By participating in this project, you agree to be respectful and considerate of 
 
 
    ```
-   make lint          # Run all linters
-   make lint-bash     # Lint Bash implementation
-   make lint-python   # Lint Python implementation
+   ./scripts/lint.sh  # Run all linters
+   make lint          # Run all linters (uses the script)
    ```
 
-   - **Python linting and import sorting is handled exclusively by Ruff. isort is no longer used.**
-   - All Python code must pass `ruff check src/python/ tests/` with no errors before merging or release.
-   - Ruff will automatically fix most issues with `ruff check --fix src/python/ tests/`.
-   - Pre-commit hooks will automatically run linters on each commit.
+   - Our unified linting script handles Python (Ruff), Bash (ShellCheck), and C (clang-format) in a single command.
+   - Pre-commit hooks will automatically run the linting script on each commit.
    - If pre-commit hooks fail, fix the issues and try committing again.
+   - The same script is used both locally and in CI to ensure consistent results.
 
 5. **Commit your changes** with a descriptive commit message:
 
@@ -143,6 +126,13 @@ git push && git push --tags  # Trigger the release workflow
 - All implementations (Bash, C, Python) must have tests
 - Maintain or improve test coverage with your changes
 - Both integration and unit tests are encouraged
+- Run tests with our unified test script:
+  ```
+  ./scripts/run_tests.sh           # Run all tests
+  ./scripts/run_tests.sh --no-c    # Skip C tests
+  ./scripts/run_tests.sh --no-bash # Skip Bash tests
+  ```
+- The same script is used in CI, ensuring consistent results
 
 ## Pull Request Process
 
@@ -153,25 +143,28 @@ git push && git push --tags  # Trigger the release workflow
 
 ## CI/CD Pipeline
 
-The project uses GitHub Actions for continuous integration and deployment. The CI/CD pipeline includes:
+The project uses GitHub Actions for continuous integration and deployment. Our CI/CD pipeline is designed to match local development exactly:
 
-1. **Lint job**: Checks code quality using Ruff, ShellCheck, and clang-format
+1. **Lint job**: Runs `./scripts/lint.sh` - the same script you run locally
 2. **Build job**: Builds the project and verifies it compiles correctly
-3. **Test job**: Runs all tests for Bash, C, and Python implementations
+3. **Test job**: Runs `./scripts/run_tests.sh` - the same script you use for local testing
 4. **Release job**: Creates release artifacts when a new version tag is pushed
 
-When you create a PR, the CI pipeline will automatically run to verify your changes. Your PR will only be merged if all CI checks pass.
+This unified approach ensures that if tests pass locally, they'll pass in CI. When you create a PR, the CI pipeline will automatically run to verify your changes. Your PR will only be merged if all CI checks pass.
 
 ## Development Environment
 
-We recommend using a virtual environment for Python development:
+Setting up your development environment is simple using our unified setup script:
 
 ```
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-pip install -e .
+./scripts/setup.sh  # One command sets up the entire environment
 ```
+
+This script handles:
+- Creating and activating a Python virtual environment
+- Installing all dependencies
+- Setting up pre-commit hooks
+- Making all scripts executable
 
 For IDE integration:
 - VS Code: The repository includes recommended extensions and settings in .vscode

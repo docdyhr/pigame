@@ -52,7 +52,7 @@ fi
 
 # Bash checks
 if command -v shellcheck &> /dev/null; then
-    run_check "ShellCheck" "shellcheck src/bash/*.sh scripts/*.sh || exit 1"
+    run_check "ShellCheck" "shellcheck src/bash/*.sh scripts/*.sh tests/*.sh pigame || exit 1"
 else
     echo -e "${YELLOW}⚠ ShellCheck not found, skipping Bash checks${NC}"
     echo -e "${YELLOW}  Install with: apt-get install shellcheck or brew install shellcheck${NC}"

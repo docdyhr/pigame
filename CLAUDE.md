@@ -2,7 +2,9 @@
 
 ## Build & Run Commands
 - Run program: `./pigame [OPTIONS] [YOUR_PI]`
-- Lint shell script: `shellcheck pigame`
+- Lint all code: `./scripts/lint.sh`
+- Run all tests: `./scripts/run_tests.sh`
+- Setup development environment: `./scripts/setup.sh`
 - Install: Copy `pigame` to your $PATH (e.g., `cp pigame ~/bin`)
 
 ## Code Style Guidelines
@@ -19,3 +21,5 @@
 
 ## Dependencies
 - Requires `bc` (arbitrary precision calculator) installed on the system
+- Development requires Python 3.x and optionally ShellCheck, clang-format if developing Bash/C code
+- All Python dependencies are managed through the setup script `./scripts/setup.sh`
