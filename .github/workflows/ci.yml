@@ -46,29 +46,11 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
           python -m pip install -e .
-          python -m pip install pytest pytest-cov coverage codecov
-      - name: Run Ruff
+          python -m pip install pytest pytest-cov coverage codecov ruff
+      - name: Run unified linting script
         run: |
-          source .venv/bin/activate
-          ruff check src/python/ tests/ --fix
-          ruff format src/python/ tests/
-      - name: Lint Bash script
-        run: shellcheck src/bash/pigame.sh
-      - name: Lint C code
-        continue-on-error: true
-        run: |
-          # Create a copy of the C files before formatting
-          mkdir -p /tmp/c-orig
-          find src/c -name "*.c" -o -name "*.h" | xargs -I{} cp {} /tmp/c-orig/
-
-          # Apply formatting
-          find src/c -name "*.c" -o -name "*.h" | xargs clang-format -i --style=file
-
-          # Show diffs but don't fail the build
-          for file in $(find src/c -name "*.c" -o -name "*.h"); do
-            filename=$(basename "$file")
-            diff -u "/tmp/c-orig/$filename" "$file" || echo "Formatting applied to $filename"
-          done
+          chmod +x scripts/lint.sh
+          ./scripts/lint.sh
 
   build:
     runs-on: ubuntu-latest
@@ -145,18 +127,10 @@ jobs:
           python -m pip install -e .
       - name: Build project
         run: make build
-      - name: Test Bash implementation
-        run: make test-bash || echo "Bash tests skipped on $(uname -s)"
-      - name: Test C implementation
-        run: make test-c || echo "C tests skipped on $(uname -s)"
-      - name: Test Python implementation
+      - name: Run unified test script
         run: |
-          source .venv/bin/activate || source .venv/Scripts/activate
-          make test-python
-      - name: Run pytest with coverage
-        run: |
-          source .venv/bin/activate || source .venv/Scripts/activate
-          python -m pytest tests/test_pytest.py -v --cov=src/python --cov-report=term-missing --cov-report=html --cov-report=xml
+          chmod +x scripts/run_tests.sh
+          ./scripts/run_tests.sh
       - name: Upload coverage report artifacts
         uses: actions/upload-artifact@v4
         with:

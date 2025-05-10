@@ -1,200 +1,113 @@
 #!/usr/bin/env bash
-# setup.sh - One-command setup script for PIGAME development environment
-# This script sets up a complete development environment for PIGAME
 
-set -euo pipefail
+# setup.sh - Unified setup script for pigame development environment
+# This script sets up everything needed for development
 
-GREEN="\033[0;32m"
-YELLOW="\033[1;33m"
-RED="\033[0;31m"
-RESET="\033[0m"
-BOLD="\033[1m"
+set -e  # Exit immediately if a command exits with a non-zero status
 
-# Function to print section headers
-print_header() {
-    echo -e "\n${BOLD}${YELLOW}===== $1 =====${RESET}\n"
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+echo -e "${CYAN}=== Setting up pigame development environment ===${NC}"
+
+# Get the repository root directory
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo ".")
+cd "$REPO_ROOT" || exit 1
+
+# Check for necessary tools
+check_tool() {
+    if ! command -v "$1" &> /dev/null; then
+        echo -e "${RED}$1 is required but not found.${NC}"
+        if [ -n "$2" ]; then
+            echo -e "${YELLOW}Install with: $2${NC}"
+        fi
+        return 1
+    else
+        echo -e "${GREEN}✓ Found $1${NC}"
+        return 0
+    fi
 }
 
-# Function to print success messages
-print_success() {
-    echo -e "${GREEN}✓ $1${RESET}"
-}
+echo -e "\n${CYAN}Checking required tools...${NC}"
+MISSING_TOOLS=0
 
-# Function to print error messages and exit
-print_error() {
-    echo -e "${RED}✗ $1${RESET}"
+# Check for basic tools
+check_tool python3 "See https://www.python.org/downloads/" || MISSING_TOOLS=$((MISSING_TOOLS+1))
+check_tool git "See https://git-scm.com/downloads" || MISSING_TOOLS=$((MISSING_TOOLS+1))
+
+# Check for optional tools, but don't fail if not found
+echo -e "\n${CYAN}Checking optional tools...${NC}"
+check_tool gcc "apt install build-essential or brew install gcc" || echo -e "${YELLOW}⚠ C tests will be skipped${NC}"
+check_tool bc "apt install bc or brew install bc" || echo -e "${YELLOW}⚠ Some tests may fail${NC}"
+check_tool shellcheck "apt install shellcheck or brew install shellcheck" || echo -e "${YELLOW}⚠ Bash linting will be skipped${NC}"
+check_tool clang-format "apt install clang-format or brew install clang-format" || echo -e "${YELLOW}⚠ C code formatting will be skipped${NC}"
+
+if [ "$MISSING_TOOLS" -gt 0 ]; then
+    echo -e "\n${RED}Some required tools are missing. Please install them and try again.${NC}"
     exit 1
-}
+fi
 
-# Function to check if a command exists
-command_exists() {
-    command -v "$1" >/dev/null 2>&1
-}
+# Set up Python virtual environment
+echo -e "\n${CYAN}Setting up Python virtual environment...${NC}"
+if [ ! -d ".venv" ]; then
+    python3 -m venv .venv
+    echo -e "${GREEN}✓ Created virtual environment${NC}"
+else
+    echo -e "${YELLOW}⚠ Virtual environment already exists${NC}"
+fi
 
-# Function to detect OS
-detect_os() {
-    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        echo "linux"
-    elif [[ "$OSTYPE" == "darwin"* ]]; then
-        echo "macos"
-    elif [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]]; then
-        echo "windows"
-    else
-        echo "unknown"
-    fi
-}
+# Activate virtual environment
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
+    # Windows
+    source .venv/Scripts/activate || {
+        echo -e "${RED}Failed to activate virtual environment${NC}"
+        exit 1
+    }
+else
+    # Unix-like
+    source .venv/bin/activate || {
+        echo -e "${RED}Failed to activate virtual environment${NC}"
+        exit 1
+    }
+fi
 
-# Install system dependencies
-install_dependencies() {
-    local os
-    os=$(detect_os)
+echo -e "${GREEN}✓ Activated virtual environment${NC}"
 
-    print_header "Installing system dependencies"
+# Install dependencies
+echo -e "\n${CYAN}Installing Python dependencies...${NC}"
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python -m pip install -e .
+echo -e "${GREEN}✓ Installed Python dependencies${NC}"
 
-    case "$os" in
-        linux)
-            if command_exists apt-get; then
-                echo "Detected Debian/Ubuntu system"
-                sudo apt-get update
-                sudo apt-get install -y bc build-essential clang clang-format shellcheck python3 python3-pip python3-venv
-                print_success "System dependencies installed successfully"
-            elif command_exists dnf; then
-                echo "Detected Fedora/RHEL system"
-                sudo dnf install -y bc gcc gcc-c++ clang clang-tools-extra ShellCheck python3 python3-pip
-                print_success "System dependencies installed successfully"
-            else
-                print_error "Unsupported Linux distribution. Please install dependencies manually."
-            fi
-            ;;
-        macos)
-            if command_exists brew; then
-                echo "Using Homebrew to install dependencies"
-                brew install bc shellcheck clang-format python3
-                print_success "System dependencies installed successfully"
-            else
-                echo "Homebrew not found. Installing Homebrew..."
-                /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-                brew install bc shellcheck clang-format python3
-                print_success "Homebrew and system dependencies installed successfully"
-            fi
-            ;;
-        windows)
-            if command_exists choco; then
-                echo "Using Chocolatey to install dependencies"
-                choco install -y bc shellcheck llvm python3
-                print_success "System dependencies installed successfully"
-            else
-                print_error "Chocolatey not found. Please install dependencies manually."
-            fi
-            ;;
-        *)
-            print_error "Unsupported operating system. Please install dependencies manually."
-            ;;
-    esac
-}
+# Set up pre-commit hooks
+echo -e "\n${CYAN}Setting up pre-commit hooks...${NC}"
+python -m pip install pre-commit
+pre-commit install
+echo -e "${GREEN}✓ Set up pre-commit hooks${NC}"
 
-# Setup Python environment
-setup_python_env() {
-    print_header "Setting up Python environment"
+# Build C implementation
+echo -e "\n${CYAN}Building C implementation...${NC}"
+if command -v gcc &> /dev/null; then
+    make build-c && echo -e "${GREEN}✓ Built C implementation${NC}" || echo -e "${YELLOW}⚠ Failed to build C implementation${NC}"
+else
+    echo -e "${YELLOW}⚠ Skipping C build (gcc not found)${NC}"
+fi
 
-    # Create virtual environment if it doesn't exist
-    if [ ! -d ".venv" ]; then
-        echo "Creating virtual environment..."
-        python3 -m venv .venv
-        print_success "Virtual environment created"
-    else
-        echo "Virtual environment already exists"
-    fi
+# Make test scripts executable
+echo -e "\n${CYAN}Making scripts executable...${NC}"
+chmod +x src/bash/pigame.sh 2>/dev/null || echo -e "${YELLOW}⚠ Failed to make Bash script executable${NC}"
+chmod +x src/python/pigame.py 2>/dev/null || echo -e "${YELLOW}⚠ Failed to make Python script executable${NC}"
+chmod +x tests/*.sh 2>/dev/null || echo -e "${YELLOW}⚠ Failed to make test scripts executable${NC}"
+chmod +x scripts/*.sh 2>/dev/null || echo -e "${YELLOW}⚠ Failed to make utility scripts executable${NC}"
 
-    # Activate virtual environment
-    if [ -f ".venv/bin/activate" ]; then
-        echo "Activating virtual environment..."
-        # shellcheck disable=SC1091
-        source .venv/bin/activate
-    elif [ -f ".venv/Scripts/activate" ]; then
-        echo "Activating virtual environment..."
-        # shellcheck disable=SC1091
-        source .venv/Scripts/activate
-    else
-        print_error "Virtual environment activation script not found"
-    fi
-
-    # Install Python dependencies
-    echo "Installing Python dependencies..."
-    python -m pip install --upgrade pip
-    python -m pip install -r requirements.txt
-    python -m pip install -e .
-    print_success "Python dependencies installed"
-}
-
-# Setup pre-commit hooks
-setup_precommit() {
-    print_header "Setting up pre-commit hooks"
-
-    if ! command_exists pre-commit; then
-        echo "Installing pre-commit..."
-        python -m pip install pre-commit
-    else
-        echo "pre-commit already installed"
-    fi
-
-    echo "Installing git hooks..."
-    pre-commit install
-    print_success "pre-commit hooks installed"
-}
-
-# Build all implementations
-build_all() {
-    print_header "Building PIGAME"
-
-    echo "Running make to build all implementations..."
-    make build
-    print_success "Build completed successfully"
-}
-
-# Run tests
-run_tests() {
-    print_header "Running tests"
-
-    echo "Running tests for all implementations..."
-    make test
-    print_success "All tests passed"
-}
-
-# Main function
-main() {
-    print_header "PIGAME Development Environment Setup"
-
-    # Navigate to project root
-    cd "$(dirname "$0")/.." || print_error "Could not navigate to project root"
-
-    # Check if required commands exist
-    if ! command_exists python3; then
-        print_error "Python 3 not found. Please install Python 3 before running this script."
-    fi
-
-    # Install dependencies
-    install_dependencies
-
-    # Setup Python environment
-    setup_python_env
-
-    # Setup pre-commit hooks
-    setup_precommit
-
-    # Build all implementations
-    build_all
-
-    # Run tests
-    run_tests
-
-    print_header "Setup Complete!"
-    echo -e "Your PIGAME development environment is now ready."
-    echo -e "To activate the virtual environment, run:"
-    echo -e "    ${YELLOW}source .venv/bin/activate${RESET} (Linux/macOS)"
-    echo -e "    ${YELLOW}.venv\\Scripts\\activate${RESET} (Windows)"
-    echo -e "\nHappy coding!"
-}
-
-# Run the main function
-main
+echo -e "\n${GREEN}=== Development environment setup complete! ===${NC}"
+echo -e "\n${CYAN}Next steps:${NC}"
+echo -e "  * Run tests: ${YELLOW}./scripts/run_tests.sh${NC}"
+echo -e "  * Run linting: ${YELLOW}./scripts/lint.sh${NC}"
+echo -e "  * Run the program: ${YELLOW}./pigame -h${NC}"
+echo -e "\n${CYAN}Happy coding!${NC}"

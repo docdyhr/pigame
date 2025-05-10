@@ -21,28 +21,17 @@ build-c:
 		echo "C compiler not found, skipping C build"; \
 	fi
 
-test: test-bash test-c test-python test-all
+test:
+	@./scripts/run_tests.sh
 
 test-bash:
-	@echo "Testing Bash implementation..."
-	@chmod +x src/bash/pigame.sh 2>/dev/null || true
-	@chmod +x tests/test_bash.sh 2>/dev/null || true
-	@if command -v bash >/dev/null 2>&1; then \
-		tests/test_bash.sh; \
-	else \
-		echo "Bash not found, skipping test"; \
-	fi
+	@./scripts/run_tests.sh --no-c --no-python --no-coverage
 
 test-c: build-c
-	@echo "Testing C implementation..."
-	@chmod +x tests/test_c.sh
-	@tests/test_c.sh
+	@./scripts/run_tests.sh --no-bash --no-python --no-coverage
 
 test-python:
-	@echo "Testing Python implementation..."
-	@chmod +x src/python/pigame.py
-	@chmod +x tests/test_python.sh
-	@tests/test_python.sh
+	@./scripts/run_tests.sh --no-bash --no-c --no-coverage
 
 test-python-unit:
 	@echo "Running Python unit tests..."
@@ -60,43 +49,22 @@ test-pytest:
 	fi
 
 coverage:
-	@echo "Running tests with coverage..."
-	@if [ -f .venv/bin/python ]; then \
-		.venv/bin/python -m pytest tests/test_pytest.py -v --cov=src/python --cov-report=term-missing --cov-report=html --cov-report=xml; \
-	elif [ -f .venv/Scripts/python.exe ]; then \
-		.venv/Scripts/python -m pytest tests/test_pytest.py -v --cov=src/python --cov-report=term-missing --cov-report=html --cov-report=xml; \
-	else \
-		echo "Virtual environment not found"; \
-		exit 1; \
-	fi
+	@./scripts/run_tests.sh --no-bash --no-c
 
 test-all:
-	@echo "Running all tests..."
-	@chmod +x tests/run_tests.sh
-	@tests/run_tests.sh
+	@./scripts/run_tests.sh
 
 lint-bash:
-	@echo "Linting Bash implementation..."
-	shellcheck src/bash/pigame.sh
+	@./scripts/lint.sh
 
 setup-python: requirements.txt
-	@echo "Setting up Python environment..."
-	@if [ -f .venv/bin/pip ]; then \
-		.venv/bin/pip install -r requirements.txt && \
-		.venv/bin/pip install -e .; \
-	elif [ -f .venv/Scripts/pip.exe ]; then \
-		.venv/Scripts/pip install -r requirements.txt && \
-		.venv/Scripts/pip install -e .; \
-	else \
-		echo "Virtual environment not found"; \
-		exit 1; \
-	fi
+	@./scripts/setup.sh
 
 lint-python:
-	@echo "Linting Python implementation with Ruff..."
-	@ruff check src/python/ tests/
+	@./scripts/lint.sh
 
-lint: lint-bash lint-python
+lint:
+	@./scripts/lint.sh
 
 install:
 	@mkdir -p $(DESTDIR)$(PREFIX)/bin
@@ -136,4 +104,4 @@ release: version-patch
 	git tag -a v$$VERSION -m "Version $$VERSION"; \
 	echo "Version $$VERSION prepared for release. Push with: git push && git push --tags"
 
-.PHONY: all build build-c test test-bash test-c test-python test-pytest coverage lint lint-bash lint-python install uninstall clean
+.PHONY: all build build-c test test-bash test-c test-python test-pytest coverage lint lint-bash lint-python install uninstall clean setup-python
