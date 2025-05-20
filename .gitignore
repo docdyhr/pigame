@@ -224,3 +224,15 @@ coverage/
 
 # Zed IDE
 .zed/*
+
+# AI Assistant related files
+.copilot/
+.codeium/
+.anthropic/
+.claude/
+.github/copilot/
+.ai/
+*/.ai/
+.ai-commit-history/
+.gitattributes-ai
+ai-explanations/
