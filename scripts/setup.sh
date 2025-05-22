@@ -80,7 +80,22 @@ echo -e "${GREEN}✓ Activated virtual environment${NC}"
 # Install dependencies
 echo -e "\n${CYAN}Installing Python dependencies...${NC}"
 python -m pip install --upgrade pip
+
+# Ask if dev dependencies should be installed
+INSTALL_DEV="n"
+if [ -t 1 ]; then  # Check if running in interactive terminal
+    read -p "Install development dependencies? (y/n) [n]: " INSTALL_DEV
+fi
+
+# Install appropriate dependencies
 python -m pip install -r requirements.txt
+if [[ "$INSTALL_DEV" =~ ^[Yy]$ ]]; then
+    echo -e "${CYAN}Installing development dependencies...${NC}"
+    python -m pip install -r requirements-dev.txt
+    echo -e "${GREEN}✓ Installed development dependencies${NC}"
+fi
+
+# Install package in development mode
 python -m pip install -e .
 echo -e "${GREEN}✓ Installed Python dependencies${NC}"
 
@@ -108,6 +123,10 @@ chmod +x scripts/*.sh 2>/dev/null || echo -e "${YELLOW}⚠ Failed to make utilit
 echo -e "\n${GREEN}=== Development environment setup complete! ===${NC}"
 echo -e "\n${CYAN}Next steps:${NC}"
 echo -e "  * Run tests: ${YELLOW}./scripts/run_tests.sh${NC}"
-echo -e "  * Run linting: ${YELLOW}./scripts/lint.sh${NC}"
+echo -e "  * Run linting: ${YELLOW}./scripts/lint.sh${NC}" 
 echo -e "  * Run the program: ${YELLOW}./pigame -h${NC}"
+if [[ "$INSTALL_DEV" != *[Yy]* ]]; then
+    echo -e "\n${YELLOW}Note: Development dependencies were not installed.${NC}"
+    echo -e "To install them later: ${YELLOW}pip install -r requirements-dev.txt${NC}"
+fi
 echo -e "\n${CYAN}Happy coding!${NC}"

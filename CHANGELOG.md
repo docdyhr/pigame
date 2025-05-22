@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - TBD
 
+### Fixed
+- Fixed version inconsistency between VERSION file and hardcoded values
+- Improved error handling in bash implementation input validation
+- Separated development from runtime dependencies with requirements-dev.txt
+- Fixed path resolution for VERSION file in C implementation
+- Removed unused binomial and factorial functions in C implementation
+- Removed unnecessary math.h dependency in C implementation
+- Updated setup.sh to allow selective installation of dev dependencies
+- Enhanced input validation with better error messages
+
 ## [1.9.7] - 2025-05-20
 
 ### Added

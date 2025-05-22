@@ -6,7 +6,7 @@
 # from trusted sources for perfect accuracy and consistent results.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-VERSION=$(cat "${SCRIPT_DIR}/src/VERSION" 2>/dev/null || echo "1.6.12")
+VERSION=$(cat "${SCRIPT_DIR}/src/VERSION" 2>/dev/null || echo "1.9.7")
 export VERSION
 
 # Detect the preferred implementation
@@ -55,17 +55,20 @@ IMPL=$(detect_preference)
 
 case "${IMPL}" in
 bash)
+    export SCRIPT_DIR
     "${SCRIPT_DIR}/src/bash/pigame.sh" "$@"
     ;;
 c)
     # Check if the C implementation is compiled
     if [[ ! -x "${SCRIPT_DIR}/src/c/pigame" ]]; then
         echo "Compiling C implementation..."
-        (cd "${SCRIPT_DIR}/src/c" && gcc -o pigame pigame.c -lm)
+        (cd "${SCRIPT_DIR}/src/c" && gcc -o pigame pigame.c)
     fi
+    export SCRIPT_DIR
     "${SCRIPT_DIR}/src/c/pigame" "$@"
     ;;
 python)
+    export SCRIPT_DIR
     "${SCRIPT_DIR}/src/python/pigame.py" "$@"
     ;;
 --list)

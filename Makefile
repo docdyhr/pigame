@@ -2,7 +2,7 @@
 
 CC = gcc
 CFLAGS = -Wall -Wextra -O2
-LDFLAGS = -lm
+LDFLAGS = 
 PREFIX ?= /usr/local
 
 all: build
@@ -16,7 +16,7 @@ build:
 
 build-c:
 	@if command -v $(CC) >/dev/null 2>&1; then \
-		$(CC) $(CFLAGS) -o src/c/pigame src/c/pigame.c $(LDFLAGS); \
+		$(CC) $(CFLAGS) -o src/c/pigame src/c/pigame.c; \
 	else \
 		echo "C compiler not found, skipping C build"; \
 	fi

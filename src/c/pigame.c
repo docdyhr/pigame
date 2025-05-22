@@ -4,7 +4,6 @@
  * C implementation using verified digits from trusted mathematical sources
  * for perfect accuracy and consistent results across all implementations.
  *
- * Version: 1.6.12
  * Author: Thomas J. Dyhr
  * Date: April 2024
  */
@@ -15,7 +14,6 @@
 #include <ctype.h>
 #include <stdbool.h>
 #include <unistd.h>
-#include <math.h>
 
 #define DEFAULT_LENGTH 15
 #define MAX_LENGTH     5001
@@ -26,9 +24,19 @@ char *get_version()
 	static char version[16];
 	FILE *fp;
 	char version_file[256];
+	char *script_dir;
 
-	// Try to read from VERSION file
-	snprintf(version_file, sizeof(version_file), "src/VERSION");
+	// Try to get directory from environment variable set by the main script
+	script_dir = getenv("SCRIPT_DIR");
+	
+	if (script_dir) {
+		// Use the script directory environment variable
+		snprintf(version_file, sizeof(version_file), "%s/src/VERSION", script_dir);
+	} else {
+		// Fallback to relative path (current directory)
+		snprintf(version_file, sizeof(version_file), "../VERSION");
+	}
+	
 	fp = fopen(version_file, "r");
 	if (fp) {
 		if (fgets(version, sizeof(version), fp)) {
@@ -38,11 +46,11 @@ char *get_version()
 				version[len - 1] = '\0';
 			}
 		} else {
-			strcpy(version, "1.6.20");
+			strcpy(version, "1.9.7");
 		}
 		fclose(fp);
 	} else {
-		strcpy(version, "1.6.20");
+		strcpy(version, "1.9.7");
 	}
 	return version;
 }
@@ -103,27 +111,7 @@ int length_validation(const char *input)
 	return (int)value;
 }
 
-// Factorial helper function using double to handle large numbers
-double factorial(int n)
-{
-	double result = 1.0;
-	for (int i = 2; i <= n; i++) {
-		result *= i;
-	}
-	return result;
-}
-
-// Calculate binomial coefficient using logarithms to handle large numbers
-double binomial(int n, int k)
-{
-	if (k > n - k)
-		k = n - k; // optimization
-	double result = 1.0;
-	for (int i = 1; i <= k; i++) {
-		result *= (double)(n - k + i) / i;
-	}
-	return result;
-}
+// No longer needed - we use verified digits instead of calculation
 
 // Verified digits of π from a trusted source
 const char *PI_DIGITS =

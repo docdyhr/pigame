@@ -5,12 +5,12 @@
 # Bash implementation using verified digits from trusted mathematical sources
 # for perfect accuracy and consistent results across all implementations.
 #
-# Version: $(cat "$(dirname "$0")/../VERSION" 2>/dev/null || echo "1.6.12")
+# Version: $(cat "$(dirname "$0")/../VERSION" 2>/dev/null || echo "1.9.7")
 # Author: thomas@dyhr.com
 # Date: April 2024
 
 # shellcheck source=src/VERSION
-VERSION=$(cat "$(dirname "$0")/../VERSION" 2>/dev/null || echo "1.6.12")
+VERSION=$(cat "$(dirname "$0")/../VERSION" 2>/dev/null || echo "1.9.7")
 
 # Default LENGTH of π: '3.141592653589793'
 DEFAULT_LENGTH=15
@@ -33,25 +33,48 @@ usage() {
 
 # YOUR_PI input validation: only float numbers are accepted
 input_validation() {
-    re='^[0-9]+([.][0-9]+)?$' # regex for an unsigned float number
-    if ! [[ "${1}" =~ $re ]]; then
+    local input="$1"
+    
+    # Check if input is empty
+    if [[ -z "$input" ]]; then
+        echo "pigame error: Empty input provided" >&2
+        usage
+    fi
+    
+    # Check if input matches float format
+    local re='^[0-9]+([.][0-9]+)?$' # regex for an unsigned float number
+    if ! [[ "$input" =~ $re ]]; then
         echo "pigame error: Invalid input - NOT a float" >&2
         usage
     fi
+    
+    # Check if input starts with 3.
+    if ! [[ "$input" =~ ^3\. ]]; then
+        echo "pigame error: Pi must start with '3.'" >&2
+        usage
+    fi
+    
     return 0
 }
 
 # Validation of LENGTH in -p option
 length_validation() {
     # Validate -P ${OPTARG} is a number
-    re='^-?[0-9]+$' # regex for an integer
+    local re='^-?[0-9]+$' # regex for an integer
     if ! [[ "${OPTARG}" =~ $re ]]; then
         echo "pigame error: Invalid input - NOT an integer" >&2
         usage
     fi
+    
+    # Check for negative numbers
+    if [[ "${OPTARG}" -lt 0 ]]; then
+        echo "pigame error: Invalid input - cannot be negative" >&2
+        usage
+    fi
+    
     # Set a max length for calc of π
     if [[ "${OPTARG}" -gt ${MAX_LENGTH} ]]; then
-        echo "pigame error: Invalid input - too big a number for display" >&2
+        echo "pigame error: Invalid input - too big a number for display (max: ${MAX_LENGTH})" >&2
         usage
     fi
 
@@ -94,6 +117,8 @@ print_results() {
         if [[ "${PI}" == "${YOUR_PI}" ]]; then # NB! In BASH you can use = or == for comparison
             if [[ "${LENGTH}" -lt 15 ]]; then
                 echo 'Well done.'
+            elif [[ "${LENGTH}" -gt 100 ]]; then
+                echo 'Incredible!'
             else
                 echo 'Perfect!'
             fi
@@ -154,18 +179,22 @@ PI_DIGITS="141592653589793238462643383279502884197169399375105820974944592307816
 466521384146951941511609433057270365759591953092186117381932611793105118548\
 074462379962749567351885752724891227938183011949129833673362440656643"
 
-# Calculate π
+# Calculate π with requested precision
 calc_pi() {
+    local length="$LENGTH"
+    local result
+    
     # Check if we need to truncate the result
-    if [[ "${LENGTH}" -gt "${MAX_LENGTH}" ]]; then
-        LENGTH="${MAX_LENGTH}"
+    if [[ "$length" -gt "${MAX_LENGTH}" ]]; then
+        length="${MAX_LENGTH}"
+        echo "pigame warning: Requested length exceeds maximum - truncated to ${MAX_LENGTH} digits" >&2
     fi
 
     # Start with "3."
     result="3."
 
     # Add requested number of digits without extra whitespace
-    result="${result}${PI_DIGITS:0:$((LENGTH-2))}"
+    result="${result}${PI_DIGITS:0:$((length-2))}"
 
     PI="${result}"
 }
