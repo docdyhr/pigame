@@ -200,6 +200,7 @@ private*
 
 # Generated binaries
 pigame_c
+src/c/pigame
 *.exe
 *.dll
 *.out
