@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src" / "python"))
 import pigame
 
 
-@pytest.fixture()
+@pytest.fixture
 def _mock_practice_config() -> None:
     """Create a temporary directory for practice mode configuration."""
     original_config_dir = pigame.PRACTICE_CONFIG_DIR
