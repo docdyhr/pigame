@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - TBD
 
+## [1.9.8] - 2025-05-22
+
+### Added
+- TBD
+
 ### Fixed
 - Fixed version inconsistency between VERSION file and hardcoded values
 - Improved error handling in bash implementation input validation
@@ -283,7 +288,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Command-line interface with flags for verbosity and precision
 - Easter egg references to Archimedes
 
-[Unreleased]: https://github.com/docdyhr/pigame/compare/v1.9.7...HEAD
+[Unreleased]: https://github.com/docdyhr/pigame/compare/v1.9.8...HEAD
+[1.9.8]: https://github.com/docdyhr/pigame/compare/v1.9.7...v1.9.8
 [1.9.7]: https://github.com/docdyhr/pigame/compare/v1.9.6...v1.9.7
 [1.9.6]: https://github.com/docdyhr/pigame/compare/v1.9.5...v1.9.6
 [1.9.5]: https://github.com/docdyhr/pigame/compare/v1.9.4...v1.9.5
