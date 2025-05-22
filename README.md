@@ -2,13 +2,13 @@
 
 [![CI/CD Pipeline](https://github.com/docdyhr/pigame/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/docdyhr/pigame/actions/workflows/ci.yml)
 [![Test Coverage](https://img.shields.io/codecov/c/github/docdyhr/pigame)](https://codecov.io/gh/docdyhr/pigame)
-[![Version](https://img.shields.io/badge/version-1.7.1-blue)](https://github.com/docdyhr/pigame/blob/master/src/VERSION)
+[![Version](https://img.shields.io/badge/version-1.9.7-blue)](https://github.com/docdyhr/pigame/blob/master/src/VERSION)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/docdyhr/pigame/blob/master/LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/docdyhr/pigame/blob/master/CONTRIBUTING.md)
 
 ## Overview
 
-* Version: 1.7.1
+* Version: 1.9.7
 * Multiple implementations available: Bash (original), C, and Python
 * Author: Thomas J. Dyhr
 * Purpose: Memorisation of π
@@ -104,16 +104,21 @@ docker-compose exec dev bash
 
 ## Dependencies
 
-- **Ruff** (Python linter): Install via Homebrew on macOS:
-  ```sh
-  brew install ruff
-  ```
-  Do not install Ruff with pip or add it to requirements.txt.
-- `bc` (for Bash implementation)
-- C compiler (gcc or clang, for C implementation)
-- Python 3.6+ (for Python implementation)
+- `bc` (for Bash implementation) - Required for core functionality
+- C compiler (gcc or clang) - Optional, needed for C implementation
+- Python 3.6+ - Optional, needed for Python implementation
+- shellcheck - Optional, helpful for development
+- clang-format - Optional, helpful for development
 
-- **isort is no longer used. Ruff now handles all import sorting and linting for Python.**
+### Development Dependencies
+Development dependencies are now separated from runtime dependencies:
+- Runtime: `requirements.txt`
+- Development: `requirements-dev.txt`
+
+You can check your system for all required dependencies:
+```sh
+./scripts/check_dependencies.sh
+```
 
 ## Implementations
 
@@ -232,11 +237,12 @@ The easiest way to set up your development environment is to use our unified set
 git clone https://github.com/docdyhr/pigame
 cd pigame
 
-# Run the setup script (automatically installs dependencies and sets up environment)
+# Run the setup script (automatically sets up environment)
 ./scripts/setup.sh
-# The setup script will automatically:
+# The setup script will:
 # - Create and activate a Python virtual environment
-# - Install all development dependencies
+# - Install runtime dependencies
+# - Optionally install development dependencies (recommended for contributors)
 # - Set up pre-commit hooks
 # - Make all scripts executable
 ```
@@ -297,7 +303,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 - Follow the code style and linting requirements in [copilot-instructions.md](copilot-instructions.md).
 - Use conventional commit messages (feat:, fix:, docs:, etc.).
 - All code must pass tests and linting before submitting a pull request.
-- The canonical version is always stored in src/VERSION; all references must match.
+- The canonical version is always stored in src/VERSION; all implementations read from this file.
 - All implementations (Bash, C, Python) must maintain compatibility with each other.
 - CI/CD pipeline will automatically verify your changes.
 
