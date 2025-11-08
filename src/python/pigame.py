@@ -15,6 +15,7 @@ import sys
 import termios
 import time
 import tty
+from dataclasses import dataclass
 from pathlib import Path
 from typing import NoReturn
 
@@ -407,6 +408,219 @@ MIN_TIME_LIMIT = 30
 MAX_TIME_LIMIT = 600
 
 
+def _display_config_menu(config: dict[str, object]) -> None:
+    """Display the configuration menu with current settings.
+
+    Args:
+        config: The configuration dictionary to display.
+    """
+    print("\nCurrent settings:")
+    print(f"1. Practice mode: {config.get('mode', DEFAULT_PRACTICE_MODE)}")
+    print(f"2. Minimum digits: {config.get('min_digits', PRACTICE_MIN_DIGITS)}")
+    print(f"3. Maximum digits: {config.get('max_digits', PRACTICE_MAX_DIGITS)}")
+    print(f"4. Chunk size: {config.get('chunk_size', DEFAULT_CHUNK_SIZE)}")
+    time_limit_str = (
+        f"5. Time limit: {config.get('time_limit', DEFAULT_TIME_LIMIT)} seconds"
+    )
+    print(time_limit_str)
+    print(f"6. Show timer: {'Yes' if config.get('show_timer', True) else 'No'}")
+    print(f"7. Visual aid: {'Yes' if config.get('visual_aid', True) else 'No'}")
+    print("8. Save and exit")
+    print("9. Reset to defaults")
+    print("\n")
+
+
+def _get_default_config() -> dict[str, object]:
+    """Get the default practice configuration.
+
+    Returns:
+        Dictionary with default configuration values.
+    """
+    return {
+        "mode": DEFAULT_PRACTICE_MODE,
+        "min_digits": PRACTICE_MIN_DIGITS,
+        "max_digits": PRACTICE_MAX_DIGITS,
+        "chunk_size": DEFAULT_CHUNK_SIZE,
+        "time_limit": DEFAULT_TIME_LIMIT,
+        "show_timer": True,
+        "visual_aid": True,
+    }
+
+
+def _handle_mode_selection(config: dict[str, object]) -> None:
+    """Handle practice mode selection.
+
+    Args:
+        config: The configuration dictionary to update.
+    """
+    print("\nSelect practice mode:")
+    print("1. Standard - Digit by digit practice")
+    print("2. Timed - Race against the clock")
+    print("3. Chunk - Practice in groups of digits\n")
+    mode_choice = input("Select mode (1-3): ").strip()
+
+    if mode_choice == "1":
+        config["mode"] = "standard"
+    elif mode_choice == "2":
+        config["mode"] = "timed"
+    elif mode_choice == "3":
+        config["mode"] = "chunk"
+    else:
+        print("Invalid selection. No changes made.")
+
+
+def _handle_min_digits(config: dict[str, object]) -> None:
+    """Handle minimum digits configuration.
+
+    Args:
+        config: The configuration dictionary to update.
+    """
+    prompt = f"Enter minimum digits ({PRACTICE_MIN_DIGITS}-{PRACTICE_MAX_DIGITS}): "
+    min_digits_input = input(prompt).strip()
+    try:
+        min_digits = int(min_digits_input)
+        if PRACTICE_MIN_DIGITS <= min_digits <= PRACTICE_MAX_DIGITS:
+            config["min_digits"] = min_digits
+        else:
+            msg = (
+                f"Value must be between {PRACTICE_MIN_DIGITS} "
+                f"and {PRACTICE_MAX_DIGITS}."
+            )
+            print(msg)
+    except ValueError:
+        print("Invalid input. Please enter a number.")
+
+
+def _handle_max_digits(config: dict[str, object]) -> None:
+    """Handle maximum digits configuration.
+
+    Args:
+        config: The configuration dictionary to update.
+    """
+    prompt = f"Enter maximum digits ({PRACTICE_MIN_DIGITS}-{PRACTICE_MAX_DIGITS}): "
+    max_digits_input = input(prompt).strip()
+    try:
+        max_digits = int(max_digits_input)
+        if PRACTICE_MIN_DIGITS <= max_digits <= PRACTICE_MAX_DIGITS:
+            config["max_digits"] = max_digits
+        else:
+            msg = (
+                f"Value must be between {PRACTICE_MIN_DIGITS} "
+                f"and {PRACTICE_MAX_DIGITS}."
+            )
+            print(msg)
+    except ValueError:
+        print("Invalid input. Please enter a number.")
+
+
+def _handle_chunk_size(config: dict[str, object]) -> None:
+    """Handle chunk size configuration.
+
+    Args:
+        config: The configuration dictionary to update.
+    """
+    chunk_size_input = input("Enter chunk size (2-10): ").strip()
+    try:
+        chunk_size = int(chunk_size_input)
+        if MIN_CHUNK_SIZE <= chunk_size <= MAX_CHUNK_SIZE:
+            config["chunk_size"] = chunk_size
+        else:
+            msg = f"Value must be between {MIN_CHUNK_SIZE} and {MAX_CHUNK_SIZE}."
+            print(msg)
+    except ValueError:
+        print("Invalid input. Please enter a number.")
+
+
+def _handle_time_limit(config: dict[str, object]) -> None:
+    """Handle time limit configuration.
+
+    Args:
+        config: The configuration dictionary to update.
+    """
+    prompt = f"Enter time limit in seconds ({MIN_TIME_LIMIT}-{MAX_TIME_LIMIT}): "
+    time_limit_input = input(prompt).strip()
+    try:
+        time_limit = int(time_limit_input)
+        if MIN_TIME_LIMIT <= time_limit <= MAX_TIME_LIMIT:
+            config["time_limit"] = time_limit
+        else:
+            msg = f"Value must be between {MIN_TIME_LIMIT} and {MAX_TIME_LIMIT}."
+            print(msg)
+    except ValueError:
+        print("Invalid input. Please enter a number.")
+
+
+def _handle_show_timer(config: dict[str, object]) -> None:
+    """Handle show timer configuration.
+
+    Args:
+        config: The configuration dictionary to update.
+    """
+    show_timer = input("Show timer? (y/n): ").strip().lower()
+    if show_timer in ("y", "yes"):
+        config["show_timer"] = True
+    elif show_timer in ("n", "no"):
+        config["show_timer"] = False
+    else:
+        print("Invalid input. No changes made.")
+
+
+def _handle_visual_aid(config: dict[str, object]) -> None:
+    """Handle visual aid configuration.
+
+    Args:
+        config: The configuration dictionary to update.
+    """
+    visual_aid = input("Enable visual progress indicators? (y/n): ").strip().lower()
+    if visual_aid in ("y", "yes"):
+        config["visual_aid"] = True
+    elif visual_aid in ("n", "no"):
+        config["visual_aid"] = False
+    else:
+        print("Invalid input. No changes made.")
+
+
+def _validate_and_save_config(config: dict[str, object]) -> bool:
+    """Validate and save the configuration.
+
+    Args:
+        config: The configuration dictionary to validate and save.
+
+    Returns:
+        True if saved successfully, False if validation failed.
+    """
+    if config.get("min_digits", 0) > config.get("max_digits", 0):
+        print(
+            "Error: Minimum digits cannot be greater than maximum digits.",
+        )
+        return False
+
+    save_practice_config(config)
+    print("\nConfiguration saved successfully!")
+    return True
+
+
+def _handle_reset_to_defaults(config: dict[str, object]) -> dict[str, object]:
+    """Handle resetting configuration to defaults.
+
+    Args:
+        config: The current configuration dictionary.
+
+    Returns:
+        The default configuration if confirmed, otherwise the original config.
+    """
+    confirm = (
+        input("Are you sure you want to reset to defaults? (y/n): ").strip().lower()
+    )
+    if confirm in ("y", "yes"):
+        default_config = _get_default_config()
+        save_practice_config(default_config)
+        print("\nConfiguration reset to defaults.")
+        return default_config
+    print("Reset cancelled.")
+    return config
+
+
 def configure_practice_mode() -> None:
     """Interactive configuration for practice mode settings."""
     # Load current configuration
@@ -415,184 +629,42 @@ def configure_practice_mode() -> None:
     print("\n🔧 PIGAME PRACTICE MODE CONFIGURATION 🔧")
     print("======================================\n")
 
-    # Show current settings
-    print("Current settings:")
-    print(f"1. Practice mode: {config.get('mode', DEFAULT_PRACTICE_MODE)}")
-    print(f"2. Minimum digits: {config.get('min_digits', PRACTICE_MIN_DIGITS)}")
-    print(f"3. Maximum digits: {config.get('max_digits', PRACTICE_MAX_DIGITS)}")
-    print(f"4. Chunk size: {config.get('chunk_size', DEFAULT_CHUNK_SIZE)}")
-    print(f"5. Time limit: {config.get('time_limit', DEFAULT_TIME_LIMIT)} seconds")
-    print(f"6. Show timer: {'Yes' if config.get('show_timer', True) else 'No'}")
-    print(f"7. Visual aid: {'Yes' if config.get('visual_aid', True) else 'No'}")
-    print("8. Save and exit")
-    print("9. Reset to defaults")
-    print("\n")
+    # Show initial menu
+    _display_config_menu(config)
+
+    # Menu option handlers
+    handlers = {
+        "1": _handle_mode_selection,
+        "2": _handle_min_digits,
+        "3": _handle_max_digits,
+        "4": _handle_chunk_size,
+        "5": _handle_time_limit,
+        "6": _handle_show_timer,
+        "7": _handle_visual_aid,
+    }
 
     while True:
         try:
             choice = input("Select an option (1-9): ").strip()
 
-            if choice == "1":
-                print("\nSelect practice mode:")
-                print("1. Standard - Digit by digit practice")
-                print("2. Timed - Race against the clock")
-                print("3. Chunk - Practice in groups of digits\n")
-                mode_choice = input("Select mode (1-3): ").strip()
+            # Handle save and exit
+            if choice == "8":
+                if _validate_and_save_config(config):
+                    break
+                continue
 
-                if mode_choice == "1":
-                    config["mode"] = "standard"
-                elif mode_choice == "2":
-                    config["mode"] = "timed"
-                elif mode_choice == "3":
-                    config["mode"] = "chunk"
-                else:
-                    print("Invalid selection. No changes made.")
+            # Handle reset to defaults
+            if choice == "9":
+                config = _handle_reset_to_defaults(config)
+                _display_config_menu(config)
+                continue
 
-            elif choice == "2":
-                prompt = (
-                    f"Enter minimum digits ({PRACTICE_MIN_DIGITS}-"
-                    f"{PRACTICE_MAX_DIGITS}): "
-                )
-                min_digits_input = input(prompt).strip()
-                try:
-                    min_digits = int(min_digits_input)
-                    if PRACTICE_MIN_DIGITS <= min_digits <= PRACTICE_MAX_DIGITS:
-                        config["min_digits"] = min_digits
-                    else:
-                        msg = (
-                            f"Value must be between {PRACTICE_MIN_DIGITS} "
-                            f"and {PRACTICE_MAX_DIGITS}."
-                        )
-                        print(msg)
-                except ValueError:
-                    print("Invalid input. Please enter a number.")
-
-            elif choice == "3":
-                prompt = (
-                    f"Enter maximum digits ({PRACTICE_MIN_DIGITS}-"
-                    f"{PRACTICE_MAX_DIGITS}): "
-                )
-                max_digits_input = input(prompt).strip()
-                try:
-                    max_digits = int(max_digits_input)
-                    if PRACTICE_MIN_DIGITS <= max_digits <= PRACTICE_MAX_DIGITS:
-                        config["max_digits"] = max_digits
-                    else:
-                        msg = (
-                            f"Value must be between {PRACTICE_MIN_DIGITS} "
-                            f"and {PRACTICE_MAX_DIGITS}."
-                        )
-                        print(msg)
-                except ValueError:
-                    print("Invalid input. Please enter a number.")
-
-            elif choice == "4":
-                chunk_size_input = input("Enter chunk size (2-10): ").strip()
-                try:
-                    chunk_size = int(chunk_size_input)
-                    # Check against defined constants for min/max chunk size
-                    if MIN_CHUNK_SIZE <= chunk_size <= MAX_CHUNK_SIZE:
-                        config["chunk_size"] = chunk_size
-                    else:
-                        msg = (
-                            f"Value must be between {MIN_CHUNK_SIZE} and "
-                            f"{MAX_CHUNK_SIZE}."
-                        )
-                        print(msg)
-                except ValueError:
-                    print("Invalid input. Please enter a number.")
-
-            elif choice == "5":
-                prompt = (
-                    f"Enter time limit in seconds ({MIN_TIME_LIMIT}-{MAX_TIME_LIMIT}): "
-                )
-                time_limit_input = input(prompt).strip()
-                try:
-                    time_limit = int(time_limit_input)
-                    # Check against defined constants for min/max time limit
-                    if MIN_TIME_LIMIT <= time_limit <= MAX_TIME_LIMIT:
-                        config["time_limit"] = time_limit
-                    else:
-                        msg = (
-                            f"Value must be between {MIN_TIME_LIMIT} "
-                            f"and {MAX_TIME_LIMIT}."
-                        )
-                        print(msg)
-                except ValueError:
-                    print("Invalid input. Please enter a number.")
-
-            elif choice == "6":
-                show_timer = input("Show timer? (y/n): ").strip().lower()
-                if show_timer in ("y", "yes"):
-                    config["show_timer"] = True
-                elif show_timer in ("n", "no"):
-                    config["show_timer"] = False
-                else:
-                    print("Invalid input. No changes made.")
-
-            elif choice == "7":
-                visual_aid = (
-                    input("Enable visual progress indicators? (y/n): ").strip().lower()
-                )
-                if visual_aid in ("y", "yes"):
-                    config["visual_aid"] = True
-                elif visual_aid in ("n", "no"):
-                    config["visual_aid"] = False
-                else:
-                    print("Invalid input. No changes made.")
-
-            elif choice == "8":
-                # Validate configuration
-                if config.get("min_digits", 0) > config.get("max_digits", 0):
-                    print(
-                        "Error: Minimum digits cannot be greater than maximum digits.",
-                    )
-                    continue
-
-                save_practice_config(config)
-                print("\nConfiguration saved successfully!")
-                break
-
-            elif choice == "9":
-                confirm = (
-                    input("Are you sure you want to reset to defaults? (y/n): ")
-                    .strip()
-                    .lower()
-                )
-                if confirm in ("y", "yes"):
-                    default_config = {
-                        "mode": DEFAULT_PRACTICE_MODE,
-                        "min_digits": PRACTICE_MIN_DIGITS,
-                        "max_digits": PRACTICE_MAX_DIGITS,
-                        "chunk_size": DEFAULT_CHUNK_SIZE,
-                        "time_limit": DEFAULT_TIME_LIMIT,
-                        "show_timer": True,
-                        "visual_aid": True,
-                    }
-                    save_practice_config(default_config)
-                    print("\nConfiguration reset to defaults.")
-                    config = default_config
-                else:
-                    print("Reset cancelled.")
-
+            # Handle configuration options
+            if choice in handlers:
+                handlers[choice](config)
+                _display_config_menu(config)
             else:
                 print("Invalid selection. Please choose 1-9.")
-
-            # Show updated settings after each change
-            print("\nCurrent settings:")
-            print(f"1. Practice mode: {config.get('mode', DEFAULT_PRACTICE_MODE)}")
-            print(f"2. Minimum digits: {config.get('min_digits', PRACTICE_MIN_DIGITS)}")
-            print(f"3. Maximum digits: {config.get('max_digits', PRACTICE_MAX_DIGITS)}")
-            print(f"4. Chunk size: {config.get('chunk_size', DEFAULT_CHUNK_SIZE)}")
-            time_limit_str = (
-                f"5. Time limit: {config.get('time_limit', DEFAULT_TIME_LIMIT)} seconds"
-            )
-            print(time_limit_str)
-            print(f"6. Show timer: {'Yes' if config.get('show_timer', True) else 'No'}")
-            print(f"7. Visual aid: {'Yes' if config.get('visual_aid', True) else 'No'}")
-            print("8. Save and exit")
-            print("9. Reset to defaults")
-            print("\n")
 
         except KeyboardInterrupt:
             print("\n\nConfiguration cancelled. No changes saved.")
@@ -800,6 +872,291 @@ def timed_practice(
     return all_correct, correct_digits, elapsed_time
 
 
+@dataclass
+class PracticeConfig:
+    """Configuration for practice mode.
+
+    Attributes:
+        colorblind_mode: Whether to use colorblind-friendly colors.
+        mode: Practice mode (standard, timed, chunk).
+        min_digits: Minimum number of digits to start with.
+        max_digits: Maximum number of digits to practice.
+        chunk_size: Size of chunks for chunk mode.
+        time_limit: Time limit in seconds for timed mode.
+        show_timer: Whether to show the timer.
+        visual_aid: Whether to show visual progress indicators.
+    """
+
+    colorblind_mode: bool = False
+    mode: str = DEFAULT_PRACTICE_MODE
+    min_digits: int = PRACTICE_MIN_DIGITS
+    max_digits: int = PRACTICE_MAX_DIGITS
+    chunk_size: int = DEFAULT_CHUNK_SIZE
+    time_limit: int = DEFAULT_TIME_LIMIT
+    show_timer: bool = True
+    visual_aid: bool = True
+
+
+def _load_practice_config_settings(  # noqa: PLR0913
+    *,
+    colorblind_mode: bool,
+    mode: str | None,
+    min_digits: int | None,
+    max_digits: int | None,
+    chunk_size: int | None,
+    time_limit: int | None,
+    visual_aid: bool | None,
+) -> PracticeConfig:
+    """Load practice configuration from parameters and config file.
+
+    Args:
+        colorblind_mode: Whether to use colorblind-friendly colors.
+        mode: Practice mode (standard, timed, chunk).
+        min_digits: Minimum number of digits to start with.
+        max_digits: Maximum number of digits to practice.
+        chunk_size: Size of chunks for chunk mode.
+        time_limit: Time limit in seconds for timed mode.
+        visual_aid: Whether to show visual progress indicators.
+
+    Returns:
+        PracticeConfig object with merged settings.
+    """
+    config = load_practice_config()
+
+    return PracticeConfig(
+        colorblind_mode=colorblind_mode,
+        mode=mode if mode else config.get("mode", DEFAULT_PRACTICE_MODE),
+        min_digits=(
+            min_digits if min_digits else config.get("min_digits", PRACTICE_MIN_DIGITS)
+        ),
+        max_digits=(
+            max_digits if max_digits else config.get("max_digits", PRACTICE_MAX_DIGITS)
+        ),
+        chunk_size=(
+            chunk_size if chunk_size else config.get("chunk_size", DEFAULT_CHUNK_SIZE)
+        ),
+        time_limit=(
+            time_limit if time_limit else config.get("time_limit", DEFAULT_TIME_LIMIT)
+        ),
+        show_timer=config.get("show_timer", True),
+        visual_aid=(
+            visual_aid if visual_aid is not None else config.get("visual_aid", True)
+        ),
+    )
+
+
+def _print_practice_instructions(cfg: PracticeConfig) -> None:
+    """Print mode-specific instructions for practice mode.
+
+    Args:
+        cfg: The practice configuration.
+    """
+    if cfg.mode == "standard":
+        print("Practice memorizing digits of π one by one.")
+        print("Type each digit (0-9) without pressing Enter.")
+    elif cfg.mode == "timed":
+        print(
+            f"Timed practice: You have {cfg.time_limit} seconds to enter digits.",
+        )
+        print("Type each digit (0-9) without pressing Enter.")
+    elif cfg.mode == "chunk":
+        print(f"Chunk-based practice: Memorize π in chunks of {cfg.chunk_size} digits.")
+        print("Type each digit (0-9) without pressing Enter.")
+
+    print("Press Ctrl+C at any time to exit.\n")
+
+
+def _get_starting_digits(
+    stats: dict[str, object],
+    min_digits: int,
+    max_digits: int,
+) -> int:
+    """Determine starting digit count for practice session.
+
+    Args:
+        stats: Practice statistics dictionary.
+        min_digits: Minimum number of digits.
+        max_digits: Maximum number of digits.
+
+    Returns:
+        The starting digit count for this session.
+    """
+    current_digits = max(stats.get("max_digits", 0) + 1, min_digits)
+    return min(current_digits, max_digits)
+
+
+def _print_practice_header(stats: dict[str, object], current_digits: int) -> None:
+    """Print practice session header with stats.
+
+    Args:
+        stats: Practice statistics dictionary.
+        current_digits: Starting digit count.
+    """
+    print(f"Your best: {stats.get('max_digits', 0)} digits")
+    if stats.get("best_speed"):
+        print(f"Best speed: {stats.get('best_speed'):.1f} digits/minute")
+    print(f"Starting with {current_digits} digits\n")
+
+
+def _show_reference_digits(
+    practice_mode: str,
+    pi_digits: str,
+    current_digits: int,
+) -> None:
+    """Show reference digits before practice (except in timed mode).
+
+    Args:
+        practice_mode: The practice mode being used.
+        pi_digits: The pi digits string.
+        current_digits: Number of digits to practice.
+    """
+    if practice_mode != "timed":
+        ref_digits = min(5, current_digits)
+        print(f"First {ref_digits} digits: {pi_digits[: ref_digits + 2]}")
+        time.sleep(1)
+
+
+def _run_practice_strategy(
+    cfg: PracticeConfig,
+    pi_digits: str,
+    current_digits: int,
+    stats: dict[str, object],
+) -> tuple[bool, int, float | None]:
+    """Run the appropriate practice strategy based on configuration.
+
+    Args:
+        cfg: Practice configuration.
+        pi_digits: The pi digits string.
+        current_digits: Number of digits to practice.
+        stats: Practice statistics dictionary.
+
+    Returns:
+        Tuple of (all_correct, correct_count, elapsed_time).
+    """
+    if cfg.mode == "standard":
+        all_correct, correct_count = standard_practice(
+            pi_digits,
+            current_digits,
+            colorblind_mode=cfg.colorblind_mode,
+            visual_aid=cfg.visual_aid,
+        )
+        return all_correct, correct_count, None
+
+    if cfg.mode == "timed":
+        all_correct, correct_count, elapsed_time = timed_practice(
+            pi_digits,
+            current_digits,
+            cfg.time_limit,
+            colorblind_mode=cfg.colorblind_mode,
+            show_timer=cfg.show_timer,
+        )
+
+        # Calculate and update speed
+        if elapsed_time > 0:
+            speed = (correct_count / elapsed_time) * 60
+            print(f"\nSpeed: {speed:.1f} digits/minute")
+
+            if not stats.get("best_speed") or speed > stats.get("best_speed"):
+                stats["best_speed"] = speed
+
+        return all_correct, correct_count, elapsed_time
+
+    # Chunk mode
+    all_correct, correct_count = chunk_based_practice(
+        pi_digits,
+        cfg.chunk_size,
+        current_digits,
+        colorblind_mode=cfg.colorblind_mode,
+    )
+    return all_correct, correct_count, None
+
+
+def _update_practice_stats(
+    stats: dict[str, object],
+    session_max_level: int,
+    session_correct_digits: int,
+    session_duration: float,
+    practice_mode: str,
+    elapsed_time: float | None,
+) -> None:
+    """Update and save practice statistics.
+
+    Args:
+        stats: Practice statistics dictionary.
+        session_max_level: Maximum level reached in this session.
+        session_correct_digits: Total correct digits in this session.
+        session_duration: Total session duration in seconds.
+        practice_mode: The practice mode used.
+        elapsed_time: Elapsed time for the last level (if applicable).
+    """
+    stats["max_digits"] = max(stats.get("max_digits", 0), session_max_level)
+    stats["total_digits_correct"] = (
+        stats.get("total_digits_correct", 0) + session_correct_digits
+    )
+    stats["total_practice_sessions"] = stats.get("total_practice_sessions", 0) + 1
+    stats["last_session_date"] = time.strftime("%Y-%m-%d %H:%M:%S")
+
+    # Update fastest time for timed mode
+    time_improved = not stats.get("fastest_time") or (
+        elapsed_time is not None
+        and elapsed_time < stats.get("fastest_time", float("inf"))
+    )
+    if practice_mode == "timed" and elapsed_time is not None and time_improved:
+        stats["fastest_time"] = elapsed_time
+
+    # Add session to history
+    session_record = {
+        "date": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "mode": practice_mode,
+        "max_level": session_max_level,
+        "correct_digits": session_correct_digits,
+        "duration_seconds": round(session_duration),
+    }
+
+    if "history" not in stats:
+        stats["history"] = []
+
+    stats["history"].append(session_record)
+
+    # Limit history to last 100 sessions
+    max_history = 100
+    if len(stats["history"]) > max_history:
+        stats["history"] = stats["history"][-max_history:]
+
+    save_practice_stats(stats)
+
+
+def _print_session_summary(
+    stats: dict[str, object],
+    practice_mode: str,
+    session_duration: float,
+    session_correct_digits: int,
+    session_max_level: int,
+) -> None:
+    """Print summary of practice session.
+
+    Args:
+        stats: Practice statistics dictionary.
+        practice_mode: The practice mode used.
+        session_duration: Total session duration in seconds.
+        session_correct_digits: Total correct digits in this session.
+        session_max_level: Maximum level reached in this session.
+    """
+    print("\n=== Session Summary ===")
+    print(f"Mode: {practice_mode}")
+    print(
+        f"Time: {round(session_duration // 60)} min {round(session_duration % 60)} sec",
+    )
+    print(f"Digits correct: {session_correct_digits}")
+    print(f"Maximum level: {session_max_level}")
+    print(f"All-time best: {stats['max_digits']} digits")
+
+    if practice_mode == "timed" and session_correct_digits > 0:
+        speed = (session_correct_digits / session_duration) * 60
+        print(f"Average speed: {speed:.1f} digits/minute")
+        print(f"All-time best speed: {stats.get('best_speed', 0):.1f} digits/minute")
+
+
 def standard_practice(
     pi_digits: str,
     current_digits: int,
@@ -879,7 +1236,7 @@ def standard_practice(
     return all_correct, correct_digits
 
 
-def practice_mode(
+def practice_mode(  # noqa: PLR0913
     *,
     colorblind_mode: bool = False,
     mode: str | None = None,
@@ -903,52 +1260,22 @@ def practice_mode(
     print("\n🔢 PIGAME PRACTICE MODE 🔢")
     print("=========================\n")
 
-    # Load practice config and stats
-    config = load_practice_config()
+    # Load configuration and stats
+    cfg = _load_practice_config_settings(
+        colorblind_mode=colorblind_mode,
+        mode=mode,
+        min_digits=min_digits,
+        max_digits=max_digits,
+        chunk_size=chunk_size,
+        time_limit=time_limit,
+        visual_aid=visual_aid,
+    )
     stats = load_practice_stats()
 
-    # Use provided parameters or config values
-    practice_mode = mode if mode else config.get("mode", DEFAULT_PRACTICE_MODE)
-    practice_min_digits = (
-        min_digits if min_digits else config.get("min_digits", PRACTICE_MIN_DIGITS)
-    )
-    practice_max_digits = (
-        max_digits if max_digits else config.get("max_digits", PRACTICE_MAX_DIGITS)
-    )
-    chunk_size = (
-        chunk_size if chunk_size else config.get("chunk_size", DEFAULT_CHUNK_SIZE)
-    )
-    time_limit = (
-        time_limit if time_limit else config.get("time_limit", DEFAULT_TIME_LIMIT)
-    )
-    show_timer = config.get("show_timer", True)
-    show_visual_aid = (
-        visual_aid if visual_aid is not None else config.get("visual_aid", True)
-    )
-
-    # Print mode-specific instructions
-    if practice_mode == "standard":
-        print("Practice memorizing digits of π one by one.")
-        print("Type each digit (0-9) without pressing Enter.")
-    elif practice_mode == "timed":
-        print(
-            f"Timed practice: You have {time_limit} seconds to enter digits.",
-        )
-        print("Type each digit (0-9) without pressing Enter.")
-    elif practice_mode == "chunk":
-        print(f"Chunk-based practice: Memorize π in chunks of {chunk_size} digits.")
-        print("Type each digit (0-9) without pressing Enter.")
-
-    print("Press Ctrl+C at any time to exit.\n")
-
-    # Determine starting digits (either continue from last time or start at minimum)
-    current_digits = max(stats.get("max_digits", 0) + 1, practice_min_digits)
-    current_digits = min(current_digits, practice_max_digits)
-
-    print(f"Your best: {stats.get('max_digits', 0)} digits")
-    if stats.get("best_speed"):
-        print(f"Best speed: {stats.get('best_speed'):.1f} digits/minute")
-    print(f"Starting with {current_digits} digits\n")
+    # Print instructions and header
+    _print_practice_instructions(cfg)
+    current_digits = _get_starting_digits(stats, cfg.min_digits, cfg.max_digits)
+    _print_practice_header(stats, current_digits)
 
     # Get pi digits
     pi_digits = calculate_pi(current_digits)
@@ -958,54 +1285,23 @@ def practice_mode(
         session_start_time = time.time()
         session_correct_digits = 0
         session_max_level = stats.get("max_digits", 0)
+        elapsed_time = None
 
-        # Show first digits as reference (except in timed mode)
-        if practice_mode != "timed":
-            ref_digits = min(5, current_digits)
-            print(f"First {ref_digits} digits: {pi_digits[: ref_digits + 2]}")
-            time.sleep(1)
+        # Show reference digits
+        _show_reference_digits(cfg.mode, pi_digits, current_digits)
 
         # Start practice session
-        while current_digits <= practice_max_digits:
+        while current_digits <= cfg.max_digits:
             print(f"\n--- Level: {current_digits} digits ---")
 
-            # Use appropriate practice strategy
-            if practice_mode == "standard":
-                all_correct, correct_count = standard_practice(
-                    pi_digits,
-                    current_digits,
-                    colorblind_mode=colorblind_mode,
-                    visual_aid=show_visual_aid,
-                )
-                session_correct_digits += correct_count
-                elapsed_time = None
-            elif practice_mode == "timed":
-                all_correct, correct_count, elapsed_time = timed_practice(
-                    pi_digits,
-                    current_digits,
-                    time_limit,
-                    colorblind_mode=colorblind_mode,
-                    show_timer=show_timer,
-                )
-                session_correct_digits += correct_count
-
-                # Calculate speed (digits per minute)
-                if elapsed_time > 0:
-                    speed = (correct_count / elapsed_time) * 60
-                    print(f"\nSpeed: {speed:.1f} digits/minute")
-
-                    # Update best speed
-                    if not stats.get("best_speed") or speed > stats.get("best_speed"):
-                        stats["best_speed"] = speed
-            elif practice_mode == "chunk":
-                all_correct, correct_count = chunk_based_practice(
-                    pi_digits,
-                    chunk_size,
-                    current_digits,
-                    colorblind_mode=colorblind_mode,
-                )
-                session_correct_digits += correct_count
-                elapsed_time = None
+            # Run practice strategy
+            all_correct, correct_count, elapsed_time = _run_practice_strategy(
+                cfg,
+                pi_digits,
+                current_digits,
+                stats,
+            )
+            session_correct_digits += correct_count
 
             # End of level processing
             if all_correct:
@@ -1020,13 +1316,12 @@ def practice_mode(
                 if current_digits > len(pi_digits) - 2:
                     pi_digits = calculate_pi(current_digits)
 
-                # Take a brief pause between levels
                 time.sleep(1)
             else:
                 print("\n\nTry again for this level.")
                 time.sleep(1)
 
-        # Reached maximum difficulty!
+        # Reached maximum difficulty
         print("\n🏆 Congratulations! You've reached the maximum level!")
 
     except KeyboardInterrupt:
@@ -1038,64 +1333,25 @@ def practice_mode(
         )
         print("\n\nPractice session ended.")
 
-    # Calculate session stats
+    # Update and save stats
     session_duration = time.time() - session_start_time
-
-    # Update overall stats
-    stats["max_digits"] = max(stats.get("max_digits", 0), session_max_level)
-    stats["total_digits_correct"] = (
-        stats.get("total_digits_correct", 0) + session_correct_digits
+    _update_practice_stats(
+        stats,
+        session_max_level,
+        session_correct_digits,
+        session_duration,
+        cfg.mode,
+        elapsed_time,
     )
-    stats["total_practice_sessions"] = stats.get("total_practice_sessions", 0) + 1
-    stats["last_session_date"] = time.strftime("%Y-%m-%d %H:%M:%S")
-
-    # For timed mode, update fastest time if applicable
-    time_improved = not stats.get("fastest_time") or (
-        elapsed_time is not None
-        and elapsed_time < stats.get("fastest_time", float("inf"))
-    )
-    if practice_mode == "timed" and elapsed_time is not None and time_improved:
-        stats["fastest_time"] = elapsed_time
-
-    # Add session to history
-    session_record = {
-        "date": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "mode": practice_mode,
-        "max_level": session_max_level,
-        "correct_digits": session_correct_digits,
-        "duration_seconds": round(session_duration),
-    }
-
-    if "history" not in stats:
-        stats["history"] = []
-
-    stats["history"].append(session_record)
-
-    # Limit history to last 100 sessions
-    max_history = 100
-
-    # Limit history to last max_history sessions
-    if len(stats["history"]) > max_history:
-        stats["history"] = stats["history"][-max_history:]
-
-    # Save updated stats
-    save_practice_stats(stats)
 
     # Show session summary
-    print("\n=== Session Summary ===")
-    print(f"Mode: {practice_mode}")
-    print(
-        f"Time: {round(session_duration // 60)} min {round(session_duration % 60)} sec",
+    _print_session_summary(
+        stats,
+        cfg.mode,
+        session_duration,
+        session_correct_digits,
+        session_max_level,
     )
-    print(f"Digits correct: {session_correct_digits}")
-    print(f"Maximum level: {session_max_level}")
-    print(f"All-time best: {stats['max_digits']} digits")
-
-    # Show mode-specific stats
-    if practice_mode == "timed" and session_correct_digits > 0:
-        speed = (session_correct_digits / session_duration) * 60
-        print(f"Average speed: {speed:.1f} digits/minute")
-        print(f"All-time best speed: {stats.get('best_speed', 0):.1f} digits/minute")
 
 
 def input_digit() -> str:
@@ -1120,8 +1376,12 @@ def input_digit() -> str:
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
 
-def main() -> None:
-    """Parse command line arguments and perform calculations."""
+def _create_argument_parser() -> argparse.ArgumentParser:
+    """Create and configure the argument parser.
+
+    Returns:
+        Configured ArgumentParser instance.
+    """
     parser = argparse.ArgumentParser(
         description="Evaluate your version of π (3.141..)",
         formatter_class=argparse.RawTextHelpFormatter,
@@ -1190,11 +1450,116 @@ def main() -> None:
         help="Configure practice mode settings.",
     )
     parser.add_argument("YOUR_PI", nargs="?", type=str, help="Your version of π")
+    return parser
+
+
+def _handle_stats_display() -> None:
+    """Display practice statistics and exit."""
+    stats = load_practice_stats()
+    print("\n=== PIGAME Practice Statistics ===")
+    print(f"Total practice sessions: {stats.get('total_practice_sessions', 0)}")
+    print(f"Total correct digits entered: {stats.get('total_digits_correct', 0)}")
+    print(f"Best level reached: {stats.get('max_digits', 0)} digits")
+    print(f"Last session: {stats.get('last_session_date', 'Never')}")
+
+    # Show speed stats if available
+    if stats.get("best_speed"):
+        print(f"Best speed: {stats.get('best_speed', 0):.1f} digits/minute")
+    if stats.get("fastest_time"):
+        mins, secs = divmod(int(stats.get("fastest_time")), 60)
+        print(f"Fastest time: {mins}m {secs}s")
+
+    # Show recent history if available
+    if stats.get("history"):
+        print("\nRecent sessions:")
+        for i, session in enumerate(reversed(stats.get("history", []))[:5]):
+            mode_str = (
+                f"[{session.get('mode', 'standard')}] " if "mode" in session else ""
+            )
+            print(
+                f"  {i + 1}. {session['date']} - "
+                f"{mode_str}Level {session['max_level']}"
+                f" ({session['correct_digits']} correct digits,"
+                f" {session['duration_seconds'] // 60}m "
+                f"{session['duration_seconds'] % 60}s)",
+            )
+    print("=================================")
+
+
+def _handle_pi_calculation(args: argparse.Namespace) -> tuple[int, str]:
+    """Handle the -p option for calculating pi.
+
+    Args:
+        args: Parsed command line arguments.
+
+    Returns:
+        Tuple of (length, calculated_pi).
+    """
+    if args.p:
+        length = length_validation(args.p)
+        calculated_pi = calculate_pi(length)
+        formatted_pi = format_pi_with_spaces(calculated_pi)
+
+        if args.v:
+            print(f"π with {length} decimals:\t{formatted_pi}")
+        else:
+            print(formatted_pi)
+
+        return length, calculated_pi
+
+    return DEFAULT_LENGTH, ""
+
+
+def _handle_user_pi_input(
+    args: argparse.Namespace,
+    length: int,
+) -> None:
+    """Handle user's pi input and display results.
+
+    Args:
+        args: Parsed command line arguments.
+        length: Length from -p option or default.
+    """
+    # Check for easter eggs
+    if handle_easter_egg(args.YOUR_PI):
+        sys.exit(0)
+
+    # Validate input
+    try:
+        input_validation(args.YOUR_PI)
+    except ValueError:
+        logger.exception("pigame error: Invalid input")
+        sys.exit(1)
+
+    # Calculate pi based on user input length or -p option
+    if not args.p:
+        decimals = (
+            len(args.YOUR_PI) - 2
+            if len(args.YOUR_PI) >= MIN_DIGITS_WITH_POINT
+            else len(args.YOUR_PI)
+        )
+        calculated_pi = calculate_pi(decimals)
+    else:
+        decimals = length
+        calculated_pi = calculate_pi(decimals)
+
+    print_results(
+        user_pi=args.YOUR_PI,
+        calculated_pi=calculated_pi,
+        decimals=decimals,
+        verbose=args.v,
+        colorblind_mode=args.c,
+    )
+
+
+def main() -> None:
+    """Parse command line arguments and perform calculations."""
+    # Create parser and parse arguments
+    parser = _create_argument_parser()
 
     try:
         args = parser.parse_args()
     except (argparse.ArgumentError, SystemExit):
-        # If this is help output, we don't need to report it as an error
         if "--help" in sys.argv or "-h" in sys.argv:
             sys.exit(0)
         logger.exception("Argument parsing failed")
@@ -1205,9 +1570,18 @@ def main() -> None:
         print(f"version: {VERSION}")
         sys.exit(0)
 
+    # Handle configuration
+    if args.config:
+        configure_practice_mode()
+        sys.exit(0)
+
+    # Handle stats display
+    if args.stats:
+        _handle_stats_display()
+        sys.exit(0)
+
     # Handle practice mode
     if args.practice:
-        # Determine visual aid setting
         visual_aid_setting = None
         if args.visual_aid:
             visual_aid_setting = True
@@ -1225,99 +1599,20 @@ def main() -> None:
         )
         sys.exit(0)
 
-    # Handle stats display
-    if args.stats:
-        stats = load_practice_stats()
-        print("\n=== PIGAME Practice Statistics ===")
-        print(f"Total practice sessions: {stats.get('total_practice_sessions', 0)}")
-        print(f"Total correct digits entered: {stats.get('total_digits_correct', 0)}")
-        print(f"Best level reached: {stats.get('max_digits', 0)} digits")
-        print(f"Last session: {stats.get('last_session_date', 'Never')}")
-
-        # Show speed stats if available
-        if stats.get("best_speed"):
-            print(f"Best speed: {stats.get('best_speed', 0):.1f} digits/minute")
-        if stats.get("fastest_time"):
-            mins, secs = divmod(int(stats.get("fastest_time")), 60)
-            print(f"Fastest time: {mins}m {secs}s")
-
-        # Show recent history if available
-        if stats.get("history"):
-            print("\nRecent sessions:")
-            for i, session in enumerate(reversed(stats.get("history", []))[:5]):
-                mode_str = (
-                    f"[{session.get('mode', 'standard')}] " if "mode" in session else ""
-                )
-                print(
-                    f"  {i + 1}. {session['date']} - "
-                    f"{mode_str}Level {session['max_level']}"
-                    f" ({session['correct_digits']} correct digits,"
-                    f" {session['duration_seconds'] // 60}m "
-                    f"{session['duration_seconds'] % 60}s)",
-                )
-        print("=================================")
-        sys.exit(0)
-
-    # Handle configuration
-    if args.config:
-        configure_practice_mode()
-        sys.exit(0)
-
     # Show usage if no arguments provided
     if not args.YOUR_PI and not args.p and not args.v and not args.c:
         usage(0)
 
-    # Handle the -p option
-    if args.p:
-        length = length_validation(args.p)
-        calculated_pi = calculate_pi(length)
-        formatted_pi = format_pi_with_spaces(calculated_pi)
+    # Handle pi calculation
+    length, _ = _handle_pi_calculation(args)
 
-        if args.v:
-            print(f"π with {length} decimals:\t{formatted_pi}")
-        else:
-            print(formatted_pi)
+    # Exit if only displaying calculated pi
+    if args.p and not args.YOUR_PI:
+        sys.exit(0)
 
-        # If no user pi is provided, exit after displaying
-        if not args.YOUR_PI:
-            sys.exit(0)
-    else:
-        length = DEFAULT_LENGTH
-
-    # Handle YOUR_PI argument
+    # Handle user pi input
     if args.YOUR_PI:
-        # Check for easter eggs
-        if handle_easter_egg(args.YOUR_PI):
-            sys.exit(0)
-
-        # Validate input
-        try:
-            input_validation(args.YOUR_PI)
-        except ValueError:
-            logger.exception("pigame error: Invalid input")
-            sys.exit(1)
-        user_pi = args.YOUR_PI
-
-        # If -p was not provided, determine length from user_pi
-        if not args.p:
-            # Number of decimals is length - 2 (for "3.")
-            decimals = (
-                len(user_pi) - 2
-                if len(user_pi) >= MIN_DIGITS_WITH_POINT
-                else len(user_pi)
-            )
-            calculated_pi = calculate_pi(decimals)
-        else:
-            decimals = length
-            calculated_pi = calculate_pi(decimals)
-
-        print_results(
-            user_pi=user_pi,
-            calculated_pi=calculated_pi,
-            decimals=decimals,
-            verbose=args.v,
-            colorblind_mode=args.c,
-        )
+        _handle_user_pi_input(args, length)
 
 
 if __name__ == "__main__":
