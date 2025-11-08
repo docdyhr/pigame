@@ -3,7 +3,7 @@
 # Unified test script for both local development and CI
 # This ensures consistency between local development and CI pipeline
 
-set -e  # Exit immediately if a command exits with a non-zero status
+set -e # Exit immediately if a command exits with a non-zero status
 
 # Get the repository root directory
 REPO_ROOT=$(git rev-parse --show-toplevel || echo ".")
@@ -25,36 +25,36 @@ RUN_COVERAGE=true
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --no-bash)
-            RUN_BASH_TESTS=false
-            shift
-            ;;
-        --no-c)
-            RUN_C_TESTS=false
-            shift
-            ;;
-        --no-python)
-            RUN_PYTHON_TESTS=false
-            shift
-            ;;
-        --no-coverage)
-            RUN_COVERAGE=false
-            shift
-            ;;
-        --help)
-            echo "Usage: $0 [options]"
-            echo "Options:"
-            echo "  --no-bash     Skip Bash tests"
-            echo "  --no-c        Skip C tests"
-            echo "  --no-python   Skip Python tests"
-            echo "  --no-coverage Skip coverage report generation"
-            echo "  --help        Show this help message"
-            exit 0
-            ;;
-        *)
-            echo "Unknown option: $1"
-            exit 1
-            ;;
+    --no-bash)
+        RUN_BASH_TESTS=false
+        shift
+        ;;
+    --no-c)
+        RUN_C_TESTS=false
+        shift
+        ;;
+    --no-python)
+        RUN_PYTHON_TESTS=false
+        shift
+        ;;
+    --no-coverage)
+        RUN_COVERAGE=false
+        shift
+        ;;
+    --help)
+        echo "Usage: $0 [options]"
+        echo "Options:"
+        echo "  --no-bash     Skip Bash tests"
+        echo "  --no-c        Skip C tests"
+        echo "  --no-python   Skip Python tests"
+        echo "  --no-coverage Skip coverage report generation"
+        echo "  --help        Show this help message"
+        exit 0
+        ;;
+    *)
+        echo "Unknown option: $1"
+        exit 1
+        ;;
     esac
 done
 
@@ -71,7 +71,7 @@ ANY_FAILURES=0
 run_test() {
     local name="$1"
     local cmd="$2"
-    
+
     echo -e "\n${CYAN}Running $name tests...${NC}"
     if eval "$cmd"; then
         echo -e "${GREEN}✓ $name tests passed${NC}"
@@ -87,11 +87,13 @@ run_test() {
 if [ ! -d ".venv" ]; then
     echo -e "${CYAN}Setting up Python virtual environment...${NC}"
     python -m venv .venv
+    # shellcheck disable=SC1091
     source .venv/bin/activate
     python -m pip install --upgrade pip
     python -m pip install -r requirements.txt
     python -m pip install -e .
 else
+    # shellcheck disable=SC1091
     source .venv/bin/activate 2>/dev/null || source .venv/Scripts/activate 2>/dev/null || true
 fi
 
@@ -108,7 +110,7 @@ fi
 
 # Run Bash tests
 if [ "$RUN_BASH_TESTS" = true ]; then
-    if command -v bash &> /dev/null; then
+    if command -v bash &>/dev/null; then
         chmod +x src/bash/pigame.sh 2>/dev/null || true
         chmod +x tests/test_bash.sh 2>/dev/null || true
         run_test "Bash" "tests/test_bash.sh" || BASH_TESTS_FAILED=1
@@ -129,7 +131,7 @@ if [ "$RUN_PYTHON_TESTS" = true ]; then
     chmod +x src/python/pigame.py 2>/dev/null || true
     chmod +x tests/test_python.sh 2>/dev/null || true
     run_test "Python" "tests/test_python.sh" || PYTHON_TESTS_FAILED=1
-    
+
     # Run Python unit tests
     run_test "Python unit" "python tests/test_python_unit.py -v" || PYTHON_TESTS_FAILED=1
 fi
@@ -137,10 +139,10 @@ fi
 # Generate coverage report
 if [ "$RUN_COVERAGE" = true ] && [ "$RUN_PYTHON_TESTS" = true ]; then
     echo -e "\n${CYAN}Generating coverage report...${NC}"
-    
+
     # Create coverage directory if it doesn't exist
     mkdir -p htmlcov
-    
+
     # Run pytest with coverage
     if pytest tests/test_pytest.py -v --cov=src/python --cov-report=term-missing --cov-report=html --cov-report=xml; then
         echo -e "${GREEN}✓ Coverage report generated successfully${NC}"
@@ -149,10 +151,10 @@ if [ "$RUN_COVERAGE" = true ] && [ "$RUN_PYTHON_TESTS" = true ]; then
         COVERAGE_FAILED=1
         ANY_FAILURES=1
     fi
-    
+
     # Ensure coverage file exists even if tests failed
     if [ ! -f "coverage.xml" ]; then
-        echo '<?xml version="1.0" ?><coverage version="1.0"></coverage>' > coverage.xml
+        echo '<?xml version="1.0" ?><coverage version="1.0"></coverage>' >coverage.xml
     fi
 fi
 

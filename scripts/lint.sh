@@ -3,7 +3,7 @@
 # Unified linting script for both local development and CI
 # This ensures consistency between pre-commit hooks and CI pipeline
 
-set -e  # Exit immediately if a command exits with a non-zero status
+set -e # Exit immediately if a command exits with a non-zero status
 
 # Get the repository root directory
 REPO_ROOT=$(git rev-parse --show-toplevel || echo ".")
@@ -19,8 +19,12 @@ NC='\033[0m' # No Color
 echo -e "${CYAN}=== Running unified linting checks ===${NC}"
 
 # Initialize flags to track failures
+# Note: Individual failure flags are kept for potential future use
+# shellcheck disable=SC2034
 PYTHON_LINT_FAILED=0
+# shellcheck disable=SC2034
 BASH_LINT_FAILED=0
+# shellcheck disable=SC2034
 C_LINT_FAILED=0
 ANY_FAILURES=0
 
@@ -28,7 +32,7 @@ ANY_FAILURES=0
 run_check() {
     local name="$1"
     local cmd="$2"
-    
+
     echo -e "\n${CYAN}Running $name check...${NC}"
     if eval "$cmd"; then
         echo -e "${GREEN}✓ $name check passed${NC}"
@@ -41,40 +45,42 @@ run_check() {
 }
 
 # Python checks
-if command -v ruff &> /dev/null; then
+if command -v ruff &>/dev/null; then
     run_check "Ruff linting" "ruff check src/python/ tests/ --fix || exit 1"
     run_check "Ruff formatting" "ruff format src/python/ tests/ || exit 1"
 else
     echo -e "${YELLOW}⚠ Ruff not found, skipping Python checks${NC}"
     echo -e "${YELLOW}  Install with: pip install ruff${NC}"
+    # shellcheck disable=SC2034
     PYTHON_LINT_FAILED=1
 fi
 
 # Bash checks
-if command -v shellcheck &> /dev/null; then
+if command -v shellcheck &>/dev/null; then
     run_check "ShellCheck" "shellcheck src/bash/*.sh scripts/*.sh tests/*.sh pigame || exit 1"
 else
     echo -e "${YELLOW}⚠ ShellCheck not found, skipping Bash checks${NC}"
     echo -e "${YELLOW}  Install with: apt-get install shellcheck or brew install shellcheck${NC}"
+    # shellcheck disable=SC2034
     BASH_LINT_FAILED=1
 fi
 
 # C code checks
-if command -v clang-format &> /dev/null; then
+if command -v clang-format &>/dev/null; then
     # Create a copy of the C files before formatting
     mkdir -p /tmp/c-orig
-    find src/c -name "*.c" -o -name "*.h" | xargs -I{} cp {} /tmp/c-orig/ 2>/dev/null || true
-    
+    find src/c \( -name "*.c" -o -name "*.h" \) -print0 | xargs -0 -I{} cp {} /tmp/c-orig/ 2>/dev/null || true
+
     # Apply formatting
-    find src/c -name "*.c" -o -name "*.h" | xargs clang-format -i --style=file 2>/dev/null || true
-    
+    find src/c \( -name "*.c" -o -name "*.h" \) -print0 | xargs -0 clang-format -i --style=file 2>/dev/null || true
+
     # Show diffs but don't fail the build
-    C_FILES=$(find src/c -name "*.c" -o -name "*.h" 2>/dev/null || echo "")
+    C_FILES=$(find src/c \( -name "*.c" -o -name "*.h" \) 2>/dev/null || echo "")
     if [ -n "$C_FILES" ]; then
         for file in $C_FILES; do
             filename=$(basename "$file")
             if [ -f "/tmp/c-orig/$filename" ]; then
-                if ! diff -u "/tmp/c-orig/$filename" "$file" > /dev/null; then
+                if ! diff -u "/tmp/c-orig/$filename" "$file" >/dev/null; then
                     echo -e "${YELLOW}→ Formatting applied to $filename${NC}"
                 fi
             fi
@@ -83,18 +89,19 @@ if command -v clang-format &> /dev/null; then
 else
     echo -e "${YELLOW}⚠ clang-format not found, skipping C formatting${NC}"
     echo -e "${YELLOW}  Install with: apt-get install clang-format or brew install clang-format${NC}"
+    # shellcheck disable=SC2034
     C_LINT_FAILED=1
 fi
 
 # Check for trailing whitespace, fix end of files
 echo -e "\n${CYAN}Checking for trailing whitespace and fixing file endings...${NC}"
-if command -v git &> /dev/null; then
+if command -v git &>/dev/null; then
     git ls-files | xargs sed -i 's/[[:space:]]*$//' 2>/dev/null || true
-    
+
     # Ensure files end with a newline
     git ls-files | while read -r file; do
         if [ -f "$file" ] && [ -s "$file" ] && [ "$(tail -c 1 "$file" | wc -l)" -eq 0 ]; then
-            echo "" >> "$file"
+            echo "" >>"$file"
         fi
     done
 else

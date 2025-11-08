@@ -41,7 +41,7 @@ run_test() {
     fi
 
     # Strip ANSI color codes for comparison
-    stripped_output=$(echo "$actual_output" | sed 's/\x1b\[[0-9;]*m//g')
+    stripped_output="${actual_output//[$'\033'][([0-9;]*m)/}"
 
     echo "Actual output: '$stripped_output'"
 
