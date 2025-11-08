@@ -1100,9 +1100,6 @@ def practice_mode(
 
 def input_digit() -> str:
     """Get a single digit of input from the user (non-blocking)."""
-    import sys
-    import termios
-
     # Save terminal settings
     fd = sys.stdin.fileno()
     old_settings = termios.tcgetattr(fd)
