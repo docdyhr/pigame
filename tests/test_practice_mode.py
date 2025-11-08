@@ -38,10 +38,11 @@ def _mock_practice_config() -> None:
         pigame.PRACTICE_STATS_FILE = original_stats_file
 
 
+@pytest.mark.usefixtures("_mock_practice_config")
 class TestPracticeMode:
     """Test suite for practice mode functionality."""
 
-    def test_load_practice_stats_new_file(self, _mock_practice_config) -> None:
+    def test_load_practice_stats_new_file(self) -> None:
         """Test loading practice stats when no file exists."""
         # Should create a new file with default stats
         stats = pigame.load_practice_stats()
@@ -57,7 +58,7 @@ class TestPracticeMode:
         # Check that the file was created
         assert pigame.PRACTICE_STATS_FILE.exists()
 
-    def test_save_practice_stats(self, _mock_practice_config) -> None:
+    def test_save_practice_stats(self) -> None:
         """Test saving practice stats."""
         # Create test stats
         test_stats = {
@@ -109,7 +110,8 @@ def test_input_digit(digit: str, expected: str) -> None:
         assert result == expected
 
 
-def test_practice_mode_keyboard_interrupt(_mock_practice_config) -> None:
+@pytest.mark.usefixtures("_mock_practice_config")
+def test_practice_mode_keyboard_interrupt() -> None:
     """Test practice mode with keyboard interrupt."""
     # Create a mock stdin with fileno method
     mock_stdin = mock.MagicMock()

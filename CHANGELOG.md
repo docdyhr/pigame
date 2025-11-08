@@ -12,13 +12,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.9.9] - 2025-06-14
 
-### Added
-- TBD
+### Changed
+- Updated project dependencies to latest versions
+
+### Fixed
+- Fixed executable permission on src/python/pigame.py to match shebang
 
 ## [1.9.8] - 2025-05-22
 
-### Added
-- TBD
+### Changed
+- Updated README with dependency management information
+- Removed compiled C binary from version control (added to .gitignore)
 
 ### Fixed
 - Fixed version inconsistency between VERSION file and hardcoded values
@@ -29,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed unnecessary math.h dependency in C implementation
 - Updated setup.sh to allow selective installation of dev dependencies
 - Enhanced input validation with better error messages
+- Fixed pytest fixture style by removing redundant parentheses
 
 ## [1.9.7] - 2025-05-20
 

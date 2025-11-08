@@ -6,16 +6,16 @@ Currently, the following versions of PIGAME are supported with security updates:
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.7.x   | :white_check_mark: |
-| 1.6.x   | :white_check_mark: |
-| < 1.6   | :x:                |
+| 1.9.x   | :white_check_mark: |
+| 1.8.x   | :white_check_mark: |
+| < 1.8   | :x:                |
 
 ## Reporting a Vulnerability
 
 We take the security of PIGAME seriously. If you believe you've found a security vulnerability, please follow these steps:
 
 1. **Do Not** disclose the vulnerability publicly until it has been addressed.
-2. Email your findings to security@example.com. If possible, encrypt your message using our PGP key.
+2. Email your findings to thomas@dyhr.com. If possible, encrypt your message using our PGP key.
 3. Include as much information as possible, including:
    - A description of the vulnerability
    - Steps to reproduce
