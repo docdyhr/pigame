@@ -10,15 +10,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - TBD
 
-## [1.9.9] - 2025-06-14
+## [1.9.10] - 2025-11-08
 
 ### Added
 - TBD
+
+## [1.9.9] - 2025-06-14
+
+### Changed
+- Updated project dependencies to latest versions
+
+### Fixed
+- Fixed executable permission on src/python/pigame.py to match shebang
 
 ## [1.9.8] - 2025-05-22
 
-### Added
-- TBD
+### Changed
+- Updated README with dependency management information
+- Removed compiled C binary from version control (added to .gitignore)
 
 ### Fixed
 - Fixed version inconsistency between VERSION file and hardcoded values
@@ -29,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed unnecessary math.h dependency in C implementation
 - Updated setup.sh to allow selective installation of dev dependencies
 - Enhanced input validation with better error messages
+- Fixed pytest fixture style by removing redundant parentheses
 
 ## [1.9.7] - 2025-05-20
 
@@ -293,7 +303,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Command-line interface with flags for verbosity and precision
 - Easter egg references to Archimedes
 
-[Unreleased]: https://github.com/docdyhr/pigame/compare/v1.9.9...HEAD
+[Unreleased]: https://github.com/docdyhr/pigame/compare/v1.9.10...HEAD
+[1.9.10]: https://github.com/docdyhr/pigame/compare/v1.9.9...v1.9.10
 [1.9.9]: https://github.com/docdyhr/pigame/compare/v1.9.8...v1.9.9
 [1.9.8]: https://github.com/docdyhr/pigame/compare/v1.9.7...v1.9.8
 [1.9.7]: https://github.com/docdyhr/pigame/compare/v1.9.6...v1.9.7

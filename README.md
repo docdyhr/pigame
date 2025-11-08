@@ -2,17 +2,17 @@
 
 [![CI/CD Pipeline](https://github.com/docdyhr/pigame/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/docdyhr/pigame/actions/workflows/ci.yml)
 [![Test Coverage](https://img.shields.io/codecov/c/github/docdyhr/pigame)](https://codecov.io/gh/docdyhr/pigame)
-[![Version](https://img.shields.io/badge/version-1.9.7-blue)](https://github.com/docdyhr/pigame/blob/master/src/VERSION)
+[![Version](https://img.shields.io/badge/version-1.9.9-blue)](https://github.com/docdyhr/pigame/blob/master/src/VERSION)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/docdyhr/pigame/blob/master/LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/docdyhr/pigame/blob/master/CONTRIBUTING.md)
 
 ## Overview
 
-* Version: 1.9.7
+* Version: 1.9.9
 * Multiple implementations available: Bash (original), C, and Python
 * Author: Thomas J. Dyhr
 * Purpose: Memorisation of π
-* Release date: 26. Apr 2025
+* Release date: 14. Jun 2025
 
 ## Usage
 
