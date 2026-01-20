@@ -6,6 +6,7 @@ target-version = "py311"
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
+    "COM812",  # trailing comma - conflicts with ruff formatter
     "D203",  # one-blank-line-before-class
     "D213",  # multi-line-summary-second-line
     "T201",  # allow print statements in CLI
