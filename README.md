@@ -87,7 +87,7 @@ docker-compose exec dev bash
   * Windows: a 32-bit Windows version is available
   * Ref.: <https://www.gnu.org/software/bc/bc.html>
 * For C implementation: C compiler (gcc or clang)
-* For Python implementation: Python 3.6+
+* For Python implementation: Python 3.11+
 
 ### Development Environment
 
@@ -106,7 +106,7 @@ docker-compose exec dev bash
 
 - `bc` (for Bash implementation) - Required for core functionality
 - C compiler (gcc or clang) - Optional, needed for C implementation
-- Python 3.6+ - Optional, needed for Python implementation
+- Python 3.11+ - Optional, needed for Python implementation
 - shellcheck - Optional, helpful for development
 - clang-format - Optional, helpful for development
 
