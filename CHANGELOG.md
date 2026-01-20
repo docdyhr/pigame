@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - TBD
 
+## [1.9.14] - 2026-01-20
+
+### Added
+- TBD
+
 ## [1.9.13] - 2026-01-20
 
 ### Added
@@ -318,7 +323,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Command-line interface with flags for verbosity and precision
 - Easter egg references to Archimedes
 
-[Unreleased]: https://github.com/docdyhr/pigame/compare/v1.9.13...HEAD
+[Unreleased]: https://github.com/docdyhr/pigame/compare/v1.9.14...HEAD
+[1.9.14]: https://github.com/docdyhr/pigame/compare/v1.9.13...v1.9.14
 [1.9.13]: https://github.com/docdyhr/pigame/compare/v1.9.12...v1.9.13
 [1.9.12]: https://github.com/docdyhr/pigame/compare/v1.9.11...v1.9.12
 [1.9.11]: https://github.com/docdyhr/pigame/compare/v1.9.10...v1.9.11
