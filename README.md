@@ -12,7 +12,7 @@
 * Multiple implementations available: Bash (original), C, and Python
 * Author: Thomas J. Dyhr
 * Purpose: Memorisation of π
-* Release date: 14. Jun 2025
+* Release date: 8. Nov 2025
 
 ## Usage
 
