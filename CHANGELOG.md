@@ -8,7 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- TBD
+- Added automated dependency and security monitoring with Dependabot and GitHub security workflows
+
+### Changed
+- Consolidated release automation to a single CI-driven release flow
+- Converted version bumping from automatic-on-push to an explicit manual workflow
+- Improved CI package validation and made coverage artifacts unique per matrix job
+
+### Fixed
+- Fixed Python console entry point packaging metadata
+- Fixed pytest executable fixture to restore original file permissions
+- Fixed linting workflow to check files in CI instead of mutating the checkout
+- Fixed README version metadata drift
 
 ## [1.9.14] - 2026-01-20
 

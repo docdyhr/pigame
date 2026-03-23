@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 def pigame_exec() -> Iterator[Path]:
     """Provides the path to the pigame executable."""
     path = Path(__file__).parent.parent / "src/python/pigame.py"
-    path.chmod(0o700)  # Restrictive permissions for security
+    original_mode = path.stat().st_mode & 0o777
+    path.chmod(original_mode | 0o700)
     yield path
-    # Cleanup after tests
-    path.chmod(0o600)
+    path.chmod(original_mode)

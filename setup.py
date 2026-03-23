@@ -24,7 +24,7 @@ def read_version() -> str:
         with version_file.open(encoding="utf-8") as f:
             return f.read().strip()
     except OSError:
-        return "1.7.0"  # Default version
+        return "0.0.0"
 
 
 setup(
@@ -38,19 +38,19 @@ setup(
     author="Thomas J. Dyhr",
     author_email="thomas@dyhr.com",
     url="https://github.com/docdyhr/pigame",
+    license="MIT",
     py_modules=["pigame"],
     package_dir={"": "src/python"},
     include_package_data=True,
     entry_points={
         "console_scripts": [
-            "pigame-py=python.pigame:main",
+            "pigame-py=pigame:main",
         ],
     },
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Console",
         "Intended Audience :: Education",
-        "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",

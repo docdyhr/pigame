@@ -51,4 +51,12 @@ PIGAME is a tool for memorization of π and does not store or process sensitive 
 
 Security updates will be released as part of our normal release cycle. Critical security issues may receive expedited releases.
 
+## Automated Security Checks
+
+This repository also uses automated checks to reduce security regressions:
+
+1. GitHub dependency review on pull requests
+2. Scheduled CodeQL analysis for Python and C code
+3. Automated dependency update proposals via Dependabot
+
 Thank you for helping keep PIGAME secure!

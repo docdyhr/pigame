@@ -1,5 +1,12 @@
 name: CI/CD Pipeline
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [master, main]
@@ -44,15 +51,14 @@ jobs:
           python -m venv .venv
           source .venv/bin/activate || source .venv/Scripts/activate
           python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
+          python -m pip install -r requirements-dev.txt
           python -m pip install -e .
-          python -m pip install pytest pytest-cov coverage codecov ruff
       - name: Run unified linting script
         run: |
           chmod +x scripts/lint.sh
-          ./scripts/lint.sh
+          ./scripts/lint.sh check
 
-  build:
+  package:
     runs-on: ubuntu-latest
     needs: lint
     steps:
@@ -83,15 +89,19 @@ jobs:
           python -m venv .venv
           source .venv/bin/activate || source .venv/Scripts/activate
           python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
+          python -m pip install build twine
           python -m pip install -e .
-      - name: Build project
-        run: make build || echo "Build skipped on $(uname -s)"
+      - name: Build project packages
+        run: |
+          make build || echo "Build skipped on $(uname -s)"
+          python -m build
+          python -m twine check dist/*
 
   test:
     runs-on: ${{ matrix.os }}
-    needs: build
+    needs: package
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
         python-version: ["3.11", "3.12", "3.13"]
@@ -123,7 +133,7 @@ jobs:
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
+          python -m pip install -r requirements-dev.txt
           python -m pip install -e .
       - name: Build project
         run: make build
@@ -134,11 +144,12 @@ jobs:
       - name: Upload coverage report artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-report
+          name: coverage-report-${{ matrix.os }}-py${{ matrix.python-version }}
           path: |
             htmlcov/
             coverage.xml
       - name: Upload coverage to Codecov
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.13'
         uses: codecov/codecov-action@v3
         continue-on-error: true
         with:
@@ -167,6 +178,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: test-summary
     if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:

@@ -97,7 +97,7 @@ def get_version() -> str:
         version_file = Path(__file__).parent.parent / "VERSION"
         return version_file.read_text(encoding="utf-8").strip()
     except OSError:
-        return "1.7.0"  # Default version
+        return "0.0.0"
 
 
 VERSION = get_version()
@@ -925,18 +925,26 @@ def _load_practice_config_settings(  # noqa: PLR0913
 
     return PracticeConfig(
         colorblind_mode=colorblind_mode,
-        mode=mode if mode else config.get("mode", DEFAULT_PRACTICE_MODE),
+        mode=mode if mode is not None else config.get("mode", DEFAULT_PRACTICE_MODE),
         min_digits=(
-            min_digits if min_digits else config.get("min_digits", PRACTICE_MIN_DIGITS)
+            min_digits
+            if min_digits is not None
+            else config.get("min_digits", PRACTICE_MIN_DIGITS)
         ),
         max_digits=(
-            max_digits if max_digits else config.get("max_digits", PRACTICE_MAX_DIGITS)
+            max_digits
+            if max_digits is not None
+            else config.get("max_digits", PRACTICE_MAX_DIGITS)
         ),
         chunk_size=(
-            chunk_size if chunk_size else config.get("chunk_size", DEFAULT_CHUNK_SIZE)
+            chunk_size
+            if chunk_size is not None
+            else config.get("chunk_size", DEFAULT_CHUNK_SIZE)
         ),
         time_limit=(
-            time_limit if time_limit else config.get("time_limit", DEFAULT_TIME_LIMIT)
+            time_limit
+            if time_limit is not None
+            else config.get("time_limit", DEFAULT_TIME_LIMIT)
         ),
         show_timer=config.get("show_timer", True),
         visual_aid=(

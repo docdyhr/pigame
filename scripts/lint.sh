@@ -18,6 +18,12 @@ NC='\033[0m' # No Color
 
 echo -e "${CYAN}=== Running unified linting checks ===${NC}"
 
+MODE="${1:-check}"
+if [[ "$MODE" != "check" && "$MODE" != "fix" ]]; then
+    echo "Usage: $0 [check|fix]"
+    exit 1
+fi
+
 # Initialize flags to track failures
 # Note: Individual failure flags are kept for potential future use
 # shellcheck disable=SC2034
@@ -46,13 +52,19 @@ run_check() {
 
 # Python checks
 if command -v ruff &>/dev/null; then
-    run_check "Ruff linting" "ruff check src/python/ tests/ --fix || exit 1"
-    run_check "Ruff formatting" "ruff format src/python/ tests/ || exit 1"
+    if [[ "$MODE" == "fix" ]]; then
+        run_check "Ruff linting" "ruff check src/python/ tests/ --fix || exit 1"
+        run_check "Ruff formatting" "ruff format src/python/ tests/ || exit 1"
+    else
+        run_check "Ruff linting" "ruff check src/python/ tests/ --no-fix || exit 1"
+        run_check "Ruff formatting" "ruff format --check src/python/ tests/ || exit 1"
+    fi
 else
     echo -e "${YELLOW}⚠ Ruff not found, skipping Python checks${NC}"
     echo -e "${YELLOW}  Install with: pip install ruff${NC}"
     # shellcheck disable=SC2034
     PYTHON_LINT_FAILED=1
+    ANY_FAILURES=1
 fi
 
 # Bash checks
@@ -67,24 +79,10 @@ fi
 
 # C code checks
 if command -v clang-format &>/dev/null; then
-    # Create a copy of the C files before formatting
-    mkdir -p /tmp/c-orig
-    find src/c \( -name "*.c" -o -name "*.h" \) -print0 | xargs -0 -I{} cp {} /tmp/c-orig/ 2>/dev/null || true
-
-    # Apply formatting
-    find src/c \( -name "*.c" -o -name "*.h" \) -print0 | xargs -0 clang-format -i --style=file 2>/dev/null || true
-
-    # Show diffs but don't fail the build
-    C_FILES=$(find src/c \( -name "*.c" -o -name "*.h" \) 2>/dev/null || echo "")
-    if [ -n "$C_FILES" ]; then
-        for file in $C_FILES; do
-            filename=$(basename "$file")
-            if [ -f "/tmp/c-orig/$filename" ]; then
-                if ! diff -u "/tmp/c-orig/$filename" "$file" >/dev/null; then
-                    echo -e "${YELLOW}→ Formatting applied to $filename${NC}"
-                fi
-            fi
-        done
+    if [[ "$MODE" == "fix" ]]; then
+        find src/c \( -name "*.c" -o -name "*.h" \) -print0 | xargs -0 clang-format -i --style=file 2>/dev/null || true
+    else
+        run_check "clang-format" "find src/c \\( -name '*.c' -o -name '*.h' \\) -print0 | xargs -0 clang-format --dry-run --Werror --style=file || exit 1"
     fi
 else
     echo -e "${YELLOW}⚠ clang-format not found, skipping C formatting${NC}"
@@ -93,19 +91,20 @@ else
     C_LINT_FAILED=1
 fi
 
-# Check for trailing whitespace, fix end of files
-echo -e "\n${CYAN}Checking for trailing whitespace and fixing file endings...${NC}"
-if command -v git &>/dev/null; then
-    git ls-files | xargs sed -i 's/[[:space:]]*$//' 2>/dev/null || true
+if [[ "$MODE" == "fix" ]]; then
+    echo -e "\n${CYAN}Checking for trailing whitespace and fixing file endings...${NC}"
+    if command -v git &>/dev/null; then
+        git ls-files | xargs sed -i 's/[[:space:]]*$//' 2>/dev/null || true
 
-    # Ensure files end with a newline
-    git ls-files | while read -r file; do
-        if [ -f "$file" ] && [ -s "$file" ] && [ "$(tail -c 1 "$file" | wc -l)" -eq 0 ]; then
-            echo "" >>"$file"
-        fi
-    done
-else
-    echo -e "${YELLOW}⚠ git not available to list files${NC}"
+        # Ensure files end with a newline
+        git ls-files | while read -r file; do
+            if [ -f "$file" ] && [ -s "$file" ] && [ "$(tail -c 1 "$file" | wc -l)" -eq 0 ]; then
+                echo "" >>"$file"
+            fi
+        done
+    else
+        echo -e "${YELLOW}⚠ git not available to list files${NC}"
+    fi
 fi
 
 # Summary

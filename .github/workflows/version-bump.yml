@@ -1,50 +1,42 @@
 name: Version Bump
 
 on:
-  push:
-    branches:
-      - master
-    paths-ignore:
-      - 'src/VERSION'
-      - 'CHANGELOG.md'
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Semantic version component to increment"
+        required: true
+        default: "patch"
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
 
 jobs:
   bump-version:
     runs-on: ubuntu-latest
-    if: ${{ !contains(github.event.head_commit.message, 'Release version') }}
-    permissions:
-      contents: write  # Needed for pushing to the repository
-
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Set up Git
-      run: |
-        git config --global user.name "GitHub Action"
-        git config --global user.email "action@github.com"
+      - name: Set up Git
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
 
-    - name: Check for breaking changes
-      id: check_breaks
-      run: |
-        BREAKING_CHANGE=$(git log -1 --pretty=%B | grep -i "BREAKING CHANGE" || echo "")
-        if [ -n "$BREAKING_CHANGE" ]; then
-          echo "bump=major" >> $GITHUB_OUTPUT
-        elif [[ "$(git log -1 --pretty=%B)" == feat:* ]] || [[ "$(git log -1 --pretty=%B)" == feature:* ]]; then
-          echo "bump=minor" >> $GITHUB_OUTPUT
-        else
-          echo "bump=patch" >> $GITHUB_OUTPUT
-        fi
+      - name: Bump version
+        run: |
+          chmod +x ./version.sh
+          ./version.sh "${{ github.event.inputs.bump }}"
 
-    - name: Bump version
-      run: |
-        chmod +x ./version.sh
-        ./version.sh ${{ steps.check_breaks.outputs.bump || 'patch' }}
-
-    - name: Commit and push version bump
-      run: |
-        VERSION=$(cat src/VERSION)
-        git add src/VERSION CHANGELOG.md
-        git commit -m "Bump version to $VERSION [skip ci]"
-        git push
+      - name: Commit and push version bump
+        run: |
+          VERSION=$(cat src/VERSION)
+          git add src/VERSION CHANGELOG.md README.md
+          git commit -m "Bump version to $VERSION [skip ci]"
+          git push
