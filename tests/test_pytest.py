@@ -23,7 +23,7 @@ INCORRECT_PI = "3.14158"
 TEST_LENGTH_SHORT = 5
 TEST_LENGTH_MEDIUM = 15
 TEST_LENGTH_LONG = 100
-LINES_EASTER_EGG = 3
+LINES_EASTER_EGG = 4  # symbol+name, also_known_as, description, history
 LINES_ERROR_MSG = 2
 
 
@@ -109,6 +109,42 @@ class TestPiGameFunctions:
 
         with patch("builtins.print") as mock_print:
             assert pigame.handle_easter_egg(VALID_PI_SHORT) is False
+            mock_print.assert_not_called()
+
+    def test_handle_easter_egg_e(self: TestPiGameFunctions) -> None:
+        """Test easter egg for Euler's number."""
+        with patch("builtins.print") as mock_print:
+            assert pigame.handle_easter_egg("e") is True
+            assert mock_print.call_count == LINES_EASTER_EGG
+
+        with patch("builtins.print") as mock_print:
+            assert pigame.handle_easter_egg("euler") is True
+            assert mock_print.call_count == LINES_EASTER_EGG
+
+    def test_handle_easter_egg_phi(self: TestPiGameFunctions) -> None:
+        """Test easter egg for the golden ratio."""
+        with patch("builtins.print") as mock_print:
+            assert pigame.handle_easter_egg("phi") is True
+            assert mock_print.call_count == LINES_EASTER_EGG
+
+        with patch("builtins.print") as mock_print:
+            assert pigame.handle_easter_egg("golden") is True
+            assert mock_print.call_count == LINES_EASTER_EGG
+
+    def test_handle_easter_egg_sqrt2(self: TestPiGameFunctions) -> None:
+        """Test easter egg for the square root of 2."""
+        with patch("builtins.print") as mock_print:
+            assert pigame.handle_easter_egg("sqrt2") is True
+            assert mock_print.call_count == LINES_EASTER_EGG
+
+        with patch("builtins.print") as mock_print:
+            assert pigame.handle_easter_egg("pythagoras") is True
+            assert mock_print.call_count == LINES_EASTER_EGG
+
+    def test_handle_easter_egg_unknown(self: TestPiGameFunctions) -> None:
+        """Test that unrecognised strings return False."""
+        with patch("builtins.print") as mock_print:
+            assert pigame.handle_easter_egg("notaconstant") is False
             mock_print.assert_not_called()
 
 
@@ -211,6 +247,67 @@ class TestPiGameIntegration:
             check=True,
         )  # - trusted input
         assert "Archimedes constant" in result.stdout
+
+
+class TestCalculateConstant:
+    """Tests for the calculate_constant function."""
+
+    def test_calculate_constant_pi(self: TestCalculateConstant) -> None:
+        """calculate_constant('pi', n) should behave like calculate_pi(n)."""
+        assert pigame.calculate_constant("pi", 5) == pigame.calculate_pi(5)
+        assert pigame.calculate_constant("pi", 10) == pigame.calculate_pi(10)
+
+    def test_calculate_constant_e(self: TestCalculateConstant) -> None:
+        """calculate_constant('e', n) should start with '2.' and have correct length."""
+        result = pigame.calculate_constant("e", 10)
+        assert result.startswith("2.")
+        assert len(result) == 12  # "2." + 10 digits
+
+    def test_calculate_constant_phi(self: TestCalculateConstant) -> None:
+        """calculate_constant('phi', n) starts with '1.' and has correct length."""
+        result = pigame.calculate_constant("phi", 10)
+        assert result.startswith("1.")
+        assert len(result) == 12
+
+    def test_calculate_constant_sqrt2(self: TestCalculateConstant) -> None:
+        """calculate_constant('sqrt2', n) starts with '1.' and has correct length."""
+        result = pigame.calculate_constant("sqrt2", 10)
+        assert result.startswith("1.")
+        assert len(result) == 12
+
+    def test_calculate_constant_known_digits_e(self: TestCalculateConstant) -> None:
+        """First 10 decimal places of e should be correct."""
+        result = pigame.calculate_constant("e", 10)
+        assert result == "2.7182818284"
+
+    def test_calculate_constant_known_digits_phi(self: TestCalculateConstant) -> None:
+        """First 10 decimal places of φ should be correct."""
+        result = pigame.calculate_constant("phi", 10)
+        assert result == "1.6180339887"
+
+    def test_calculate_constant_known_digits_sqrt2(
+        self: TestCalculateConstant,
+    ) -> None:
+        """First 10 decimal places of √2 should be correct."""
+        result = pigame.calculate_constant("sqrt2", 10)
+        assert result == "1.4142135623"
+
+    def test_calculate_constant_negative_raises(self: TestCalculateConstant) -> None:
+        """Negative length should raise ValueError."""
+        with pytest.raises(ValueError, match="cannot be negative"):
+            pigame.calculate_constant("e", -1)
+
+    def test_calculate_constant_too_many_digits_raises(
+        self: TestCalculateConstant,
+    ) -> None:
+        """Requesting more digits than available should raise TooManyDigitsError."""
+        with pytest.raises(pigame.TooManyDigitsError):
+            pigame.calculate_constant("e", pigame.MAX_CONSTANT_LENGTH + 1)
+
+    def test_calculate_constant_unknown_raises(self: TestCalculateConstant) -> None:
+        """Unknown constant name should raise ValueError."""
+        with pytest.raises(ValueError, match="Unknown constant"):
+            pigame.calculate_constant("tau", 5)
 
 
 class TestExceptionClasses:
