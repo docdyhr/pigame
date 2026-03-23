@@ -5,12 +5,12 @@
 # Bash implementation using verified digits from trusted mathematical sources
 # for perfect accuracy and consistent results across all implementations.
 #
-# Version: $(cat "$(dirname "$0")/../VERSION" 2>/dev/null || echo "1.9.7")
+# Version: $(cat "$(dirname "$0")/../VERSION" 2>/dev/null || echo "1.9.14")
 # Author: thomas@dyhr.com
 # Date: April 2024
 
 # shellcheck source=src/VERSION
-VERSION=$(cat "$(dirname "$0")/../VERSION" 2>/dev/null || echo "1.9.7")
+VERSION=$(cat "$(dirname "$0")/../VERSION" 2>/dev/null || echo "1.9.14")
 
 # Default LENGTH of π: '3.141592653589793'
 DEFAULT_LENGTH=15
@@ -18,14 +18,74 @@ DEFAULT_LENGTH=15
 # Max length of decimals for π for calc with bc
 MAX_LENGTH=5001
 
+# ---------------------------------------------------------------------------
+# Structured logging
+# ---------------------------------------------------------------------------
+#
+# Log levels (numeric): DEBUG=0  INFO=1  WARN=2  ERROR=3  SILENT=4
+# Default level        : WARN  (only WARN and ERROR messages are shown)
+# Override at runtime  : set PIGAME_LOG_LEVEL=DEBUG, or pass -d flag
+# Log to file          : set PIGAME_LOG_FILE=/path/to/logfile
+#
+# Format: [LEVEL] pigame: <message>
+# ---------------------------------------------------------------------------
+
+readonly _LL_DEBUG=0
+readonly _LL_INFO=1
+readonly _LL_WARN=2
+readonly _LL_ERROR=3
+readonly _LL_SILENT=4
+
+# Honour PIGAME_DEBUG=1 (same interface as C and Python implementations).
+# PIGAME_LOG_LEVEL can also be set explicitly; PIGAME_DEBUG takes precedence.
+if [[ "${PIGAME_DEBUG:-}" == "1" ]]; then
+    _current_log_level=${_LL_DEBUG}
+else
+    case "${PIGAME_LOG_LEVEL:-WARN}" in
+    DEBUG) _current_log_level=${_LL_DEBUG} ;;
+    INFO) _current_log_level=${_LL_INFO} ;;
+    WARN) _current_log_level=${_LL_WARN} ;;
+    ERROR) _current_log_level=${_LL_ERROR} ;;
+    SILENT) _current_log_level=${_LL_SILENT} ;;
+    *) _current_log_level=${_LL_WARN} ;;
+    esac
+fi
+
+# Optional log file (empty = stderr only)
+PIGAME_LOG_FILE="${PIGAME_LOG_FILE:-}"
+
+# Core logging function – not intended to be called directly.
+_pigame_log() {
+    local level_num="$1"
+    local level_name="$2"
+    local message="$3"
+
+    if [[ "${level_num}" -lt "${_current_log_level}" ]]; then
+        return 0
+    fi
+
+    local line="[${level_name}] pigame: ${message}"
+    echo "${line}" >&2
+
+    if [[ -n "${PIGAME_LOG_FILE}" ]]; then
+        echo "${line}" >>"${PIGAME_LOG_FILE}"
+    fi
+}
+
+log_debug() { _pigame_log "${_LL_DEBUG}" "DEBUG" "$*"; }
+log_info() { _pigame_log "${_LL_INFO}" "INFO" "$*"; }
+log_warn() { _pigame_log "${_LL_WARN}" "WARN" "$*"; }
+log_error() { _pigame_log "${_LL_ERROR}" "ERROR" "$*"; }
+
 # Print Usage
 usage() {
-    echo -e "Usage:\t$(basename "${0}") [-v] [-p LENGTH] [-V] [-c] [--practice] [--stats] YOUR_PI" >&2
+    echo -e "Usage:\t$(basename "${0}") [-v] [-p LENGTH] [-V] [-c] [-d] [--practice] [--stats] YOUR_PI" >&2
     echo -e "\tEvaluate your version of π (3.141.. )" >&2
     echo -e '\t-v          Increase verbosity.' >&2
     echo -e '\t-p LENGTH   Calculate and show π with LENGTH number of decimals.' >&2
     echo -e '\t-V          Version.' >&2
     echo -e '\t-c          Color-blind mode (use underscores instead of color).' >&2
+    echo -e '\t-d          Enable debug logging to stderr.' >&2
     echo -e '\t--practice  Start interactive practice mode for memorizing digits.' >&2
     echo -e '\t--stats     Show your practice statistics.' >&2
     exit 1
@@ -34,50 +94,52 @@ usage() {
 # YOUR_PI input validation: only float numbers are accepted
 input_validation() {
     local input="$1"
-    
+
     # Check if input is empty
     if [[ -z "$input" ]]; then
-        echo "pigame error: Empty input provided" >&2
+        log_error "empty input provided"
         usage
     fi
-    
+
     # Check if input matches float format
     local re='^[0-9]+([.][0-9]+)?$' # regex for an unsigned float number
     if ! [[ "$input" =~ $re ]]; then
-        echo "pigame error: Invalid input - NOT a float" >&2
+        log_error "Invalid input - NOT a float: '${input}'"
         usage
     fi
-    
+
     # Check if input starts with 3.
     if ! [[ "$input" =~ ^3\. ]]; then
-        echo "pigame error: Pi must start with '3.'" >&2
+        log_error "Pi must start with '3.' (got '${input}')"
         usage
     fi
-    
+
+    log_debug "input_validation: '${input}' OK"
     return 0
 }
 
 # Validation of LENGTH in -p option
 length_validation() {
-    # Validate -P ${OPTARG} is a number
+    # Validate -p ${OPTARG} is an integer
     local re='^-?[0-9]+$' # regex for an integer
     if ! [[ "${OPTARG}" =~ $re ]]; then
-        echo "pigame error: Invalid input - NOT an integer" >&2
-        usage
-    fi
-    
-    # Check for negative numbers
-    if [[ "${OPTARG}" -lt 0 ]]; then
-        echo "pigame error: Invalid input - cannot be negative" >&2
-        usage
-    fi
-    
-    # Set a max length for calc of π
-    if [[ "${OPTARG}" -gt ${MAX_LENGTH} ]]; then
-        echo "pigame error: Invalid input - too big a number for display (max: ${MAX_LENGTH})" >&2
+        log_error "Invalid input - NOT an integer: '${OPTARG}'"
         usage
     fi
 
+    # Check for negative numbers
+    if [[ "${OPTARG}" -lt 0 ]]; then
+        log_error "Invalid input - cannot be negative: ${OPTARG}"
+        usage
+    fi
+
+    # Set a max length for calc of π
+    if [[ "${OPTARG}" -gt ${MAX_LENGTH} ]]; then
+        log_error "Invalid input - too big (${OPTARG} > max ${MAX_LENGTH})"
+        usage
+    fi
+
+    log_debug "length_validation: ${OPTARG} OK"
     return 0
 }
 
@@ -183,7 +245,7 @@ PI_DIGITS="141592653589793238462643383279502884197169399375105820974944592307816
 calc_pi() {
     local length="$LENGTH"
     local result
-    
+
     # Check if we need to truncate the result
     if [[ "$length" -gt "${MAX_LENGTH}" ]]; then
         length="${MAX_LENGTH}"
@@ -194,17 +256,22 @@ calc_pi() {
     result="3."
 
     # Add requested number of digits without extra whitespace
-    result="${result}${PI_DIGITS:0:$((length-2))}"
+    result="${result}${PI_DIGITS:0:$((length - 2))}"
 
     PI="${result}"
 }
 
 # MENU: get command line options with Bash getopts
 # first : indicates we handle errors ourselves
-while getopts :vp:Vc OPTION; do
+while getopts :vp:Vcd OPTION; do
     case ${OPTION} in
     v)
         VERBOSE='true'
+        log_debug "verbose mode enabled"
+        ;;
+    d)
+        _current_log_level=${_LL_DEBUG}
+        log_debug "debug logging enabled via -d flag"
         ;;
     p)
         length_validation
@@ -215,6 +282,7 @@ while getopts :vp:Vc OPTION; do
         fi
 
         LENGTH=$((OPTARG + 2)) # validate & calc_pi chops two decimals
+        log_debug "-p: calculating pi to $((LENGTH - 2)) decimal(s)"
 
         calc_pi
 
@@ -232,8 +300,10 @@ while getopts :vp:Vc OPTION; do
         ;;
     c)
         COLOR_BLIND_MODE='true'
+        log_debug "color-blind mode enabled"
         ;;
     ?)
+        log_error "unknown option: -${OPTARG}"
         usage
         ;;
     esac
@@ -248,13 +318,17 @@ if [[ "${#}" -gt 1 ]]; then
     usage
 # Allow 1 positional parameter: YOUR_PI
 elif [[ "${#}" -eq 1 ]]; then
+    log_debug "positional argument: '${1}'"
+
     # Easter egg
     if [[ "${1}" == "Archimedes" ]] || [[ "${1}" == "pi" ]] || [[ "${1}" == "PI" ]]; then
+        log_debug "easter egg triggered with '${1}'"
         echo 'π is also called Archimedes constant and is commonly defined as'
         echo 'the ratio of a circles circumference C to its diameter d:'
         echo 'π = C / d'
         exit 0
     fi
+
     # Input Validation: only float numbers are accepted
     input_validation "${1}"
 
@@ -271,6 +345,8 @@ elif [[ "${#}" -eq 1 ]]; then
         DEC=$((LENGTH - 2)) # arithmetic expansion & chop 2 dec
     fi
 
+    log_debug "comparing ${DEC} decimal digit(s)"
+
     # Calculate π
     calc_pi
 
@@ -280,6 +356,7 @@ elif [[ "${#}" -eq 1 ]]; then
     exit 0
 else
     if [[ "${OPTIND}" -eq 1 ]]; then # OPTIND is 1 only when pigame has NO positional parameters
+        log_debug "no arguments provided, showing usage"
         usage
     fi
 fi

@@ -39,12 +39,30 @@ DEFAULT_PRACTICE_MODE = "standard"
 DEFAULT_CHUNK_SIZE = 5
 DEFAULT_TIME_LIMIT = 180  # 3 minutes
 
-# Configure logging
+# ---------------------------------------------------------------------------
+# Logging
+# ---------------------------------------------------------------------------
+# Format matches the Bash and C implementations: [LEVEL] pigame: <message>
+# Default level: WARNING (only warnings and errors are shown).
+# Enable DEBUG output with --debug flag or PIGAME_DEBUG=1 env var.
+# ---------------------------------------------------------------------------
+
+import os as _os  # noqa: E402 - used only for env-var check below
+
+
 logger = logging.getLogger(__name__)
-handler = logging.StreamHandler(sys.stderr)
-handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
-logger.addHandler(handler)
-logger.setLevel(logging.INFO)
+_log_handler = logging.StreamHandler(sys.stderr)
+_log_handler.setFormatter(logging.Formatter("[%(levelname)s] pigame: %(message)s"))
+logger.addHandler(_log_handler)
+
+# Honour PIGAME_DEBUG env-var so that debug output is available even when the
+# --debug flag cannot be parsed yet (e.g. during module import in tests).
+if _os.environ.get("PIGAME_DEBUG"):
+    logger.setLevel(logging.DEBUG)
+else:
+    logger.setLevel(logging.WARNING)
+
+del _os  # keep module namespace clean
 
 # ANSI color codes
 red = "\033[0;31m"
@@ -117,24 +135,31 @@ def usage(exit_code: int = 1) -> NoReturn:
 
 def input_validation(input_str: str) -> bool:
     """Validate that input contains only digits and at most one decimal point."""
+    logger.debug("input_validation: checking %r", input_str)
+
     if not input_str:
         msg = "Invalid input"
         raise ValueError(msg)
+
     dot_count = input_str.count(".")
     comma_count = input_str.count(",")
 
     if comma_count > 0:
+        logger.debug("input_validation: comma found in %r", input_str)
         msg = "Invalid input"
         raise ValueError(msg)
 
     if not all(c.isdigit() or c == "." for c in input_str):
+        logger.debug("input_validation: non-digit character in %r", input_str)
         msg = "Invalid input"
         raise ValueError(msg)
 
     if dot_count > 1:
+        logger.debug("input_validation: %d decimal points in %r", dot_count, input_str)
         msg = "Invalid input"
         raise ValueError(msg)
 
+    logger.debug("input_validation: %r OK", input_str)
     return True
 
 
@@ -151,23 +176,33 @@ def length_validation(length_str: str) -> int:
         ValueError: If input is not a valid integer
         SystemExit: If length is too large
     """
+    logger.debug("length_validation: checking %r", length_str)
+
     if not re.match(r"^-?[0-9]+$", length_str):
+        logger.debug("length_validation: %r is not an integer", length_str)
         msg = "Invalid input"
         raise ValueError(msg)
 
     length = int(length_str)
 
     if length <= 0:
+        logger.debug(
+            "length_validation: %d <= 0, returning default %d", length, DEFAULT_LENGTH
+        )
         return DEFAULT_LENGTH
+
     if length > MAX_LENGTH:
+        logger.warning("length_validation: %d exceeds maximum %d", length, MAX_LENGTH)
         msg = "too big"
         sys.exit(msg)  # This exits the program
 
+    logger.debug("length_validation: %d OK", length)
     return length
 
 
 def calculate_pi(length: int) -> str:
     """Return pi digits from a verified source."""
+    logger.debug("calculate_pi: requesting %d decimal digit(s)", length)
     # Verified digits of π from a trusted source
     pi_digits = (
         "141592653589793238462643383279502884197169399375105820974944592307816406286"
@@ -195,7 +230,173 @@ def calculate_pi(length: int) -> str:
         raise TooManyDigitsError(length, len(digits))
 
     # Return "3." + digits
-    return f"3.{digits}"
+    result = f"3.{digits}"
+    logger.debug("calculate_pi: returning %r…", result[:14])
+    return result
+
+
+# ---------------------------------------------------------------------------
+# Mathematical constants - verified high-precision digit strings
+# ---------------------------------------------------------------------------
+
+# Maximum number of digits available for each non-π constant
+MAX_CONSTANT_LENGTH = 500
+
+# Verified decimal digits (after the integer part and decimal point) for each
+# supported mathematical constant.  Sources: OEIS A001113 (e), A001622 (φ),
+# A002193 (√2).
+_CONSTANT_DIGIT_STRINGS: dict[str, str] = {
+    "pi": (
+        "141592653589793238462643383279502884197169399375105820974944592307816406286"
+        "208998628034825342117067982148086513282306647093844609550582231725359408128"
+        "481117450284102701938521105559644622948954930381964428810975665933446128475"
+        "648233786783165271201909145648566923460348610454326648213393607260249141273"
+        "724587006606315588174881520920962829254091715364367892590360011330530548820"
+        "466521384146951941511609433057270365759591953092186117381932611793105118548"
+        "074462379962749567351885752724891227938183011949129833673362440656643"
+    ),
+    # e = 2.71828… (OEIS A001113)
+    "e": (
+        "71828182845904523536028747135266249775724709369995"
+        "95749669676277240766303535475945713821785251664274"
+        "27466391932003059921817413596629043572900334295260"
+        "59563073813232862794349076323382988075319525101901"
+        "15738341879307021540891499348841675092447614606680"
+        "82264800168477411853742345442437107539077744992069"
+        "55170276183860626133138458300075204493382656029760"
+        "67371132007093287091274437470472306969772093101416"
+        "92836819025515108657463772111252389784425056953696"
+        "77078544996996794686445490598793163688923009879312"
+    ),
+    # φ = 1.61803… (OEIS A001622)
+    "phi": (
+        "61803398874989484820458683436563811772030917980576"
+        "28621354486227052604628189024497072072041893911374"
+        "84754088075386891752126633862223536931793180060715"
+        "60791243189776704376718038552847207897028684278325"
+        "23905430285673960400617854062296730597638073640786"
+        "80917173144627838350073548994081639751941814101989"
+        "26527384088034049098793280793052263870384985490299"
+        "62924420438492428760547231098498621166130572678655"
+        "78671005507209492905578064067901989451867527979441"
+        "88782782898249522765424340088432036624084066985164"
+    ),
+    # √2 = 1.41421… (OEIS A002193)
+    "sqrt2": (
+        "41421356237309504880168872420969807856967187537694"
+        "81228662789068955957049048445132481117450284102701"
+        "93852110555964462294895493038196442881097566593344"
+        "61284756482337867831652712019091456485669234603486"
+        "10454326648213393607260249141273724587006606315588"
+        "17488152092096282925409171536436789259036001133053"
+        "05488204665213841469519415116094330572703657595919"
+        "53092186117381932611793105118548074462379962749567"
+        "35188575272489122793818301194912983367336244065664"
+        "30860213949463952247371907021798609437027705392171"
+    ),
+}
+
+# Metadata for each supported mathematical constant.
+MATHEMATICAL_CONSTANTS: dict[str, dict[str, str]] = {
+    "pi": {
+        "symbol": "π",
+        "name": "Pi",
+        "integer_part": "3",
+        "also_known_as": "Archimedes constant, Ludolph's number",
+        "description": "The ratio of a circle's circumference to its diameter",
+        "history": (
+            "Known since antiquity. Archimedes (~250 BCE) bounded it between 223/71 "
+            "and 22/7. The symbol π was first used by William Jones in 1706 and "
+            "popularised by Leonhard Euler."
+        ),
+    },
+    "e": {
+        "symbol": "e",
+        "name": "Euler's number",
+        "integer_part": "2",
+        "also_known_as": "Napier's constant",
+        "description": (
+            "The base of the natural logarithm; lim(1 + 1/n)^n as n -> infinity"
+        ),
+        "history": (
+            "First described by Jacob Bernoulli (1683) while studying compound "
+            "interest. Named 'e' by Leonhard Euler in 1731 and proven irrational "
+            "by Euler in 1737."
+        ),
+    },
+    "phi": {
+        "symbol": "φ",
+        "name": "Golden ratio",
+        "integer_part": "1",
+        "also_known_as": "Divine proportion, golden mean, golden section",
+        "description": (
+            "The ratio a/b such that (a+b)/a = a/b; positive root of x^2 - x - 1 = 0"
+        ),
+        "history": (
+            "Known to ancient Greeks. Described in Euclid's Elements (~300 BCE). "
+            "Appears in art, architecture, and nature. Called 'phi' (φ) after the "
+            "Greek sculptor Phidias."
+        ),
+    },
+    "sqrt2": {
+        "symbol": "√2",
+        "name": "Square root of 2",
+        "integer_part": "1",
+        "also_known_as": "Pythagoras' constant",
+        "description": (
+            "The positive real solution of x^2 = 2; the diagonal of the unit square"
+        ),
+        "history": (
+            "The first number proven irrational. The Pythagoreans (~500 BCE) "
+            "discovered that √2 cannot be expressed as a ratio of integers, "
+            "which caused a major crisis in ancient mathematics."
+        ),
+    },
+}
+
+
+def calculate_constant(name: str, length: int) -> str:
+    """Return verified digits of a mathematical constant to the requested length.
+
+    Args:
+        name: Constant identifier - one of ``"pi"``, ``"e"``, ``"phi"``,
+            ``"sqrt2"``.
+        length: Number of decimal places to return (not counting the integer part).
+
+    Returns:
+        String of the form ``"<integer>.<decimals>"``.
+
+    Raises:
+        ValueError: If *name* is unknown, or *length* is negative.
+        TooManyDigitsError: If more digits are requested than are available.
+    """
+    logger.debug("calculate_constant: name=%r length=%d", name, length)
+
+    if name not in MATHEMATICAL_CONSTANTS:
+        known = ", ".join(MATHEMATICAL_CONSTANTS)
+        msg = f"Unknown constant '{name}'. Choose from: {known}"
+        raise ValueError(msg)
+
+    if name == "pi":
+        return calculate_pi(length)
+
+    meta = MATHEMATICAL_CONSTANTS[name]
+    digits_str = _CONSTANT_DIGIT_STRINGS[name]
+
+    if length < 0:
+        msg = "Length cannot be negative"
+        raise ValueError(msg)
+
+    if length == 0:
+        length = DEFAULT_LENGTH
+
+    available = len(digits_str)
+    if length > available:
+        raise TooManyDigitsError(length, available)
+
+    result = f"{meta['integer_part']}.{digits_str[:length]}"
+    logger.debug("calculate_constant: returning %r…", result[:14])
+    return result
 
 
 def format_pi_with_spaces(pi_str: str) -> str:
@@ -256,21 +457,33 @@ def color_your_pi(
     return error_count
 
 
-def print_results(
+def print_results(  # noqa: PLR0913
     *,
     user_pi: str,
     calculated_pi: str,
     decimals: int,
     verbose: bool = False,
     colorblind_mode: bool = False,
+    symbol: str = "π",
+    constant_name: str = "Pi",
 ) -> None:
-    """Print the results of comparing user's pi with calculated pi."""
-    # Format pi with spaces for better readability
+    """Print the results of comparing user's input with a calculated constant.
+
+    Args:
+        user_pi: The user's input string.
+        calculated_pi: The correct value of the constant.
+        decimals: Number of decimal places being tested.
+        verbose: Whether to show verbose output.
+        colorblind_mode: Whether to use colorblind-friendly highlighting.
+        symbol: Unicode symbol for the constant (e.g. ``"π"``, ``"e"``, ``"φ"``).
+        constant_name: Human-readable name of the constant (e.g. ``"Pi"``).
+    """
+    # Format constant with spaces for better readability
     formatted_pi = format_pi_with_spaces(calculated_pi)
 
     if verbose:
-        print(f"π with {decimals} decimals:\t{formatted_pi}")
-        print(f"Your version of π:\t{user_pi}")
+        print(f"{symbol} with {decimals} decimals:\t{formatted_pi}")
+        print(f"Your version of {symbol}:\t{user_pi}")
 
     color_your_pi(
         input_pi=user_pi,
@@ -284,7 +497,9 @@ def print_results(
             if decimals < PERFECT_SCORE_THRESHOLD:
                 print("Well done.")
             else:
-                print("Perfect!")
+                print(
+                    f"Perfect! You know {decimals} decimal places of {constant_name}!"
+                )
         else:
             print("Match")
     elif verbose:
@@ -294,13 +509,49 @@ def print_results(
 
 
 def handle_easter_egg(input_str: str) -> bool:
-    """Handle easter egg inputs like 'Archimedes' or 'pi'."""
-    if input_str in ["Archimedes", "pi", "PI"]:
-        print("π is also called Archimedes constant and is commonly defined as")
-        print("the ratio of a circles circumference C to its diameter d:")
-        print("π = C / d")
-        return True
-    return False
+    """Handle easter egg inputs - display info about a mathematical constant.
+
+    Recognised triggers: ``"Archimedes"``, ``"pi"``, ``"PI"``, ``"e"``,
+    ``"euler"``, ``"phi"``, ``"golden"``, ``"sqrt2"``, ``"pythagoras"``.
+
+    Args:
+        input_str: The raw input provided by the user.
+
+    Returns:
+        ``True`` if an easter egg was triggered, ``False`` otherwise.
+    """
+    key = input_str.lower()
+
+    # Map trigger words to constant keys
+    triggers: dict[str, str] = {
+        "archimedes": "pi",
+        "pi": "pi",
+        "e": "e",
+        "euler": "e",
+        "napier": "e",
+        "phi": "phi",
+        "golden": "phi",
+        "sqrt2": "sqrt2",
+        "pythagoras": "sqrt2",
+        "pythagorean": "sqrt2",
+    }
+
+    constant_key = triggers.get(key)
+    if constant_key is None:
+        return False
+
+    meta = MATHEMATICAL_CONSTANTS[constant_key]
+    symbol = meta["symbol"]
+    name = meta["name"]
+    also = meta["also_known_as"]
+    desc = meta["description"]
+    history = meta["history"]
+
+    print(f"{symbol}  —  {name}")
+    print(f"Also known as: {also}")
+    print(f"Description:   {desc}")
+    print(f"History:       {history}")
+    return True
 
 
 def load_practice_stats() -> dict[str, object]:
@@ -1457,7 +1708,33 @@ def _create_argument_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Configure practice mode settings.",
     )
-    parser.add_argument("YOUR_PI", nargs="?", type=str, help="Your version of π")
+    parser.add_argument(
+        "--constant",
+        choices=list(MATHEMATICAL_CONSTANTS.keys()),
+        default="pi",
+        metavar="CONSTANT",
+        help=(
+            "Mathematical constant to use.\n"
+            "Choices: " + ", ".join(MATHEMATICAL_CONSTANTS.keys()) + "\n"
+            "(default: pi)."
+        ),
+    )
+    parser.add_argument(
+        "--list",
+        action="store_true",
+        help="Show available constants with descriptions and exit.",
+    )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help=(
+            "Enable DEBUG-level logging to stderr.\n"
+            "Equivalent to setting PIGAME_DEBUG=1 in the environment."
+        ),
+    )
+    parser.add_argument(
+        "YOUR_PI", nargs="?", type=str, help="Your version of the constant"
+    )
     return parser
 
 
@@ -1495,25 +1772,28 @@ def _handle_stats_display() -> None:
 
 
 def _handle_pi_calculation(args: argparse.Namespace) -> tuple[int, str]:
-    """Handle the -p option for calculating pi.
+    """Handle the -p option for displaying a mathematical constant.
 
     Args:
         args: Parsed command line arguments.
 
     Returns:
-        Tuple of (length, calculated_pi).
+        Tuple of (length, calculated_constant_string).
     """
     if args.p:
+        constant_key = getattr(args, "constant", "pi")
+        meta = MATHEMATICAL_CONSTANTS[constant_key]
+        symbol = meta["symbol"]
         length = length_validation(args.p)
-        calculated_pi = calculate_pi(length)
-        formatted_pi = format_pi_with_spaces(calculated_pi)
+        calculated = calculate_constant(constant_key, length)
+        formatted = format_pi_with_spaces(calculated)
 
         if args.v:
-            print(f"π with {length} decimals:\t{formatted_pi}")
+            print(f"{symbol} with {length} decimals:\t{formatted}")
         else:
-            print(formatted_pi)
+            print(formatted)
 
-        return length, calculated_pi
+        return length, calculated
 
     return DEFAULT_LENGTH, ""
 
@@ -1522,7 +1802,7 @@ def _handle_user_pi_input(
     args: argparse.Namespace,
     length: int,
 ) -> None:
-    """Handle user's pi input and display results.
+    """Handle user's constant input and display results.
 
     Args:
         args: Parsed command line arguments.
@@ -1536,27 +1816,34 @@ def _handle_user_pi_input(
     try:
         input_validation(args.YOUR_PI)
     except ValueError:
-        logger.exception("pigame error: Invalid input")
+        logger.exception("Invalid input: %r", args.YOUR_PI)
         sys.exit(1)
 
-    # Calculate pi based on user input length or -p option
+    constant_key = getattr(args, "constant", "pi")
+    meta = MATHEMATICAL_CONSTANTS[constant_key]
+    symbol = meta["symbol"]
+    name = meta["name"]
+
+    # Calculate constant based on user input length or -p option
     if not args.p:
         decimals = (
             len(args.YOUR_PI) - 2
             if len(args.YOUR_PI) >= MIN_DIGITS_WITH_POINT
             else len(args.YOUR_PI)
         )
-        calculated_pi = calculate_pi(decimals)
+        calculated = calculate_constant(constant_key, decimals)
     else:
         decimals = length
-        calculated_pi = calculate_pi(decimals)
+        calculated = calculate_constant(constant_key, decimals)
 
     print_results(
         user_pi=args.YOUR_PI,
-        calculated_pi=calculated_pi,
+        calculated_pi=calculated,
         decimals=decimals,
         verbose=args.v,
         colorblind_mode=args.c,
+        symbol=symbol,
+        constant_name=name,
     )
 
 
@@ -1573,9 +1860,25 @@ def main() -> None:
         logger.exception("Argument parsing failed")
         usage(1)
 
+    # Activate debug logging as early as possible (PIGAME_DEBUG env-var is
+    # already handled at import time; this covers the --debug CLI flag).
+    if getattr(args, "debug", False):
+        logger.setLevel(logging.DEBUG)
+        logger.debug("debug logging enabled via --debug flag")
+
     # Handle version display
     if args.V:
         print(f"version: {VERSION}")
+        sys.exit(0)
+
+    # Handle --list: show all available constants
+    if getattr(args, "list", False):
+        print("Available mathematical constants:\n")
+        for key, meta in MATHEMATICAL_CONSTANTS.items():
+            max_len = MAX_LENGTH if key == "pi" else MAX_CONSTANT_LENGTH
+            print(f"  {meta['symbol']:3s}  {meta['name']:20s}  --constant {key}")
+            print(f"       {meta['description']}")
+            print(f"       Up to {max_len} decimal places available.\n")
         sys.exit(0)
 
     # Handle configuration
