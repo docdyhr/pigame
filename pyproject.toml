@@ -21,9 +21,12 @@ exclude = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = [
-    "D",     # Ignore documentation in tests
-    "S101",  # Use of assert in tests is fine
-    "S603",  # Allow subprocess in tests
+    "ANN",     # No type annotations required in tests
+    "D",       # Ignore documentation in tests
+    "S101",    # Use of assert in tests is fine
+    "S603",    # Allow subprocess in tests
+    "ERA001",  # Section divider comments are not commented-out code
+    "PLR2004", # Magic values are fine in test assertions
 ]
 
 [tool.ruff.lint.pydocstyle]
