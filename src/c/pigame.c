@@ -8,56 +8,116 @@
  * Date: April 2024
  */
 
+#include <ctype.h>
+#include <stdbool.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-#include <stdbool.h>
 #include <unistd.h>
 
 #define DEFAULT_LENGTH 15
 #define MAX_LENGTH     5001
 
-// Read version from file or use default
-char *get_version()
+/* ---------------------------------------------------------------------------
+ * Structured logging
+ * -------------------------------------------------------------------------*/
+
+typedef enum {
+	LOG_DEBUG  = 0,
+	LOG_INFO   = 1,
+	LOG_WARN   = 2,
+	LOG_ERROR  = 3,
+	LOG_SILENT = 4
+} PigameLogLevel;
+
+/* Default: only warnings and errors are shown. */
+static PigameLogLevel g_log_level = LOG_WARN;
+
+/*
+ * pigame_log - emit a log line to stderr when *level* >= *g_log_level*.
+ *
+ * Format: [LEVEL] pigame: <message>\n
+ */
+static void pigame_log(PigameLogLevel level, const char *fmt, ...)
+{
+	if (level < g_log_level)
+		return;
+
+	static const char *level_names[] = {"DEBUG", "INFO", "WARN", "ERROR"};
+	const char *label = (level <= LOG_ERROR) ? level_names[level] : "UNKNOWN";
+
+	fprintf(stderr, "[%s] pigame: ", label);
+
+	va_list args;
+	va_start(args, fmt);
+	vfprintf(stderr, fmt, args);
+	va_end(args);
+
+	fputc('\n', stderr);
+}
+
+/* Convenience macros */
+#define LOG_D(...) pigame_log(LOG_DEBUG, __VA_ARGS__)
+#define LOG_I(...) pigame_log(LOG_INFO,  __VA_ARGS__)
+#define LOG_W(...) pigame_log(LOG_WARN,  __VA_ARGS__)
+#define LOG_E(...) pigame_log(LOG_ERROR, __VA_ARGS__)
+
+/* ---------------------------------------------------------------------------
+ * Version
+ * -------------------------------------------------------------------------*/
+
+/* Read version from file or fall back to a hardcoded default. */
+char *get_version(void)
 {
 	static char version[16];
 	FILE *fp;
 	char version_file[256];
-	char *script_dir;
+	const char *script_dir;
 
-	// Try to get directory from environment variable set by the main script
+	/*
+	 * SCRIPT_DIR is set by the pigame wrapper script so the binary can
+	 * locate src/VERSION regardless of the working directory.
+	 */
 	script_dir = getenv("SCRIPT_DIR");
-	
+
 	if (script_dir) {
-		// Use the script directory environment variable
-		snprintf(version_file, sizeof(version_file), "%s/src/VERSION", script_dir);
+		snprintf(version_file, sizeof(version_file),
+			 "%s/src/VERSION", script_dir);
 	} else {
-		// Fallback to relative path (current directory)
 		snprintf(version_file, sizeof(version_file), "../VERSION");
 	}
-	
+
+	LOG_D("looking for VERSION file at '%s'", version_file);
+
 	fp = fopen(version_file, "r");
 	if (fp) {
 		if (fgets(version, sizeof(version), fp)) {
-			// Remove newline if present
 			size_t len = strlen(version);
-			if (len > 0 && version[len - 1] == '\n') {
+			if (len > 0 && version[len - 1] == '\n')
 				version[len - 1] = '\0';
-			}
+			LOG_D("version = %s", version);
 		} else {
-			strcpy(version, "1.9.7");
+			LOG_W("VERSION file empty, using fallback");
+			strcpy(version, "1.9.14");
 		}
 		fclose(fp);
 	} else {
-		strcpy(version, "1.9.7");
+		LOG_W("cannot open VERSION file '%s', using fallback", version_file);
+		strcpy(version, "1.9.14");
 	}
+
 	return version;
 }
 
+/* ---------------------------------------------------------------------------
+ * Usage
+ * -------------------------------------------------------------------------*/
+
 void usage(char *program_name)
 {
-	fprintf(stderr, "Usage:\t%s [-v] [-p LENGTH] [-V] [-c] YOUR_PI\n",
+	fprintf(stderr,
+		"Usage:\t%s [-v] [-p LENGTH] [-V] [-c] [-d] YOUR_PI\n",
 		program_name);
 	fprintf(stderr, "\tEvaluate your version of π (3.141.. )\n");
 	fprintf(stderr, "\t-v          Increase verbosity.\n");
@@ -66,25 +126,33 @@ void usage(char *program_name)
 	fprintf(stderr, "\t-V          Version.\n");
 	fprintf(stderr,
 		"\t-c          Color-blind mode (use underscores instead of color).\n");
+	fprintf(stderr, "\t-d          Enable debug logging to stderr.\n");
 	exit(1);
 }
 
 void usage_stdout(char *program_name)
 {
-	printf("Usage:\t%s [-v] [-p LENGTH] [-V] [-c] YOUR_PI\n", program_name);
+	printf("Usage:\t%s [-v] [-p LENGTH] [-V] [-c] [-d] YOUR_PI\n",
+	       program_name);
 	printf("\tEvaluate your version of π (3.141.. )\n");
 	printf("\t-v          Increase verbosity.\n");
 	printf("\t-p LENGTH   Calculate and show π with LENGTH number of decimals.\n");
 	printf("\t-V          Version.\n");
 	printf("\t-c          Color-blind mode (use underscores instead of color).\n");
+	printf("\t-d          Enable debug logging to stderr.\n");
 	exit(0);
 }
+
+/* ---------------------------------------------------------------------------
+ * Validation helpers
+ * -------------------------------------------------------------------------*/
 
 bool input_validation(const char *input)
 {
 	int dot_count = 0;
 
 	if (!input || strlen(input) == 0) {
+		LOG_D("input_validation: empty or NULL input");
 		return false;
 	}
 
@@ -92,10 +160,19 @@ bool input_validation(const char *input)
 		if (input[i] == '.') {
 			dot_count++;
 		} else if (!isdigit(input[i])) {
+			LOG_D("input_validation: non-digit character '%c' at position %d",
+			      input[i], i);
 			return false;
 		}
 	}
-	return dot_count <= 1;
+
+	if (dot_count > 1) {
+		LOG_D("input_validation: %d decimal points found (max 1)", dot_count);
+		return false;
+	}
+
+	LOG_D("input_validation: '%s' OK", input);
+	return true;
 }
 
 int length_validation(const char *input)
@@ -104,17 +181,21 @@ int length_validation(const char *input)
 	long value = strtol(input, &endptr, 10);
 
 	if (*endptr != '\0' || value <= 0 || value > MAX_LENGTH) {
-		fprintf(stderr, "Invalid input\n");
+		LOG_E("length_validation: invalid length '%s' (must be 1..%d)",
+		      input, MAX_LENGTH);
 		return -1;
 	}
 
+	LOG_D("length_validation: %ld OK", value);
 	return (int)value;
 }
 
-// No longer needed - we use verified digits instead of calculation
+/* ---------------------------------------------------------------------------
+ * Pi digits and calculation
+ * -------------------------------------------------------------------------*/
 
-// Verified digits of π from a trusted source
-const char *PI_DIGITS =
+/* Verified digits of π from a trusted source (OEIS A000796). */
+static const char *PI_DIGITS =
 	"141592653589793238462643383279502884197169399375105820974944592307816406286"
 	"208998628034825342117067982148086513282306647093844609550582231725359408128"
 	"481117450284102701938521105559644622948954930381964428810975665933446128475"
@@ -125,114 +206,132 @@ const char *PI_DIGITS =
 
 char *calc_pi(int length)
 {
-	// For any length, use the verified digits
-	char *result = (char *)malloc(length + 3); // "3." + digits + '\0'
+	LOG_D("calc_pi: requesting %d decimal digits", length);
+
+	/* Allocate "3." + digits + NUL */
+	char *result = (char *)malloc((size_t)length + 3);
 	if (!result) {
-		fprintf(stderr, "Memory allocation error\n");
+		LOG_E("calc_pi: memory allocation failed for length %d", length);
 		exit(1);
 	}
 
-	// Start with "3."
 	strcpy(result, "3.");
+	strncat(result, PI_DIGITS, (size_t)length);
+	result[length + 2] = '\0';
 
-	// Copy requested number of digits
-	strncat(result, PI_DIGITS, length);
-	result[length + 2] = '\0'; // Ensure proper termination
-
+	LOG_D("calc_pi: result = '%.*s...'", length > 10 ? 12 : length + 2,
+	      result);
 	return result;
 }
 
-// Format PI with spaces for better readability
+/* ---------------------------------------------------------------------------
+ * Formatting
+ * -------------------------------------------------------------------------*/
+
+/* Format a pi/constant string with a space after every 5 decimal digits. */
 char *format_pi_with_spaces(const char *pi_str)
 {
-	int len = strlen(pi_str);
-	// Allocate memory for the formatted string (original length + spaces)
-	// We add about 20% more space for the spaces
-	char *result = (char *)malloc(len * 1.2 + 1);
+	int len = (int)strlen(pi_str);
+	/* Up to one space every 5 digits: allocate ~120% of original. */
+	char *result = (char *)malloc((size_t)(len * 1.2) + 2);
 	if (!result) {
-		fprintf(stderr, "Memory allocation error\n");
+		LOG_E("format_pi_with_spaces: memory allocation failed");
 		exit(1);
 	}
 
-	// Copy the "3." part
+	/* Copy the integer part and decimal point (first two chars, e.g. "3."). */
 	result[0] = pi_str[0];
 	result[1] = pi_str[1];
 
-	int j = 2; // index for the result string
-
-	// Add the rest with spaces every 5 digits
+	int j = 2;
 	for (int i = 2; i < len; i++) {
-		// Add space after every 5 digits (after 3.)
-		if (i > 2 && (i - 2) % 5 == 0) {
+		if (i > 2 && (i - 2) % 5 == 0)
 			result[j++] = ' ';
-		}
 		result[j++] = pi_str[i];
 	}
 
 	result[j] = '\0';
+	LOG_D("format_pi_with_spaces: '%s' -> '%s'", pi_str, result);
 	return result;
 }
 
-// Color the differences between strings
+/* ---------------------------------------------------------------------------
+ * Colorised comparison
+ * -------------------------------------------------------------------------*/
+
 void color_your_pi(const char *your_pi,
 		   const char *pi,
 		   bool verbose,
 		   bool colorblind_mode)
 {
 	int error_count = 0;
+	size_t pi_len   = strlen(pi);
 
-	size_t pi_len = strlen(pi);
+	LOG_D("color_your_pi: comparing '%s' against reference (%zu digits)",
+	      your_pi, pi_len);
+
 	for (int i = 0; your_pi[i] != '\0'; i++) {
-		// Add space after every 5 digits for better readability (after 3.)
-		if (i > 1 && (i - 2) % 5 == 0) {
+		/* Insert a space after every 5 decimal digits (skip "X."). */
+		if (i > 1 && (i - 2) % 5 == 0)
 			printf(" ");
-		}
 
 		if ((size_t)i < pi_len && your_pi[i] == pi[i]) {
 			printf("%c", your_pi[i]);
 		} else {
 			error_count++;
 			if (colorblind_mode) {
-				printf("\033[4m%c\033[0m",
-				       your_pi[i]); // Underline
+				printf("\033[4m%c\033[0m", your_pi[i]);
 			} else {
-				printf("\033[0;31m%c\033[0m",
-				       your_pi[i]); // Red color
+				printf("\033[0;31m%c\033[0m", your_pi[i]);
 			}
 		}
 	}
 	printf("\n");
 
-	if (verbose) {
+	if (verbose)
 		printf("Number of errors: %d\n", error_count);
-	}
+
+	LOG_D("color_your_pi: %d error(s) found", error_count);
 }
+
+/* ---------------------------------------------------------------------------
+ * main
+ * -------------------------------------------------------------------------*/
 
 int main(int argc, char *argv[])
 {
-	bool verbose = false;
+	bool verbose       = false;
 	bool colorblind_mode = false;
-	int length = DEFAULT_LENGTH;
-	char *your_pi = NULL;
+	int  length        = DEFAULT_LENGTH;
+	char *your_pi      = NULL;
+
+	/*
+	 * Honour PIGAME_DEBUG env-var before option parsing so that debug
+	 * messages emitted during argument processing are visible.
+	 */
+	if (getenv("PIGAME_DEBUG") != NULL)
+		g_log_level = LOG_DEBUG;
 
 	int opt;
-	opterr = 0; // Suppress getopt's own error messages
-	while ((opt = getopt(argc, argv, "vp:Vch")) != -1) {
+	opterr = 0; /* suppress getopt's own error messages */
+	while ((opt = getopt(argc, argv, "vp:Vcdh")) != -1) {
 		switch (opt) {
 		case 'v':
 			verbose = true;
+			LOG_D("verbose mode enabled");
 			break;
-		case 'p':
+
+		case 'p': {
 			length = length_validation(optarg);
 			if (length == -1) {
-				printf("Invalid input\n");
+				fprintf(stderr, "pigame error: Invalid input\n");
 				return 1;
 			}
-			char *pi = calc_pi(length);
+			LOG_D("-p: length = %d", length);
+			char *pi          = calc_pi(length);
 			char *formatted_pi = format_pi_with_spaces(pi);
 			if (verbose) {
-				printf("π with %d decimals:\t%s\n",
-				       length,
+				printf("π with %d decimals:\t%s\n", length,
 				       formatted_pi);
 			} else {
 				printf("%s\n", formatted_pi);
@@ -240,37 +339,55 @@ int main(int argc, char *argv[])
 			free(formatted_pi);
 			free(pi);
 			return 0;
+		}
+
 		case 'V':
 			printf("%s version: %s\n", argv[0], get_version());
 			return 0;
+
 		case 'c':
 			colorblind_mode = true;
+			LOG_D("color-blind mode enabled");
 			break;
+
+		case 'd':
+			g_log_level = LOG_DEBUG;
+			LOG_D("debug logging enabled via -d flag");
+			break;
+
 		case 'h':
 			usage_stdout(argv[0]);
 			break;
+
 		case '?':
-			printf("Invalid input\n");
+			LOG_E("unknown option '-%c'", optopt);
+			fprintf(stderr, "pigame error: Invalid input\n");
 			return 1;
+
 		default:
-			printf("Invalid input\n");
+			LOG_E("unexpected option character");
+			fprintf(stderr, "pigame error: Invalid input\n");
 			return 1;
 		}
 	}
 
 	if (optind < argc) {
 		your_pi = argv[optind];
-		// If argument starts with '-' and is not just '-', treat as input, not option
+		LOG_D("positional argument: '%s'", your_pi);
+
+		/* Reject anything that looks like an unknown flag. */
 		if (your_pi[0] == '-' && strlen(your_pi) > 1 &&
-		    !isdigit(your_pi[1])) {
-			printf("Invalid input\n");
+		    !isdigit((unsigned char)your_pi[1])) {
+			LOG_E("argument '%s' looks like an unknown flag", your_pi);
+			fprintf(stderr, "pigame error: Invalid input\n");
 			return 1;
 		}
 
-		// Easter egg
+		/* Easter egg */
 		if (strcmp(your_pi, "Archimedes") == 0 ||
 		    strcmp(your_pi, "pi") == 0 ||
 		    strcmp(your_pi, "PI") == 0) {
+			LOG_D("easter egg triggered with '%s'", your_pi);
 			printf("π is also called Archimedes constant and is commonly defined as\n");
 			printf("the ratio of a circles circumference C to its diameter d:\n");
 			printf("π = C / d\n");
@@ -278,22 +395,23 @@ int main(int argc, char *argv[])
 		}
 
 		if (!input_validation(your_pi)) {
-			printf("Invalid input\n");
+			LOG_E("input '%s' failed validation", your_pi);
+			fprintf(stderr, "pigame error: Invalid input\n");
 			return 1;
 		}
 
-		// Determine length from your_pi
-		length = strlen(your_pi) - 2; // accounting for "3."
+		/* Derive decimal count from the length of the user's string. */
+		length = (int)strlen(your_pi) - 2; /* subtract "3." */
 		if (length < 1)
 			length = 1;
 
-		char *pi = calc_pi(length);
+		LOG_D("comparing %d decimal digit(s)", length);
+
+		char *pi          = calc_pi(length);
 		char *formatted_pi = format_pi_with_spaces(pi);
 
 		if (verbose) {
-			printf("π with %d decimals:\t%s\n",
-			       length,
-			       formatted_pi);
+			printf("π with %d decimals:\t%s\n", length, formatted_pi);
 			printf("Your version of π:\t");
 			color_your_pi(your_pi, pi, verbose, colorblind_mode);
 
@@ -318,9 +436,10 @@ int main(int argc, char *argv[])
 		}
 
 		free(formatted_pi);
-
 		free(pi);
+
 	} else if (optind == argc && !verbose && length == DEFAULT_LENGTH) {
+		LOG_D("no arguments provided, showing usage");
 		usage_stdout(argv[0]);
 	}
 

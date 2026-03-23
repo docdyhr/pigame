@@ -71,15 +71,15 @@ run_test "Easter egg (pi)" \
 
 # Invalid input tests
 run_test "Invalid input (abc)" \
-    "$PIGAME abc" \
+    "$PIGAME abc 2>&1" \
     "Invalid input"
 
 run_test "Invalid input (3..14)" \
-    "$PIGAME 3..14" \
+    "$PIGAME 3..14 2>&1" \
     "Invalid input"
 
 run_test "Invalid input (-3.14)" \
-    "$PIGAME -3.14" \
+    "$PIGAME -3.14 2>&1" \
     "Invalid input"
 
 # Print summary
