@@ -1,0 +1,25 @@
+# <type>(<optional scope>): <short summary> (72 chars max)
+#
+# Types:
+#   feat     - New feature
+#   fix      - Bug fix
+#   refactor - Code change that is not a feature or fix
+#   perf     - Performance improvement
+#   test     - Adding or improving tests
+#   docs     - Documentation only
+#   chore    - Maintenance, deps, tooling
+#   ci       - CI/CD pipeline changes
+#   build    - Build system changes
+#   style    - Formatting, whitespace (no logic change)
+#
+# Use ! after type (e.g. feat!) or add BREAKING CHANGE: in the body
+# for breaking changes.
+#
+# Body (optional - explain *what* and *why*, 72 chars per line):
+#
+#
+# Footer (optional - issue refs, BREAKING CHANGE):
+# Refs: #123
+# BREAKING CHANGE: <description>
+#
+# Activate with: git config commit.template .gitmessage

@@ -95,16 +95,36 @@ if [ ! -f "$CHANGELOG" ]; then
     exit 1
 fi
 
-# For macOS/Linux compatibility
+# Generate changelog content from conventional commits since last tag.
+echo -e "${YELLOW}Generating changelog from git commits...${RESET}"
+CHANGELOG_CONTENT=$(python3 scripts/generate_changelog.py 2>/dev/null) || true
+if [ -z "$CHANGELOG_CONTENT" ]; then
+    echo -e "${YELLOW}No commit changelog generated, using placeholder${RESET}"
+    CHANGELOG_CONTENT="### Added\n- TBD"
+fi
+
+# Inject changelog content into CHANGELOG.md using Python for cross-platform
+# multi-line string replacement (avoids macOS/Linux sed differences).
+export CHANGELOG_CONTENT NEW_VERSION TODAY CURRENT_VERSION
+python3 - <<'PYEOF'
+import os, re
+
+content = open("CHANGELOG.md").read()
+section = os.environ["CHANGELOG_CONTENT"]
+new_version = os.environ["NEW_VERSION"]
+today = os.environ["TODAY"]
+current_version = os.environ["CURRENT_VERSION"]
+
+replacement = f"## [Unreleased]\n\n{section}\n\n## [{new_version}] - {today}"
+result = re.sub(r"## \[Unreleased\]", replacement, content, count=1)
+open("CHANGELOG.md", "w").write(result)
+PYEOF
+
+# Update the [Unreleased] reference link at the bottom of CHANGELOG.md.
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    echo -e "${YELLOW}Running on macOS, using compatible sed syntax${RESET}"
-    # macOS requires an extension with -i
-    sed -i "" "s/## \[Unreleased\]/## [Unreleased]\n\n### Added\n- TBD\n\n## [$NEW_VERSION] - $TODAY/" CHANGELOG.md
-    sed -i "" "s/\[Unreleased\]: https:\/\/github.com\/docdyhr\/pigame\/compare\/v[0-9][0-9.]*\.\.\.HEAD/[Unreleased]: https:\/\/github.com\/docdyhr\/pigame\/compare\/v$NEW_VERSION...HEAD\n[$NEW_VERSION]: https:\/\/github.com\/docdyhr\/pigame\/compare\/v$CURRENT_VERSION...v$NEW_VERSION/" CHANGELOG.md
+    sed -i "" "s|\[Unreleased\]: https://github.com/docdyhr/pigame/compare/v[0-9][0-9.]*\.\.\.HEAD|\[Unreleased\]: https://github.com/docdyhr/pigame/compare/v$NEW_VERSION...HEAD\n[$NEW_VERSION]: https://github.com/docdyhr/pigame/compare/v$CURRENT_VERSION...v$NEW_VERSION|" CHANGELOG.md
 else
-    # Linux version
-    sed -i "s/## \[Unreleased\]/## [Unreleased]\n\n### Added\n- TBD\n\n## [$NEW_VERSION] - $TODAY/" CHANGELOG.md
-    sed -i "s/\[Unreleased\]: https:\/\/github.com\/docdyhr\/pigame\/compare\/v[0-9][0-9.]*\.\.\.HEAD/[Unreleased]: https:\/\/github.com\/docdyhr\/pigame\/compare\/v$NEW_VERSION...HEAD\n[$NEW_VERSION]: https:\/\/github.com\/docdyhr\/pigame\/compare\/v$CURRENT_VERSION...v$NEW_VERSION/" CHANGELOG.md
+    sed -i "s|\[Unreleased\]: https://github.com/docdyhr/pigame/compare/v[0-9][0-9.]*\.\.\.HEAD|\[Unreleased\]: https://github.com/docdyhr/pigame/compare/v$NEW_VERSION...HEAD\n[$NEW_VERSION]: https://github.com/docdyhr/pigame/compare/v$CURRENT_VERSION...v$NEW_VERSION|" CHANGELOG.md
 fi
 
 echo -e "${GREEN}Version updated to $NEW_VERSION and CHANGELOG.md has been updated.${RESET}"

@@ -144,7 +144,8 @@ if [ "$RUN_COVERAGE" = true ] && [ "$RUN_PYTHON_TESTS" = true ]; then
     mkdir -p htmlcov
 
     # Run pytest with coverage
-    if pytest tests/test_pytest.py -v --cov=src/python --cov-report=term-missing --cov-report=html --cov-report=xml; then
+    if pytest tests/test_pytest.py tests/test_integration.py tests/test_properties.py \
+        -v --cov=src/python --cov-report=term-missing --cov-report=html --cov-report=xml; then
         echo -e "${GREEN}✓ Coverage report generated successfully${NC}"
     else
         echo -e "${YELLOW}⚠ Coverage report generation failed${NC}"
