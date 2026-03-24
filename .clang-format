@@ -1,5 +1,5 @@
 ---
-BasedOnStyle: Linux
+BasedOnStyle: LLVM
 IndentWidth: 4
 ColumnLimit: 80
 AlignAfterOpenBracket: Align
@@ -12,7 +12,7 @@ AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
 BinPackArguments: false
 BinPackParameters: false
-BreakBeforeBraces: Linux
+BreakBeforeBraces: Attach
 IncludeBlocks: Preserve
 KeepEmptyLinesAtTheStartOfBlocks: false
 MaxEmptyLinesToKeep: 1
