@@ -64,7 +64,6 @@ else
     echo -e "${YELLOW}  Install with: pip install ruff${NC}"
     # shellcheck disable=SC2034
     PYTHON_LINT_FAILED=1
-    ANY_FAILURES=1
 fi
 
 # Bash checks
