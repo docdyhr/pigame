@@ -19,4 +19,4 @@ types-setuptools>=80.9.0.20251223
 
 # Development tools
 pre-commit>=4.5.1
-tomli>=2.2.1
+tomli>=2.4.1
