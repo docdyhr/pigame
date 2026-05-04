@@ -93,6 +93,7 @@ jobs:
           python -m pip install -e .
       - name: Build project packages
         run: |
+          source .venv/bin/activate
           make build || echo "Build skipped on $(uname -s)"
           python -m build
           python -m twine check dist/*
