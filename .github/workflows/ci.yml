@@ -142,7 +142,7 @@ jobs:
           chmod +x scripts/run_tests.sh
           ./scripts/run_tests.sh
       - name: Upload coverage report artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-report-${{ matrix.os }}-py${{ matrix.python-version }}
           path: |
@@ -205,7 +205,7 @@ jobs:
           tar -czf dist/pigame-v${{ github.ref_name }}.tar.gz --exclude='.git' --exclude='dist' .
           zip -r dist/pigame-v${{ github.ref_name }}.zip . -x "*.git*" "dist/*"
       - name: Upload release artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-artifacts
           path: dist/
