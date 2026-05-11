@@ -15,7 +15,7 @@ isort>=7.0.0
 mypy>=1.19.1
 pylint>=4.0.4
 ruff>=0.14.13
-types-setuptools>=82.0.0.20260408
+types-setuptools>=82.0.0.20260508
 
 # Development tools
 pre-commit>=4.5.1
