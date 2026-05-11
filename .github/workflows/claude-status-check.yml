@@ -28,6 +28,12 @@
 name: Claude Status Check
 
 on:
+  push:
+    paths:
+      - ".github/workflows/claude-status-check.yml"
+    branches:
+      - main
+
   schedule:
     # Every Monday at 07:00 UTC
     - cron: "0 7 * * 1"
@@ -119,6 +125,7 @@ jobs:
   health-check:
     name: Run Claude health check
     needs: preflight
+    if: github.event_name != 'push'
     runs-on: ubuntu-latest
     outputs:
       overall_health: ${{ steps.parse.outputs.overall_health }}
