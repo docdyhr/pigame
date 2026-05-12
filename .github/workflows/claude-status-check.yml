@@ -50,6 +50,6 @@ jobs:
       pull-requests: read
     secrets: inherit
     with:
-      create_issue: ${{ github.event.inputs.create_issue == 'true' }}
+      create_issue: ${{ fromJSON(github.event.inputs.create_issue || 'false') }}
       max_budget_usd: ${{ github.event.inputs.max_budget_usd || '0.25' }}
       sections: ${{ github.event.inputs.sections || 'all' }}
