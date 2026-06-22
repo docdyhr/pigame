@@ -6,7 +6,7 @@ pytest>=9.1.0
 pytest-cov>=7.1.0
 pytest-benchmark>=5.2.3
 coverage[toml]>=7.14.1
-hypothesis>=6.155.2
+hypothesis>=6.155.7
 
 # Code quality
 black>=26.5.1
