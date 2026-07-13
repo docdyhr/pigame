@@ -14,7 +14,7 @@ flake8>=7.3.0
 isort>=8.0.1
 mypy>=2.1.0
 pylint>=4.0.6
-ruff>=0.15.20
+ruff>=0.15.21
 types-setuptools>=83.0.0.20260706
 
 # Development tools
