@@ -10,6 +10,7 @@ ignore = [
     "D203",  # one-blank-line-before-class
     "D213",  # multi-line-summary-second-line
     "T201",  # allow print statements in CLI
+    "CPY001",  # no per-file copyright headers — LICENSE file covers this
 ]
 exclude = [
     ".git",
