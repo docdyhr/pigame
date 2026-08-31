@@ -12,7 +12,7 @@ hypothesis>=6.165.10
 # Code quality
 black>=26.5.1
 flake8>=7.3.0
-isort>=8.0.1
+isort>=9.0.1
 mypy>=2.3.1
 pylint>=4.0.7
 ruff>=0.16.5
