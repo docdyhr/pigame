@@ -22,7 +22,7 @@ on:
 
 jobs:
   pipeline:
-    uses: docdyhr/.github/.github/workflows/python-ci.yml@v1
+    uses: docdyhr/.github/.github/workflows/python-ci.yml@beb6382fc61e0be9bc92ec8ae2ea43da7f85302f
     with:
       python-version: "3.13"
       apt-deps: "shellcheck clang-format build-essential bc zip"
