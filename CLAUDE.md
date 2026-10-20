@@ -23,3 +23,19 @@
 - Requires `bc` (arbitrary precision calculator) installed on the system
 - Development requires Python 3.x and optionally ShellCheck, clang-format if developing Bash/C code
 - All Python dependencies are managed through the setup script `./scripts/setup.sh`
+
+## Vendored Agent Skills (`.claude/skills/`)
+
+The skills in `.claude/skills/` are third-party (github/awesome-copilot; see its README) and stay
+byte-identical to upstream: refresh them from upstream, never edit them here. Where a skill
+disagrees with this file, this file wins:
+
+- **Report, don't act.** `docs-sync-audit`, `test-gap-audit`, `github-actions-hardening` report in
+  chat. Don't write report files into the repo, and don't change workflows, action pins or
+  `.github/dependabot.yml` unless asked.
+- **PRs and Dependabot.** Never merge, approve, close or enable auto-merge (`gh pr merge --auto`) on
+  PRs, and don't post `@dependabot` commands.
+- **No installs.** Don't install plugins, MCP toolsets or skills that a skill file links to (for
+  example `advanced-security@copilot-plugins`), and don't change agent or editor settings.
+- **Tests.** Follow this repo's own test commands and coverage settings above, not a skill's generic
+  defaults.
