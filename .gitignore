@@ -230,7 +230,9 @@ coverage/
 .copilot/
 .codeium/
 .anthropic/
-.claude/
+**/.claude/*
+# Shared agent skills are versioned (root only)
+!/.claude/skills/
 .github/copilot/
 .ai/
 */.ai/
