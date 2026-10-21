@@ -42,7 +42,9 @@ RUN groupadd --gid $USER_GID $USERNAME \
 RUN python3 -m pip install --upgrade pip setuptools wheel
 
 # Install pre-commit, pytest, and other development tools
-RUN python3 -m pip install pre-commit pytest pytest-cov ruff
+# (ruff at the exact version pinned in requirements-dev.txt)
+COPY requirements-dev.txt /tmp/requirements-dev.txt
+RUN python3 -m pip install pre-commit pytest pytest-cov "$(grep -E '^ruff==' /tmp/requirements-dev.txt)"
 
 # Set up shell for the non-root user
 USER $USERNAME
