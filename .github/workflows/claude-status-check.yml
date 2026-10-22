@@ -3,7 +3,10 @@
 # Thin caller that delegates to the reusable workflow in docdyhr/.github.
 # Replaces the previous ~21 KB inline implementation.
 #
-# Schedule is owned by the cross-repo orchestrator in docdyhr/.github.
+# Runs on demand only: start it from the Actions tab (workflow_dispatch), or it
+# runs when a push to main changes this file (the reusable workflow then skips
+# the health check). Nothing runs it on a schedule: pigame is not in the repo
+# list of the cross-repo maintenance workflow in docdyhr/.github.
 # To upgrade the reusable workflow across all consumers, bump the @v1 ref in
 # docdyhr/.github (re-tag) — this caller automatically picks it up on next run.
 
