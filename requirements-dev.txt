@@ -10,7 +10,7 @@ coverage[toml]>=7.15.4
 hypothesis>=6.170.8
 
 # Code quality
-black>=26.5.1
+black>=26.10.1
 flake8>=7.4.1
 isort>=9.0.2
 mypy>=2.4.0
