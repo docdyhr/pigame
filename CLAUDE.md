@@ -27,8 +27,9 @@
 ## Vendored Agent Skills (`.claude/skills/`)
 
 The skills in `.claude/skills/` are third-party (github/awesome-copilot; see its README) and stay
-byte-identical to upstream: refresh them from upstream, never edit them here. Where a skill
-disagrees with this file, this file wins:
+byte-identical to upstream, except two corrected lines in `dependabot` (see the README): refresh
+them from upstream, never edit them here otherwise. Where a skill disagrees with this file, this
+file wins:
 
 - **Report, don't act.** `docs-sync-audit`, `test-gap-audit`, `github-actions-hardening` report in
   chat. Don't write report files into the repo, and don't change workflows, action pins or
