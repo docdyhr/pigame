@@ -11,7 +11,7 @@ hypothesis>=6.170.8
 
 # Code quality
 black>=26.5.1
-flake8>=7.4.1
+flake8>=7.5.0
 isort>=9.0.2
 mypy>=2.4.0
 pylint>=4.1.3
