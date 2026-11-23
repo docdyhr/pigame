@@ -16,7 +16,7 @@ isort>=9.0.2
 mypy>=2.4.1
 pylint>=4.1.4
 # Pinned exactly: with select = ["ALL"], a new ruff release can enable new rules
-ruff==0.17.5
+ruff==0.17.6
 types-setuptools>=84.2.0.20261104
 
 # Development tools
